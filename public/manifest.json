@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "A Real Time Analysis",
+  "version": "1.1",
+  "description": "Helps users to analyse resume in few seconds",
+  "content_scripts": [
+    {
+      "matches": ["*://*.example.com/*", "*://*.seek.com.au/job/*"],
+      "js": ["assets/content.js"]
+    }
+  ],
+  "permissions": []
+}

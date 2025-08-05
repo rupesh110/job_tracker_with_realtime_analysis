@@ -1,0 +1,18 @@
+#react-extension-popup {
+  position: fixed;
+  top: 50px;
+  right: 20px;
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 10px;
+  z-index: 999999;
+  width: 300px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-radius: 6px;
+  font-family: Arial, sans-serif;
+}
+
+#react-extension-popup button {
+  float: right;
+  cursor: pointer;
+}
