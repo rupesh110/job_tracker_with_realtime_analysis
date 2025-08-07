@@ -1,6 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import MainController from "./MainController.jsx";
+import MainController from "./display/MainController.jsx";
 
 const container = document.createElement("div");
 container.id = "react-extension-container";

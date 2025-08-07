@@ -1,18 +1,75 @@
-#react-extension-popup {
+#react-extension-popup.popup-container {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 350px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  font-family: "Segoe UI", sans-serif;
   position: fixed;
-  top: 50px;
-  right: 20px;
-  background-color: white;
-  border: 1px solid #ccc;
-  padding: 10px;
-  z-index: 999999;
-  width: 300px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  border-radius: 6px;
-  font-family: Arial, sans-serif;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -20%);
+  z-index: 10000;
 }
 
-#react-extension-popup button {
-  float: right;
+.popup-title {
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  text-align: center;
+  color: #333;
+}
+
+.form-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  margin-bottom: 6px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.form-group input[type="text"],
+.form-group input[type="file"] {
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.submit-btn {
+  background-color: #1e88e5;
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 1rem;
   cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #1565c0;
+}
+
+.close-btn {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #888;
+}
+
+.close-btn:hover {
+  color: #000;
 }

@@ -13,6 +13,22 @@
 }
 
 #react-extension-popup button {
-  float: right;
   cursor: pointer;
+  background-color: #f1f1f1;
+  border: 1px solid #bbb;
+  border-radius: 4px;
+  padding: 6px 12px;
+  margin-left: 8px;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+}
+
+#react-extension-popup button:hover {
+  background-color: #e6e6e6;
+}
+
+#react-button-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 10px;
 }

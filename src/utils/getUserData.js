@@ -1,7 +1,8 @@
-const MY_EXTENSION_KEY = "REALTIMEANLYSISEXTESNSION";
+const MY_EXTENSION_KEY = "REALTIMEANALYSISEXTENSION";
 
 const DEFAULT_USER_DATA = {
   resume: "",
+  resumeName: "",
   IsResume: false,
   GeminiAPIKey: "",
   IsAPIKey: false

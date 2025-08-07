@@ -1,8 +1,26 @@
-export async function extractLinkedin() {
-  // simulate async work (scraping or API call)
-  return new Promise(resolve => {
-    setTimeout(() => {
-      resolve("Linkedin");
-    }, 2000);
-  });
+
+export async function extractLinkedInData() {
+  const titleEl = document.querySelector('.job-details-jobs-unified-top-card__job-title');
+  const companyAnchor = document.querySelector('.job-details-jobs-unified-top-card__company-name a');
+  const companySpanFallback = document.querySelector('.job-details-jobs-unified-top-card__company-name');
+  const companyFallbackSpan = document.querySelector('.job-details-jobs-unified-top-card__primary-description span span');
+  const locationEl = document.querySelector('.job-details-jobs-unified-top-card__tertiary-description-container span.tvm__text--low-emphasis');
+  const fullText = document.body.innerText.toLowerCase();
+
+
+  return {
+    title: titleEl?.innerText?.trim() || 'N/A',
+    company:
+      companyAnchor?.innerText?.trim() ||
+      companyFallbackSpan?.innerText?.trim() ||
+      companySpanFallback?.innerText?.trim() ||
+      'N/A',
+    location: locationEl?.innerText?.trim() || 'N/A',
+  };
 }
+
+
+
+
+
+

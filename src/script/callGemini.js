@@ -1,19 +1,49 @@
-const GEMINI_API_KEY = "AIzaSyD2Trat6hWCKwRmrE0xTuBhvK5P37OrJns"; 
-
 export async function callGemini(jobText) {
+  const STORAGE_KEY = "REALTIMEANALYSISEXTENSION";
+  const userDataRaw = localStorage.getItem(STORAGE_KEY);
+  const userData = userDataRaw ? JSON.parse(userDataRaw) : {};
+  const GEMINI_API_KEY = userData.GeminiAPIKey;
+
+  console.log(GEMINI_API_KEY)
+  if (!GEMINI_API_KEY) {
+    throw new Error("Gemini API key not found. Please add it in the settings.");
+  }
+
+  const resume = userData.resume || "";
+
   const prompt = `
-You are an assistant that reviews job posts. Analyze the job description below and return a JSON object with the following fields:
+    You are a strict resume analysis tool. Your task is to compare the resume and the job description by extracting and comparing key skills only.
 
-- "summary": A short summary of the job in plain English in 100 words.
-- "key_requirements": A list of 3–5 major requirements or responsibilities.
-- "is_junior_friendly": true or false — based on whether the job suits a junior developer.
-- "reasoning": Why you think it's junior friendly or not.
+    Here’s what you must do:
+    1. Extract all **technical** and **soft skills** from the resume.
+    2. Extract all **required skills** from the job description.
+    3. Normalize common aliases.
+    4. Match skills using **case-insensitive**.
+    5. DO NOT invent skills that are not mentioned.
+    6. Get the domain of company or which team yu are supposed to work with
 
-Here is the job description:
+    Then, output this as a valid JSON object:
+
+    {
+      "job_skills": [...], top 5 skills
+      "missing_skills": [...], top 5 skills
+      "match_percentage": number,  // percent of job_skills found in resume_skills,
+      "domain: 
+    }
+
+  --- RESUME TEXT START ---
+  ${resume}
+--- RESUME TEXT END --
+
+--- JOB DESCRIPTION START ---
+
 ${jobText}
 
-Respond only with a valid JSON object.
-`;
+--- JOB DESCRIPTION END ---
+
+
+Respond only with a JSON object.
+  `;
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
@@ -31,14 +61,12 @@ Respond only with a valid JSON object.
   const data = await response.json();
 
   const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-  if (!rawText) {
-    throw new Error("No response from Gemini.");
-  }
+  //console.log(data)
+  if (!rawText) throw new Error("No response from Gemini.");
 
   try {
-    const cleanedText = rawText.replace(/^```json\s*|\s*```$/g, "");
-    return JSON.parse(cleanedText); // ✅ Return only the JSON result
+    const cleaned = rawText.replace(/^```json\s*|\s*```$/g, "");
+    return JSON.parse(cleaned);
   } catch (err) {
     console.error("❌ Failed to parse Gemini JSON:", rawText);
     throw new Error("Gemini returned invalid JSON");

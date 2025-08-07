@@ -5,7 +5,7 @@
   "description": "Helps users to analyse resume in few seconds",
   "content_scripts": [
     {
-      "matches": ["*://*.example.com/*", "*://*.seek.com.au/job/*"],
+      "matches": ["*://*.example.com/*", "*://*.seek.com.au/job/*", "*://*.linkedin.com/jobs/*"],
       "js": ["assets/content.js"]
     }
   ],
