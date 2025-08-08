@@ -1,3 +1,4 @@
+import {callGemini} from "./callGemini.js"
 
 export async function extractLinkedInData() {
   const titleEl = document.querySelector('.job-details-jobs-unified-top-card__job-title');
@@ -5,8 +6,10 @@ export async function extractLinkedInData() {
   const companySpanFallback = document.querySelector('.job-details-jobs-unified-top-card__company-name');
   const companyFallbackSpan = document.querySelector('.job-details-jobs-unified-top-card__primary-description span span');
   const locationEl = document.querySelector('.job-details-jobs-unified-top-card__tertiary-description-container span.tvm__text--low-emphasis');
+ 
   const fullText = document.body.innerText.toLowerCase();
-
+  const geminiResponse = await callGemini(fullText);
+  console.log(geminiResponse);
 
   return {
     title: titleEl?.innerText?.trim() || 'N/A',
@@ -16,6 +19,8 @@ export async function extractLinkedInData() {
       companySpanFallback?.innerText?.trim() ||
       'N/A',
     location: locationEl?.innerText?.trim() || 'N/A',
+      gemini: geminiResponse
+
   };
 }
 

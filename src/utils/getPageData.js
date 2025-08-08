@@ -11,7 +11,7 @@ export async function getPageData() {
   }
 
  if (url.includes("linkedin.com/jobs/")) {
-  await new Promise(resolve => setTimeout(resolve, 4000)); // wait 3 seconds
+  await new Promise(resolve => setTimeout(resolve, 3000)); // wait 3 seconds
   const data = await extractLinkedInData();
   console.log("Linkedin datta:", data)
   return data;

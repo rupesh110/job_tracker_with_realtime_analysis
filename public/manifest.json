@@ -9,5 +9,5 @@
       "js": ["assets/content.js"]
     }
   ],
-  "permissions": []
+  "permissions": ["activeTab"]
 }

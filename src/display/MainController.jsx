@@ -11,6 +11,7 @@ export default function MainController() {
   const [showUserData, setShowUserData] = useState(false);
 
   async function loadData() {
+    setPageData(null)
     const userExists = await isUserDataAvailable();
     setUserDataExists(userExists);
 
@@ -20,6 +21,7 @@ export default function MainController() {
       });
       setPageData(scrapedData);
     }
+    setVisible(true);
   }
 
   useEffect(() => {
@@ -33,7 +35,9 @@ export default function MainController() {
       if (window.location.href !== currentUrl) {
         currentUrl = window.location.href;
         console.log("URL changed, refetching data...");
+        
         setVisible(false); 
+        
         loadData();
       }
     }, 1000); // Check every 1 second
