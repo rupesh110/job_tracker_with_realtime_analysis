@@ -3,15 +3,17 @@ import App from "./App.jsx";
 import UsersData from "./UsersData.jsx";
 import { getPageData } from "../utils/getPageData.js";
 import { isUserDataAvailable } from "../utils/getUserData.js";
+import { saveJobDataSpreadsheet } from "../integrate/postspreadsheet.js";
 
 export default function MainController() {
   const [userDataExists, setUserDataExists] = useState(null);
   const [pageData, setPageData] = useState(null);
   const [visible, setVisible] = useState(true);
   const [showUserData, setShowUserData] = useState(false);
+  const [saveData, setSaveData] = useState(false);
 
   async function loadData() {
-    setPageData(null)
+    setPageData(null);
     const userExists = await isUserDataAvailable();
     setUserDataExists(userExists);
 
@@ -21,26 +23,31 @@ export default function MainController() {
       });
       setPageData(scrapedData);
     }
+
     setVisible(true);
   }
 
+  // Watch for saveData changes
   useEffect(() => {
-  
+    if (saveData && pageData) {
+      saveJobDataSpreadsheet(pageData); // ✅ Use pageData from state
+      setSaveData(false); // reset flag
+    }
+  }, [saveData, pageData]);
+
+  useEffect(() => {
     loadData();
 
     // Watch for URL changes
     let currentUrl = window.location.href;
-
     const intervalId = setInterval(() => {
       if (window.location.href !== currentUrl) {
         currentUrl = window.location.href;
         console.log("URL changed, refetching data...");
-        
-        setVisible(false); 
-        
+        setVisible(false);
         loadData();
       }
-    }, 1000); // Check every 1 second
+    }, 1000);
 
     return () => clearInterval(intervalId);
   }, []);
@@ -50,7 +57,6 @@ export default function MainController() {
   if (!userDataExists || showUserData) {
     return <UsersData onClose={() => setVisible(false)} />;
   }
-
   if (!pageData) return <div>Processing data...</div>;
 
   return (
@@ -58,6 +64,7 @@ export default function MainController() {
       data={pageData}
       onClose={() => setVisible(false)}
       onChangeDataClick={() => setShowUserData(true)}
+      onSaveButton={() => setSaveData(true)}
     />
   );
 }

@@ -1,13 +1,21 @@
 {
   "manifest_version": 3,
-  "name": "A Real Time Analysis",
-  "version": "1.1",
-  "description": "Helps users to analyse resume in few seconds",
+  "name": "AA Job Tracker with realtime analysis",
+  "version": "3.0",
+  "description": "Helps users analyse resumes and save records",
+  "permissions": ["activeTab", "storage"],
+  "host_permissions": [
+    "https://script.google.com/*",
+    "https://script.googleusercontent.com/*"
+  ],
   "content_scripts": [
     {
-      "matches": ["*://*.example.com/*", "*://*.seek.com.au/job/*", "*://*.linkedin.com/jobs/*"],
+      "matches": [
+        "*://*.example.com/*",
+        "*://*.seek.com.au/job/*",
+        "*://*.linkedin.com/jobs/*"
+      ],
       "js": ["assets/content.js"]
     }
-  ],
-  "permissions": ["activeTab"]
+  ]
 }

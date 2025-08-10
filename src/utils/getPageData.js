@@ -1,7 +1,7 @@
 // src/utils/getPageData.js
-import { testFunction } from "../script/test.js";
-import { extractSeekData } from "../script/extractSeek.js";
-import {extractLinkedInData } from "../script/extractLinkedin.js";
+import { testFunction } from "../extract/test.js";
+import { extractSeekData } from "../extract/extractSeek.js";
+import {extractLinkedInData } from "../extract/extractLinkedin.js";
 
 export async function getPageData() {
   const url = window.location.href;
