@@ -3,7 +3,7 @@ import App from "./App.jsx";
 import UsersData from "./UsersData.jsx";
 import { getPageData } from "../utils/getPageData.js";
 import { isUserDataAvailable } from "../utils/getUserData.js";
-import { saveJobDataSpreadsheet } from "../integrate/postspreadsheet.js";
+import { testBackground } from "../integrate/postspreadsheet.js";
 
 export default function MainController() {
   const [userDataExists, setUserDataExists] = useState(null);
@@ -30,7 +30,7 @@ export default function MainController() {
   // Watch for saveData changes
   useEffect(() => {
     if (saveData && pageData) {
-      saveJobDataSpreadsheet(pageData); // ✅ Use pageData from state
+      testBackground(pageData); // ✅ Use pageData from state
       setSaveData(false); // reset flag
     }
   }, [saveData, pageData]);

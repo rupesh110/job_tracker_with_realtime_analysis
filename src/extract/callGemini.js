@@ -12,26 +12,12 @@ export async function callGemini(jobText) {
   const resume = userData.resume || "";
 
   const prompt = `
-    You are a strict resume analysis tool. Your task is to compare the resume and the job description by extracting and comparing key skills only.
+    I need help finding job opportunities in Australia for a candidate with the following resume.
+        Please provide links to job boards with current listings, suggest relevant search terms to use on those job boards,
+        and identify specific companies that might be hiring. Also, please summarize the types of roles that would be a good fit,
+        and industries that are actively hiring for these roles in Australia.
 
-    Here’s what you must do:
-    1. Extract all **technical** and **soft skills** from the resume.
-    2. Extract all **required skills** from the job description.
-    3. Normalize common aliases.
-    4. Match skills using **case-insensitive**.
-    5. DO NOT invent skills that are not mentioned.
-    6. Get the domain of company or which team yu are supposed to work with
-
-    Then, output this as a valid JSON object:
-
-    {
-      "job_skills": [...], top 5 skills
-      "missing_skills": [...], top 5 skills
-      "match_percentage": number,  // percent of job_skills found in resume_skills,
-      "domain: 
-    }
-
-  --- RESUME TEXT START ---
+        Here is the candidate's resume:
   ${resume}
 --- RESUME TEXT END --
 

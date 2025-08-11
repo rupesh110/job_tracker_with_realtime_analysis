@@ -4,14 +4,14 @@
   "version": "3.0",
   "description": "Helps users analyse resumes and save records",
   "permissions": ["activeTab", "storage"],
+  "background": {
+    "service_worker": "assets/background.js",
+    "type": "module"
+  },
   "host_permissions": [
     "https://script.google.com/*",
     "https://script.googleusercontent.com/*"
   ],
-   "background": {
-    "service_worker": "background.js"
-  },
-  
   "content_scripts": [
     {
       "matches": [
