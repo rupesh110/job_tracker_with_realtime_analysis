@@ -61,7 +61,7 @@ Respond only with a JSON object.
   const data = await response.json();
 
   const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  //console.log(data)
+  console.log("Gemini:",data)
   if (!rawText) throw new Error("No response from Gemini.");
 
   try {
