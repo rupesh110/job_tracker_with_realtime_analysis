@@ -1,33 +1,23 @@
-const MY_EXTENSION_KEY = "REALTIMEANALYSISEXTENSION";
-
-const DEFAULT_USER_DATA = {
-  resume: "",
-  resumeName: "",
-  IsResume: false,
-  GeminiAPIKey: "",
-  IsAPIKey: false
-};
+import { getUserData, setUserData } from "../data/config.js";
+import {DEFAULT_USER_DATA } from "../models/userData.js"
 
 export async function isUserDataAvailable() {
-  const stored = localStorage.getItem(MY_EXTENSION_KEY);
+  const stored = await getUserData();
 
-  if (!stored) {
-    localStorage.setItem(MY_EXTENSION_KEY, JSON.stringify(DEFAULT_USER_DATA));
+  if (!stored || Object.keys(stored).length === 0) {
+    console.log("User data not found, initializing with default data");
+    await setUserData(DEFAULT_USER_DATA);  // await saving default data
     return false;
   }
 
-  console.log(stored);
   try {
-    const parsed = JSON.parse(stored);
-
-    if (parsed.IsResume === true && parsed.IsAPIKey === true) {
+    if (stored.IsResume === true && stored.IsAPIKey === true) {
       return true;
     }
-
     return false;
   } catch (err) {
     console.error("Corrupted user data:", err);
-    localStorage.setItem(MY_EXTENSION_KEY, JSON.stringify(DEFAULT_USER_DATA));
+    await setUserData(DEFAULT_USER_DATA);  // reset with default data on error
     return false;
   }
 }

@@ -1,23 +1,36 @@
-export async function callGemini(jobText) {
-  const STORAGE_KEY = "REALTIMEANALYSISEXTENSION";
-  const userDataRaw = localStorage.getItem(STORAGE_KEY);
-  const userData = userDataRaw ? JSON.parse(userDataRaw) : {};
-  const GEMINI_API_KEY = userData.GeminiAPIKey;
+import { getGeminiApiKey, getUsersResume } from "../data/config.js";
 
-  console.log(GEMINI_API_KEY)
+export async function callGemini(jobText) {
+  const GEMINI_API_KEY = await getGeminiApiKey();
+  const resume = await getUsersResume();
+
+  console.log(GEMINI_API_KEY);
   if (!GEMINI_API_KEY) {
     throw new Error("Gemini API key not found. Please add it in the settings.");
   }
 
-  const resume = userData.resume || "";
 
   const prompt = `
-    I need help finding job opportunities in Australia for a candidate with the following resume.
-        Please provide links to job boards with current listings, suggest relevant search terms to use on those job boards,
-        and identify specific companies that might be hiring. Also, please summarize the types of roles that would be a good fit,
-        and industries that are actively hiring for these roles in Australia.
+    You are a strict resume analysis tool. Your task is to compare the resume and the job description by extracting and comparing key skills only.
 
-        Here is the candidate's resume:
+    Here’s what you must do:
+    1. Extract all **technical** and **soft skills** from the resume.
+    2. Extract all **required skills** from the job description.
+    3. Normalize common aliases.
+    4. Match skills using **case-insensitive**.
+    5. DO NOT invent skills that are not mentioned.
+    6. Get the domain of company or which team you are supposed to work with
+
+    Then, output this as a valid JSON object:
+
+    {
+      "job_skills": [...], top 5 skills
+      "missing_skills": [...], top 5 skills
+      "match_percentage": number,  // percent of job_skills found in resume_skills,
+      "domain": string
+    }
+
+  --- RESUME TEXT START ---
   ${resume}
 --- RESUME TEXT END --
 
@@ -26,7 +39,6 @@ export async function callGemini(jobText) {
 ${jobText}
 
 --- JOB DESCRIPTION END ---
-
 
 Respond only with a JSON object.
   `;
@@ -40,14 +52,14 @@ Respond only with a JSON object.
       },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }]
-      })
+      }),
     }
   );
 
   const data = await response.json();
 
   const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  console.log("Gemini:",data)
+  console.log("Gemini:", data);
   if (!rawText) throw new Error("No response from Gemini.");
 
   try {
