@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { getUserData, setUserData } from "../data/config.js";
 import "./UsersData.css";
 
 export default function UsersData({ onClose }) {
@@ -9,17 +10,18 @@ export default function UsersData({ onClose }) {
   const [isApiKeyRequired, setIsApiKeyRequired] = useState(true);
 
   useEffect(() => {
-    const savedData = JSON.parse(localStorage.getItem("REALTIMEANALYSISEXTENSION"));
-
-    if (savedData?.IsResume && savedData?.resume) {
-      setIsResumeRequired(false);
-      setExistingResumeName(savedData.resumeName || "Previously Uploaded Resume");
+    async function fetchData() {
+      const savedData = await getUserData();
+      if (savedData?.IsResume && savedData?.resume) {
+        setIsResumeRequired(false);
+        setExistingResumeName(savedData.resumeName || "Previously Uploaded Resume");
+      }
+      if (savedData?.IsAPIKey && savedData?.GeminiAPIKey) {
+        setIsApiKeyRequired(false);
+        setApiKey(savedData.GeminiAPIKey);
+      }
     }
-
-    if (savedData?.IsAPIKey && savedData?.GeminiAPIKey) {
-      setIsApiKeyRequired(false);
-      setApiKey(savedData.GeminiAPIKey);
-    }
+    fetchData();
   }, []);
 
   const handleResumeChange = (e) => {
@@ -47,27 +49,31 @@ export default function UsersData({ onClose }) {
       return;
     }
 
-    const saveDataToLocalStorage = (resumeData) => {
-      localStorage.setItem(
-        "REALTIMEANALYSISEXTENSION",
-        JSON.stringify({
-          resume: resumeData || JSON.parse(localStorage.getItem("REALTIMEANALYSISEXTENSION"))?.resume,
-          resumeName: resumeFile?.name || existingResumeName,
-          IsResume: Boolean(resumeData || existingResumeName),
-          GeminiAPIKey: apiKey,
-          IsAPIKey: Boolean(apiKey.trim()),
-        })
-      );
-      alert("✅ User data saved!");
-      onClose();
+    const saveData = async (resumeData) => {
+      const currentData = await getUserData();
+      const newData = {
+        resume: resumeData || currentData.resume || "",
+        resumeName: resumeFile?.name || existingResumeName,
+        IsResume: Boolean(resumeData || existingResumeName),
+        GeminiAPIKey: apiKey,
+        IsAPIKey: Boolean(apiKey.trim()),
+      };
+      try {
+        await setUserData(newData);
+        alert("✅ User data saved!");
+        onClose();
+      } catch (error) {
+        alert("❌ Failed to save user data.");
+        console.error(error);
+      }
     };
 
     if (resumeFile) {
       const reader = new FileReader();
-      reader.onload = () => saveDataToLocalStorage(reader.result);
+      reader.onload = () => saveData(reader.result);
       reader.readAsDataURL(resumeFile);
     } else {
-      saveDataToLocalStorage(null);
+      saveData(null);
     }
   };
 
@@ -100,12 +106,19 @@ export default function UsersData({ onClose }) {
             placeholder={isApiKeyRequired ? "Enter your Google API key" : ""}
           />
         </div>
-       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-        <button type="button" onClick={() => window.open("https://aistudio.google.com/app/apikey", "_blank")}>
-          Get New KEY
-        </button>
-        <button type="submit" className="submit-btn">Save</button>
-      </div>
+        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <button
+            type="button"
+            onClick={() =>
+              window.open("https://aistudio.google.com/app/apikey", "_blank")
+            }
+          >
+            Get New KEY
+          </button>
+          <button type="submit" className="submit-btn">
+            Save
+          </button>
+        </div>
       </form>
     </div>
   );

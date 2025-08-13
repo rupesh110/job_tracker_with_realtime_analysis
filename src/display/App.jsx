@@ -20,11 +20,9 @@ export default function App({ data, onClose, onChangeDataClick, onSaveButton}) {
     <div id="react-extension-popup">
       <ExtractedDataDisplay data={data}/>
       <div id="react-button-footer">
-        
         <button onClick={onSaveButton}>Save Data</button>
         <button onClick={onChangeDataClick}>Change Datas</button>
-        <button onClick={onClose}>Close</button>
-
+        <button onClick={onClose}>Closeaa</button>
       </div>
      
     </div>
