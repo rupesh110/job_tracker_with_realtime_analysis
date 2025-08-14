@@ -1,4 +1,4 @@
-export const SPREADSHEET_APP_URL = "https://script.google.com/macros/s/AKfycbwBPo7z2F6iRbjz8KZeHjMsvjxFMAQfBd2G01oIwxEir8PdFDZHsOFVpDiRCnFusz1a/exec";
+export const SPREADSHEET_APP_URL = "https://script.google.com/macros/s/AKfycbxIn0jsKo1_NAeJ2ILldjcOwJN_4O93dJ1Pd0BFwhZQvMav4KZcQ3yiAZm8nGj4nmPy/exec";
 export const STORAGE_KEY = "REALTIMEANALYSISEXTENSION";
 
 export function setUserData(data) {
@@ -34,4 +34,9 @@ export async function getGeminiApiKey() {
 export async function getUsersResume() {
   const userData = await getUserData();
   return userData.resume || null;
+}
+
+export async function getSpreadSheetId() {
+  const userData = await getUserData();
+  return userData.spreadSheetId || null;
 }

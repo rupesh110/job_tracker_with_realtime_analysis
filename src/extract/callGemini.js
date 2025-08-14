@@ -1,44 +1,59 @@
 import { getGeminiApiKey, getUsersResume } from "../data/config.js";
 
+/**
+ * Calls Gemini API to analyze a resume against a job description.
+ * @param {string} jobText - The job description text.
+ * @returns {Promise<Object>} - JSON object with match score, strengths, gaps, and action steps.
+ */
 export async function callGemini(jobText) {
   const GEMINI_API_KEY = await getGeminiApiKey();
   const resume = await getUsersResume();
 
-  console.log(GEMINI_API_KEY);
   if (!GEMINI_API_KEY) {
     throw new Error("Gemini API key not found. Please add it in the settings.");
   }
 
-
   const prompt = `
-    You are a strict resume analysis tool. Your task is to compare the resume and the job description by extracting and comparing key skills only.
+You are an expert in resume optimization and ATS alignment. 
+I will provide a job description and a resume. 
 
-    Here’s what you must do:
-    1. Extract all **technical** and **soft skills** from the resume.
-    2. Extract all **required skills** from the job description.
-    3. Normalize common aliases.
-    4. Match skills using **case-insensitive**.
-    5. DO NOT invent skills that are not mentioned.
-    6. Get the domain of company or which team you are supposed to work with
+Perform your analysis in TWO STRICT STEPS:
 
-    Then, output this as a valid JSON object:
+Step 1 — Extract everything from the resume:
+- List every programming language, framework, platform, cloud service, methodology, certificate, and project with dates.
+- Quote each item verbatim from the resume. Do not infer or assume.
 
-    {
-      "job_skills": [...], top 5 skills
-      "missing_skills": [...], top 5 skills
-      "match_percentage": number,  // percent of job_skills found in resume_skills,
-      "domain": string
-    }
+Step 2 — Compare to the job description:
+- Identify every required skill or qualification in the JD.
+- For each, classify as:
+  - CLEAR (explicitly present in resume),
+  - PARTIAL (mentioned but not well-detailed or quantified),
+  - MISSING (no evidence at all).
+- If MISSING, provide *exact example wording* to fix it.
+- Weight CRITICAL skills more heavily than PREFERRED skills.
+- Calculate matchScore out of 100 with weighting: 
+  CRITICAL skills = 70%, PREFERRED skills = 30%.
 
-  --- RESUME TEXT START ---
-  ${resume}
---- RESUME TEXT END --
+Output strictly in this JSON structure:
+{
+  "matchScore": [0-100 integer],
+  "summary": "[1–2 sentences of alignment analysis]",
+  "strengths": [
+    {"skill": "[Skill]", "evidence": "[Exact quote from resume]"},
+    ...
+  ],
+  "gaps": [
+    {"skill": "[Skill]", "priority": "[CRITICAL or PREFERRED]", "status": "[CLEAR / PARTIAL / MISSING]", "notes": "[Why it's a gap — quote resume if relevant, and give exact wording to fix it]"},
+    ...
+  ],
+  "actionStep": "[1 high-impact improvement step]"
+}
 
---- JOB DESCRIPTION START ---
-
+Job Description:
 ${jobText}
 
---- JOB DESCRIPTION END ---
+Resume:
+${resume}
 
 Respond only with a JSON object.
   `;
@@ -51,7 +66,7 @@ Respond only with a JSON object.
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
+        contents: [{ parts: [{ text: prompt }] }],
       }),
     }
   );
@@ -59,10 +74,12 @@ Respond only with a JSON object.
   const data = await response.json();
 
   const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  console.log("Gemini:", data);
+  console.log("Gemini response:", data);
+
   if (!rawText) throw new Error("No response from Gemini.");
 
   try {
+    // Remove any ```json code fencing and parse
     const cleaned = rawText.replace(/^```json\s*|\s*```$/g, "");
     return JSON.parse(cleaned);
   } catch (err) {

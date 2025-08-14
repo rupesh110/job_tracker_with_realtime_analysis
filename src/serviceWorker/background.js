@@ -1,7 +1,7 @@
 import {SPREADSHEET_APP_URL} from "../data/config.js";
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "trigger") {
+  if (request.action === "saveToSpreadsheet") {
     console.log("Trigger received in background!", request.data);
 
     // Add action property inside the payload sent to Apps Script
@@ -27,6 +27,6 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ status: "error", error: error.message });
     });
 
-    return true; // Keep sendResponse alive for async call
+    return true; 
   }
 });

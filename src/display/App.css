@@ -1,15 +1,19 @@
 #react-extension-popup {
   position: fixed;
-  top: 50px;
-  right: 20px;
+  top: 5vh; /* 5% from top of viewport */
+  right: 2vw; /* 2% from right of viewport */
   background-color: white;
   border: 1px solid #ccc;
   padding: 10px;
   z-index: 999999;
-  width: 300px;
+  width: 90vw;        /* Width responsive to viewport width */
+  max-width: 400px;   /* Maximum width */
+  max-height: 80vh;   /* Maximum height relative to viewport */
+  overflow-y: auto;   /* Scroll if content is too tall */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   font-family: Arial, sans-serif;
+  transition: width 0.3s ease, max-height 0.3s ease; /* Smooth resizing */
 }
 
 #react-extension-popup button {
@@ -31,4 +35,10 @@
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
+}
+
+/* Optional: make inner content scrollable if needed */
+#react-extension-popup .popup-content {
+  max-height: 70vh;
+  overflow-y: auto;
 }
