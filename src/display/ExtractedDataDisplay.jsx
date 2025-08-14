@@ -6,22 +6,21 @@ export default function ExtractedDataDisplay({ data }) {
     return <p className="loading">Loading data...</p>;
   }
 
-  const { title, company, location, gemini } = data;
+  const { title, gemini } = data;
 
   return (
     <div className="container">
       <h2>{title}</h2>
-      <p><strong>Company:</strong> {company}</p>
-      <p><strong>Location:</strong> {location}</p>
 
       {gemini ? (
         <>
           <h3>Gemini Analysis</h3>
-          <p><strong>Domain:</strong> {gemini.domain}</p>
-          <p><strong>Match %:</strong> {gemini.match_percentage}%</p>
+          <p><strong>Summary:</strong> {gemini.summary}</p>
+          <p><strong>Match:</strong> {gemini.matchScore}%</p>
+          <p><strong>Action Step:</strong> {gemini.actionStep}</p>
 
-          <SkillList title="Job Skills" skills={gemini.job_skills} />
-          <SkillList title="Missing Skills" skills={gemini.missing_skills} highlight />
+          <SkillList title="Resume Strengths" skills={gemini.strengths} />
+          <SkillList title="Resume Gaps" skills={gemini.gaps} highlight />
         </>
       ) : (
         <p>No Gemini data available.</p>
@@ -37,8 +36,11 @@ function SkillList({ title, skills, highlight }) {
     <div className="skill-list">
       <h4>{title}</h4>
       <ul className={highlight ? "highlight" : ""}>
-        {skills.map((skill, i) => (
-          <li key={i}>{skill}</li>
+        {skills.map((skillItem, i) => (
+          <li key={i}>
+            <strong>{skillItem.skill}:</strong>{" "}
+            {highlight ? skillItem.notes || skillItem.evidence : skillItem.evidence}
+          </li>
         ))}
       </ul>
     </div>

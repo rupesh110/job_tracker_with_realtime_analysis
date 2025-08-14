@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+
 import App from "./App.jsx";
 import UsersData from "./UsersData.jsx";
 import { getPageData } from "../utils/getPageData.js";
@@ -11,6 +12,8 @@ export default function MainController() {
   const [visible, setVisible] = useState(true);
   const [showUserData, setShowUserData] = useState(false);
   const [saveData, setSaveData] = useState(false);
+  const [notification, setNotification] = useState(null);
+
 
   async function loadData() {
     setPageData(null);
@@ -27,18 +30,28 @@ export default function MainController() {
     setVisible(true);
   }
 
-  // Watch for saveData changes
   useEffect(() => {
     if (saveData && pageData) {
-      testBackground(pageData); // ✅ Use pageData from state
-      setSaveData(false); // reset flag
+      testBackground(pageData)
+        .then((response) => {
+          console.log("Spreadsheet save success:", response);
+          setNotification({ type: "success", message: "Data saved to your spreadsheet!" });
+        })
+        .catch((error) => {
+          console.error("Spreadsheet save failed:", error);
+          setNotification({ type: "error", message: "Failed to save data: " + error });
+        })
+        .finally(() => {
+          setSaveData(false); // reset flag
+          setTimeout(() => setNotification(null), 4000); // auto-hide after 4s
+        });
     }
   }, [saveData, pageData]);
 
+
+
   useEffect(() => {
     loadData();
-
-    // Watch for URL changes
     let currentUrl = window.location.href;
     const intervalId = setInterval(() => {
       if (window.location.href !== currentUrl) {
@@ -60,11 +73,31 @@ export default function MainController() {
   if (!pageData) return <div>Processing data...</div>;
 
   return (
-    <App
-      data={pageData}
-      onClose={() => setVisible(false)}
-      onChangeDataClick={() => setShowUserData(true)}
-      onSaveButton={() => setSaveData(true)}
-    />
+    <>
+      <App
+        data={pageData}
+        onClose={() => setVisible(false)}
+        onChangeDataClick={() => setShowUserData(true)}
+        onSaveButton={() => setSaveData(true)}
+      />
+      {notification && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            background: notification.type === "success" ? "#4CAF50" : "#F44336",
+            color: "white",
+            padding: "10px 16px",
+            borderRadius: "8px",
+            boxShadow: "0px 2px 6px rgba(0,0,0,0.2)",
+            zIndex: 9999
+          }}
+        >
+          {notification.message}
+        </div>
+      )}
+    </>
   );
+
 }

@@ -18,6 +18,8 @@ export async function extractLinkedInData() {
       companyFallbackSpan?.innerText?.trim() ||
       companySpanFallback?.innerText?.trim() ||
       'N/A',
+    platform: 'LinkedIn',
+    url: window.location.href,
     location: locationEl?.innerText?.trim() || 'N/A',
       gemini: geminiResponse
 

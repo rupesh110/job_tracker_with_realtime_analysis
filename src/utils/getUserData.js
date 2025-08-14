@@ -11,7 +11,7 @@ export async function isUserDataAvailable() {
   }
 
   try {
-    if (stored.IsResume === true && stored.IsAPIKey === true) {
+    if (stored.IsResume === true && stored.IsAPIKey === true && stored.IsSpreadSheetID) {
       return true;
     }
     return false;
