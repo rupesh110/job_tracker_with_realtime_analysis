@@ -1,10 +1,10 @@
-import { getSpreadSheetId } from "../data/config.js";
+
 
 export async function testBackground(data) {
   console.log("testbackground:", data);
 
   try {
-    const spreadsheetId = await getSpreadSheetId();
+    const spreadsheetId = "123"
 
     return new Promise((resolve, reject) => {
       chrome.runtime.sendMessage(

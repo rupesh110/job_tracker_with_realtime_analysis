@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 
-import App from "./App.jsx";
-import UsersData from "./UsersData.jsx";
+import App from "./popuppages/App.jsx";
+import UsersData from "./popuppages/UsersData.jsx";
+
+
 import { getPageData } from "../utils/getPageData.js";
 import { isUserDataAvailable } from "../utils/getUserData.js";
-import { testBackground } from "../integrate/postspreadsheet.js";
+import { setJobData } from "../data/jobConfig.js";
 
-export default function MainController() {
+
+export default function PopupController() {
   const [userDataExists, setUserDataExists] = useState(null);
   const [pageData, setPageData] = useState(null);
   const [visible, setVisible] = useState(true);
@@ -32,7 +35,7 @@ export default function MainController() {
 
   useEffect(() => {
     if (saveData && pageData) {
-      testBackground(pageData)
+      setJobData(pageData)
         .then((response) => {
           console.log("Spreadsheet save success:", response);
           setNotification({ type: "success", message: "Data saved to your spreadsheet!" });
@@ -71,6 +74,8 @@ export default function MainController() {
     return <UsersData onClose={() => setVisible(false)} />;
   }
   if (!pageData) return <div>Processing data...</div>;
+
+
 
   return (
     <>

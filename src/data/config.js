@@ -1,16 +1,19 @@
-export const SPREADSHEET_APP_URL = "https://script.google.com/macros/s/AKfycbxIn0jsKo1_NAeJ2ILldjcOwJN_4O93dJ1Pd0BFwhZQvMav4KZcQ3yiAZm8nGj4nmPy/exec";
 export const STORAGE_KEY = "REALTIMEANALYSISEXTENSION";
 
 export function setUserData(data) {
   return new Promise((resolve, reject) => {
-    chrome.storage.local.set({ [STORAGE_KEY]: JSON.stringify(data) }, () => {
-      if (chrome.runtime.lastError) {
-        console.error("Error saving user data:", chrome.runtime.lastError);
-        reject(chrome.runtime.lastError);
-      } else {
-        console.log("User data saved successfully");
-        resolve();
-      }
+    chrome.storage.local.get([STORAGE_KEY], (result) => {
+      const current = result[STORAGE_KEY] || {};
+      const updated = { ...current, usersData: data }; // store raw object, no need to JSON.stringify
+      chrome.storage.local.set({ [STORAGE_KEY]: updated }, () => {
+        if (chrome.runtime.lastError) {
+          console.error("Error saving user data:", chrome.runtime.lastError);
+          reject(chrome.runtime.lastError);
+        } else {
+          console.log("User data saved successfully");
+          resolve();
+        }
+      });
     });
   });
 }
@@ -18,25 +21,35 @@ export function setUserData(data) {
 export function getUserData() {
   return new Promise((resolve) => {
     chrome.storage.local.get([STORAGE_KEY], (result) => {
-      const userDataRaw = result[STORAGE_KEY];
-      const userData = userDataRaw ? JSON.parse(userDataRaw) : {};
-      resolve(userData);
+      const stored = result[STORAGE_KEY] || {};
+      resolve(stored.usersData || {});
     });
   });
 }
 
-export async function getGeminiApiKey() {
-  const userData = await getUserData();
-  console.log(userData)
-  return userData.GeminiAPIKey || null;
+export function getGeminiApiKey() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([STORAGE_KEY], (result) => {
+      const stored = result[STORAGE_KEY] || {};
+      resolve(stored.usersData?.GeminiAPIKey || "");
+    });
+  });
 }
 
-export async function getUsersResume() {
-  const userData = await getUserData();
-  return userData.resume || null;
+export function getUsersResume() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([STORAGE_KEY], (result) => {
+      const stored = result[STORAGE_KEY] || {};
+      resolve(stored.usersData?.resume || "");
+    });
+  });
 }
 
-export async function getSpreadSheetId() {
-  const userData = await getUserData();
-  return userData.spreadSheetId || null;
+export function getSpreadSheetId() {
+  return new Promise((resolve) => {
+    chrome.storage.local.get([STORAGE_KEY], (result) => {
+      const stored = result[STORAGE_KEY] || {};
+      resolve(stored.usersData?.spreadSheetId || "");
+    });
+  });
 }
