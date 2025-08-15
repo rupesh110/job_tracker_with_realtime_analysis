@@ -1,0 +1,49 @@
+.main-content {
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 360px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  font-family: Arial, sans-serif;
+}
+
+.main-title {
+  margin-bottom: 12px;
+  font-size: 22px;
+  color: #333;
+  text-align: center;
+}
+
+.job-counts p {
+  margin: 6px 0;
+  font-size: 16px;
+  color: #555;
+}
+
+.job-counts span {
+  font-weight: bold;
+  color: #007bff;
+}
+
+.see-all-btn {
+  display: block;
+  margin: 12px auto 0;
+  padding: 10px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.see-all-btn:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.see-all-btn:disabled {
+  background-color: #a0c4ff;
+  cursor: not-allowed;
+}

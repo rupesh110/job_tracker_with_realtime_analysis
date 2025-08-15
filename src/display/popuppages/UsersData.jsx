@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from "react";
-import { getUserData, setUserData } from "../data/config.js";
-import { getSpreadsheetIdFromUrl } from "../utils/filterUsersData.js";
+import { getUserData, setUserData } from "../../data/config.js";
 import "./UsersData.css";
 
 export default function UsersData({ onClose }) {
   const [resumeFile, setResumeFile] = useState(null);
   const [apiKey, setApiKey] = useState("");
-  const [spreadsheetId, setSpreadsheetId] = useState("");
   const [existingResumeName, setExistingResumeName] = useState("");
   const [isResumeRequired, setIsResumeRequired] = useState(true);
   const [isApiKeyRequired, setIsApiKeyRequired] = useState(true);
-  const [isSpreadsheetRequired, setIsSpreadsheetRequired] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
@@ -22,10 +19,6 @@ export default function UsersData({ onClose }) {
       if (savedData?.IsAPIKey && savedData?.GeminiAPIKey) {
         setIsApiKeyRequired(false);
         setApiKey(savedData.GeminiAPIKey);
-      }
-      if (savedData?.IsSpreadSheetID && savedData?.spreadSheetId) {
-        setIsSpreadsheetRequired(false);
-        setSpreadsheetId(savedData.spreadSheetId);
       }
     }
     fetchData();
@@ -41,11 +34,6 @@ export default function UsersData({ onClose }) {
 
   const handleApiKeyChange = (e) => setApiKey(e.target.value);
 
-  const handleSpreadsheetChange = (e) => {
-    const id = getSpreadsheetIdFromUrl(e.target.value.trim());
-    setSpreadsheetId(id || "");
-  };
-
   const handleSubmit = (e) => {
     e.preventDefault();
 
@@ -59,11 +47,6 @@ export default function UsersData({ onClose }) {
       return;
     }
 
-    if (isSpreadsheetRequired && !spreadsheetId) {
-      alert("Please enter a valid Spreadsheet URL.");
-      return;
-    }
-
     const saveData = async (resumeData) => {
       const currentData = await getUserData();
       const newData = {
@@ -72,8 +55,6 @@ export default function UsersData({ onClose }) {
         IsResume: Boolean(resumeData || existingResumeName),
         GeminiAPIKey: apiKey,
         IsAPIKey: Boolean(apiKey.trim()),
-        spreadSheetId: spreadsheetId,
-        IsSpreadSheetID: Boolean(spreadsheetId),
       };
       try {
         await setUserData(newData);
@@ -97,7 +78,7 @@ export default function UsersData({ onClose }) {
   return (
     <div id="react-extension-popup" className="popup-container">
       <button className="close-btn" onClick={onClose} aria-label="Close popup">✖</button>
-      <h2 className="popup-title">Upload Resume, API Key & Spreadsheet</h2>
+      <h2 className="popup-title">Upload Resume & API Key</h2>
 
       <form onSubmit={handleSubmit} className="form-wrapper">
         <div className="form-group">
@@ -115,17 +96,6 @@ export default function UsersData({ onClose }) {
             onChange={handleApiKeyChange}
             placeholder={isApiKeyRequired ? "Enter your Google API key" : ""}
           />
-        </div>
-
-        <div className="form-group">
-          <label htmlFor="spreadsheet">Spreadsheet URL:</label>
-          <input
-            type="text"
-            id="spreadsheet"
-            onChange={handleSpreadsheetChange}
-            placeholder={isSpreadsheetRequired ? "Paste your Spreadsheet URL" : spreadsheetId}
-          />
-          {spreadsheetId && <p className="resume-name">📊 ID: {spreadsheetId}</p>}
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>

@@ -1,9 +1,14 @@
 export const JobsData = {
-    Id: "",
-    Title: "",
-    Platform: "",
-    URL: "",
-    WorkType: "",
-    Status: "",
-    Date: ""
+    id: "",             
+    url: "",  
+    company: "",
+    title: " ",
+    location: "",
+    platform: "",
+    workType: "",
+    status: "",
+    createdAt: 0   
 };
+
+
+

@@ -1,4 +1,4 @@
-export async function detectWorkType(text) {
+export function detectWorkType(text) {
   if (text.includes("remote") || text.includes("work from home") || text.includes("wfh")) {
     return "Remote";
   } else if (
