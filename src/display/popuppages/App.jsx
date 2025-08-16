@@ -21,8 +21,8 @@ export default function App({ data, onClose, onChangeDataClick, onSaveButton}) {
       <ExtractedDataDisplay data={data}/>
       <div id="react-button-footer">
         <button onClick={onSaveButton}>Save Data</button>
-        <button onClick={onChangeDataClick}>Change Datas</button>
-        <button onClick={onClose}>Closeaa</button>
+        <button onClick={onChangeDataClick}>Change Data</button>
+        <button onClick={onClose}>Close</button>
       </div>
      
     </div>
