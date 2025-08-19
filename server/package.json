@@ -3,14 +3,18 @@
   "version": "1.0.0",
   "description": "",
   "main": "src/functions/*.js",
+  "type": "module",
   "scripts": {
     "start": "func start",
+    "watch": "nodemon --watch src --exec 'func start'",
     "test": "echo \"No tests yet...\""
   },
   "dependencies": {
+    "@azure/cosmos": "^4.5.0",
     "@azure/functions": "^4.0.0"
   },
   "devDependencies": {
-    "azure-functions-core-tools": "^4.x"
+    "azure-functions-core-tools": "^4.x",
+    "nodemon": "^3.1.10"
   }
 }
