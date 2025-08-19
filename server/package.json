@@ -4,6 +4,7 @@
   "description": "",
   "main": "src/functions/*.js",
   "type": "module",
+  
   "scripts": {
     "start": "func start",
     "watch": "nodemon --watch src --exec 'func start'",
