@@ -1,15 +1,16 @@
+// src/functions/Testaaa/Test12.ts
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 
-export async function httpTrigger1(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function Test12(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
-
     const name = request.query.get('name') || await request.text() || 'world';
+    return { body: `Hello Againa, ${name}!` };
+}
 
-    return { body: `Test, ${name}!` };
-};
-
-app.http('httpTrigger1', {
+// Register itself immediately
+app.http('Test12', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
-    handler: httpTrigger1
+    route: "v1/test12",
+    handler: Test12
 });
