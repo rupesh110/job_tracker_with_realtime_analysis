@@ -1,15 +1,12 @@
-name: Build and Deploy Real-Time Analysis Project
+name: Build and Deploy Real-Time Analysis
 
 on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 env:
-  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'server' # folder to deploy
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: 'server' 
   NODE_VERSION: '22'
 
 jobs:
@@ -46,10 +43,11 @@ jobs:
           path: release.zip
 
   deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write    # required for federated credentials
+      id-token: write    
       contents: read
 
     steps:

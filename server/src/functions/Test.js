@@ -8,6 +8,6 @@ app.http('Testagain', {
 
         const name = request.query.get('name') || await request.text() || 'world';
 
-        return { body: "Hello, Azure. Testing CI/Cd"};
+        return { body: "Hello, Azure. Testing CI/CD final testing"};
     }
 });
