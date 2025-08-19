@@ -1,13 +1,15 @@
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from "@azure/functions";
 
-export async function test(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
+export async function Test(request: HttpRequest, context: InvocationContext): Promise<HttpResponseInit> {
     context.log(`Http function processed request for url "${request.url}"`);
 
-    return { body: `Success` };
+    const name = request.query.get('name') || await request.text() || 'world';
+
+    return { body: `Hello122, ${name}!` };
 };
 
-app.http('test', {
+app.http('Test', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
-    handler: test
+    handler: Test
 });

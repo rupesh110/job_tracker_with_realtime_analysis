@@ -7,10 +7,8 @@
     "watch": "tsc -w",
     "clean": "rimraf dist",
     "prestart": "npm run clean && npm run build",
-    "start": "func start",
     "test": "echo \"No tests yet...\"",
-    "dev": "concurrently \"tsc --watch\" \"func start\""
-
+    "start": "concurrently \"tsc --watch\" \"func start\""
   },
   "dependencies": {
     "@azure/functions": "^4.0.0"
