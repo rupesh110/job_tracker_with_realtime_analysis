@@ -1,6 +1,6 @@
 const { app } = require('@azure/functions');
 
-app.http('Test', {
+app.http('Testagain', {
     methods: ['GET', 'POST'],
     authLevel: 'anonymous',
     handler: async (request, context) => {
@@ -8,6 +8,6 @@ app.http('Test', {
 
         const name = request.query.get('name') || await request.text() || 'world';
 
-        return { body: "Hello, Azure. This HTTP triggered function executed successfully."};
+        return { body: "Hello, Azure. Testing CI/Cd"};
     }
 });
