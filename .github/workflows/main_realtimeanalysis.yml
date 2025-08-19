@@ -1,7 +1,12 @@
 name: Build and Deploy Real-Time Analysis Project
 
 on:
-  workflow_dispatch:  # manual run for now
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 env:
   AZURE_FUNCTIONAPP_PACKAGE_PATH: 'server' # folder to deploy
@@ -69,3 +74,4 @@ jobs:
           app-name: 'RealTimeAnalysis'
           slot-name: 'Production'
           package: './server-build'
+
