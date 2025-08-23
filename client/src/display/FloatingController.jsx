@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import FloatingMain from "./floatingpages/FloatingMain.jsx";
 import JobsTable from "./floatingpages/JobsTable.jsx";
-import { getJobData, updateJobData } from "../data/jobConfig.js";
+import {fetchAllJobs} from "../Feeder/JobDataFeeder.js"
 
 export default function FloatController() {
   const [showJobsTable, setShowJobsTable] = useState(false);
@@ -9,13 +9,13 @@ export default function FloatController() {
 
   // This will be called from MainContent's "See All Jobs"
   const handleSeeAll = async () => {
-    const data = await getJobData();
+    const data = await fetchAllJobs();
     setJobsData(data);
     setShowJobsTable(true);
   };
 
   const handleStatusChange = async (jobId, newStatus) => {
-    const updatedJobs = await updateJobData(jobId, "status", newStatus);
+    const updatedJobs = await updateJobStatus(jobId, "status", newStatus);
     setJobsData(updatedJobs);
   };
 

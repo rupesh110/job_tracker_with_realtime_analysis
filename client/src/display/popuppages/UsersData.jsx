@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { getUserData, setUserData } from "../../data/config.js";
+import { getUserData, setUserData } from "../../Feeder/UsersDataFeeder.js";
 import "./UsersData.css";
 
 export default function UsersData({ onClose }) {
@@ -15,6 +15,11 @@ export default function UsersData({ onClose }) {
       if (savedData?.IsResume && savedData?.resume) {
         setIsResumeRequired(false);
         setExistingResumeName(savedData.resumeName || "Previously Uploaded Resume");
+
+        // Convert base64 back to File object for local display if needed
+        const blob = await (await fetch(savedData.resume)).blob();
+        const file = new File([blob], savedData.resumeName, { type: blob.type });
+        setResumeFile(file);
       }
       if (savedData?.IsAPIKey && savedData?.GeminiAPIKey) {
         setIsApiKeyRequired(false);
@@ -48,14 +53,14 @@ export default function UsersData({ onClose }) {
     }
 
     const saveData = async (resumeData) => {
-      const currentData = await getUserData();
       const newData = {
-        resume: resumeData || currentData.resume || "",
-        resumeName: resumeFile?.name || existingResumeName,
-        IsResume: Boolean(resumeData || existingResumeName),
+        resume: resumeData || "", 
+        resumeName: existingResumeName,
+        IsResume: Boolean(resumeData),
         GeminiAPIKey: apiKey,
         IsAPIKey: Boolean(apiKey.trim()),
       };
+
       try {
         await setUserData(newData);
         alert("✅ User data saved!");

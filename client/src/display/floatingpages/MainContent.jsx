@@ -1,29 +1,36 @@
 import React, { useState, useEffect } from "react";
 import JobsTable from "../floatingpages/JobsTable.jsx";
-import { getJobStatusCounts, getJobData, updateJobData } from "../../data/jobConfig";
+import { fetchAllJobs, updateJobStatus, getAllJobStatus } from "../../Feeder/JobDataFeeder.js";
+
 import "./MainContent.css";
 
 export default function MainContent() {
-  const [jobCount, setJobCount] = useState({});
   const [showTable, setShowTable] = useState(false);
   const [jobsData, setJobsData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [jobCount, setJobCount] = useState({});
 
-  // Fetch job counts
+  // Fetch job statuses on mount
   useEffect(() => {
-    async function fetchCounts() {
-      const counts = await getJobStatusCounts();
-      setJobCount(counts);
+    async function fetchStatuses() {
+      try {
+        const response = await getAllJobStatus();
+        console.log("Received job statuses:", response.items);
+ 
+        setJobCount(response.items || {});
+      } catch (err) {
+        console.error("Failed to fetch job statuses:", err);
+      }
     }
-    fetchCounts();
+    fetchStatuses();
   }, []);
 
-  // Show jobs table
+  // Fetch all jobs when user clicks "See All Jobs"
   const handleSeeAll = async () => {
     try {
       setLoading(true);
-      const data = await getJobData();
-      setJobsData(data);
+      const data = await fetchAllJobs();
+      setJobsData(Array.isArray(data.items) ? data.items : []);
       setShowTable(true);
     } catch (error) {
       console.error("Failed to fetch jobs:", error);
@@ -32,21 +39,21 @@ export default function MainContent() {
     }
   };
 
-  // Handle status update & update counts dynamically
-  const handleStatusChange = async (jobId, newStatus) => {
+  // Handle status change
+  const handleStatusChange = async (jobKey, newStatus) => {
     try {
-      const updatedJobs = await updateJobData(jobId, "status", newStatus);
+      await updateJobStatus(jobKey, newStatus);
+      const updatedJobs = jobsData.map(job =>
+        job.key === jobKey ? { ...job, value: { ...job.value, status: newStatus } } : job
+      );
       setJobsData(updatedJobs);
 
-      // Recalculate counts based on updated jobs
-      const counts = updatedJobs.reduce(
-        (acc, job) => {
-          const status = job.status;
-          acc[status] = (acc[status] || 0) + 1;
-          return acc;
-        },
-        { Applied: 0, "In Progress": 0, "Follow Up": 0 }
-      );
+      // Recalculate job counts dynamically
+      const counts = updatedJobs.reduce((acc, job) => {
+        const status = job.value?.status || "Unknown";
+        acc[status] = (acc[status] || 0) + 1;
+        return acc;
+      }, {});
       setJobCount(counts);
     } catch (error) {
       console.error("Failed to update job status:", error);
@@ -58,13 +65,15 @@ export default function MainContent() {
       <h2 className="main-title">Job Helper</h2>
 
       <div className="job-counts">
-        <p>Applied: <span>{jobCount.Applied || 0}</span></p>
-        <p>In Progress: <span>{jobCount["In Progress"] || 0}</span></p>
-        <p>Follow Up: <span>{jobCount["Follow Up"] || 0}</span></p>
+        {Object.entries(jobCount).map(([status, count]) => (
+          <p key={status}>
+            {status}: <span>{count}</span>
+          </p>
+        ))}
       </div>
 
-      <button 
-        className="see-all-btn" 
+      <button
+        className="see-all-btn"
         onClick={handleSeeAll}
         disabled={loading}
       >

@@ -1,12 +1,16 @@
-
+import * as Jobs from "./backgroundJobs.js";
+import * as Users from "./backgroundUsers.js";
+import * as Geminis from "./backgroundGemini.js"
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === "saveToSpreadsheet") {
-  try {
-    chrome.runtime.sendMessage({ action: "test" }, (res) => console.log(res));
-  } catch (e) {
-    console.error("Failed to send message:", e);
+  if (request.action.startsWith("Job")) {
+    return Jobs.handleJobMessage(request, sender, sendResponse);
   }
-}
+  if (request.action.startsWith("User")) {
+    return Users.handleUserMessage(request, sender, sendResponse);
+  }
 
+  if (request.action.startsWith("Gemini")) {
+    return Geminis.handleUserMessage(request, sender, sendResponse);
+  }
 });

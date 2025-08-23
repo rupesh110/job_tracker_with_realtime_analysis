@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "AA Job Tracker with realtime analysis",
-  "version": "3.0",
+  "name": "Job Tracker with realtime analysis",
+  "version": "3.1",
   "description": "Helps users analyse resumes and save records",
   "permissions": ["activeTab", "storage"],
   "background": {
@@ -23,5 +23,10 @@
       "js": ["assets/content.js"],
       "run_at": "document_idle"
     }
-  ]
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
 }

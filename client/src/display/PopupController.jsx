@@ -2,10 +2,11 @@ import React, { useState, useEffect } from "react";
 
 import App from "./popuppages/App.jsx";
 import UsersData from "./popuppages/UsersData.jsx";
-
+import {addJob} from "../Feeder/JobDataFeeder.js";
 
 import { getPageData } from "../utils/getPageData.js";
-import { isUserDataAvailable } from "../utils/getUserData.js";
+//import { isUserDataAvailable } from "../utils/getUserData.js";
+import { isUserAvailable } from "../Feeder/UsersDataFeeder.js";
 import { setJobData } from "../data/jobConfig.js";
 
 
@@ -20,7 +21,7 @@ export default function PopupController() {
 
   async function loadData() {
     setPageData(null);
-    const userExists = await isUserDataAvailable();
+    const userExists = await isUserAvailable();
     setUserDataExists(userExists);
 
     if (userExists) {
@@ -33,23 +34,32 @@ export default function PopupController() {
     setVisible(true);
   }
 
-  useEffect(() => {
-    if (saveData && pageData) {
-      setJobData(pageData)
-        .then((response) => {
-          console.log("Spreadsheet save success:", response);
-          setNotification({ type: "success", message: "Data saved to your spreadsheet!" });
-        })
-        .catch((error) => {
-          console.error("Spreadsheet save failed:", error);
-          setNotification({ type: "error", message: "Failed to save data: " + error });
-        })
-        .finally(() => {
-          setSaveData(false); // reset flag
-          setTimeout(() => setNotification(null), 4000); // auto-hide after 4s
-        });
-    }
-  }, [saveData, pageData]);
+useEffect(() => {
+  if (saveData && pageData) {
+    console.log("Sending data to storage:", pageData);
+
+    // Send to service worker
+    addJob(pageData)
+      .then((res) => console.log("Response from SW:", res))
+      .catch((err) => console.error("Failed to send to SW:", err));
+
+    // Existing storage save
+    setJobData(pageData)
+      .then((response) => {
+        console.log("Data save success:", response);
+        setNotification({ type: "success", message: "Data saved!" });
+      })
+      .catch((error) => {
+        console.error("Data save failed:", error);
+        setNotification({ type: "error", message: "Failed to save data: " + error });
+      })
+      .finally(() => {
+        setSaveData(false);
+        setTimeout(() => setNotification(null), 4000);
+      });
+  }
+}, [saveData, pageData]);
+
 
 
 
