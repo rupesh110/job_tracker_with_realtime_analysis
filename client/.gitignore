@@ -1,0 +1,18 @@
+# Node dependencies
+node_modules/
+client/node_modules/
+client/dist/
+
+# Build output
+dist/
+*.log
+
+# IDE / Editor
+.vscode/
+.DS_Store
+
+# System files
+Thumbs.db
+
+# Manifest — ignore if you don't want to commit changes
+client/public/manifest.json
