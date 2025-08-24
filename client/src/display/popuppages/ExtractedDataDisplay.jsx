@@ -1,12 +1,25 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./ExtractedDataDisplay.css";
+import { getGeminiAnalysis } from "../../Feeder/GeminiJobFeeder"
 
 export default function ExtractedDataDisplay({ data }) {
-  if (!data) {
-    return <p className="loading">Loading data...</p>;
-  }
+  const [gemini, setGemini] = useState(null);
 
-  const { title, gemini } = data;
+  useEffect(() => {
+    if (!data) return;
+
+    const fetchGemini = async () => {
+      const fullText = document.body.innerText.toLowerCase();
+      const geminiResponse = await getGeminiAnalysis(fullText);
+      setGemini(geminiResponse?.available || {}); // <- use .available
+    };
+
+    fetchGemini();
+  }, [data]);
+
+  if (!data) return <p className="loading">Loading data...</p>;
+
+  const { title } = data;
 
   return (
     <div className="container">
@@ -23,7 +36,7 @@ export default function ExtractedDataDisplay({ data }) {
           <SkillList title="Resume Gaps" skills={gemini.gaps} highlight />
         </>
       ) : (
-        <p>No Gemini data available.</p>
+        <p>Loading Gemini data...</p>
       )}
     </div>
   );

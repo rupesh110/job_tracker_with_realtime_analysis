@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { updateJobStatus } from "../../Feeder/JobDataFeeder.js";
 import "./JobsTable.css";
 
 export default function JobsTable({ jobs, onStatusChange, onClose }) {
@@ -9,21 +10,33 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
   const dragOffset = useRef({ x: 0, y: 0 });
   const dragging = useRef(false);
 
-  // Initialize job statuses
+  // Initialize job statuses from jobs array
   useEffect(() => {
     const initialStatuses = jobs.reduce((acc, job) => {
-      acc[job.id] = job.status || "Unknown";
+      acc[job.key] = job.value.status || "Unknown"; // Use 'key' from IndexedDB
       return acc;
     }, {});
     setJobStatuses(initialStatuses);
   }, [jobs]);
 
-  const handleStatusChange = (jobId, newStatus) => {
-    setJobStatuses((prev) => ({ ...prev, [jobId]: newStatus }));
-    if (onStatusChange) onStatusChange(jobId, newStatus);
+  console.log(jobs)
+  // Handle status change
+  const handleStatusChange = async (jobKey, newStatus) => {
+    // Update UI immediately
+    setJobStatuses((prev) => ({ ...prev, [jobKey]: newStatus }));
+
+    try {
+      // Call service worker to update status in IndexedDB
+      const response = await updateJobStatus({ id: jobKey, newStatus });
+      console.log("Status update response:", response);
+    } catch (error) {
+      console.error("Failed to update status:", error);
+    }
+
+    if (onStatusChange) onStatusChange(jobKey, newStatus);
   };
 
-  // Mouse event handlers for dragging
+  // Dragging handlers
   const handleMouseDown = (e) => {
     dragging.current = true;
     dragOffset.current = {
@@ -49,7 +62,6 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
   };
 
   const statusOptions = ["Applied", "Interview", "Offer", "Rejected", "Unknown"];
-
   const getRowColor = (status) => {
     switch (status) {
       case "Applied": return "row-applied";
@@ -61,14 +73,15 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     }
   };
 
-  const filteredJobs = jobs.filter(
-    (job) =>
-      job.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      job.location.toLowerCase().includes(searchTerm.toLowerCase())
+  // Filter jobs by search term
+  const filteredJobs = jobs.filter((job) =>
+    job.value.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    job.value.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    job.value.location.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (!jobs || jobs.length === 0) return <div className="jobs-table-empty">No jobs available</div>;
+  if (!jobs || jobs.length === 0)
+    return <div className="jobs-table-empty">No jobs available</div>;
 
   return (
     <div
@@ -105,14 +118,14 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
           </thead>
           <tbody>
             {filteredJobs.map((job) => (
-              <tr key={job.id} className={getRowColor(jobStatuses[job.id])}>
-                <td>{job.company}</td>
-                <td>{job.title}</td>
-                <td>{job.location}</td>
+              <tr key={job.key} className={getRowColor(jobStatuses[job.key])}>
+                <td>{job.value.company}</td>
+                <td>{job.value.title}</td>
+                <td>{job.value.location}</td>
                 <td>
                   <select
-                    value={jobStatuses[job.id]}
-                    onChange={(e) => handleStatusChange(job.id, e.target.value)}
+                    value={jobStatuses[job.key]}
+                    onChange={(e) => handleStatusChange(job.key, e.target.value)}
                     className="status-select"
                   >
                     {statusOptions.map((status) => (
@@ -120,11 +133,11 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
                     ))}
                   </select>
                 </td>
-                <td>{job.platform}</td>
-                <td>{job.workType}</td>
-                <td>{new Date(job.createdAt).toLocaleDateString()}</td>
+                <td>{job.value.platform}</td>
+                <td>{job.value.workType}</td>
+                <td>{job.value.date || "Unknown"}</td>
                 <td>
-                  <a href={job.url} target="_blank" rel="noopener noreferrer" className="link">
+                  <a href={job.value.url} target="_blank" rel="noopener noreferrer" className="link">
                     View
                   </a>
                 </td>

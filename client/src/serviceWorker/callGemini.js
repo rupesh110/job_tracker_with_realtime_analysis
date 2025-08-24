@@ -1,4 +1,5 @@
-import { getGeminiApiKey, getUsersResume } from "../data/config.js";
+//import { getGeminiApiKey, getUsersResume } from "../data/config.js";
+import {getUserData} from "./IndexedDbUsers.js"
 
 /**
  * Calls Gemini API to analyze a resume against a job description.
@@ -6,8 +7,10 @@ import { getGeminiApiKey, getUsersResume } from "../data/config.js";
  * @returns {Promise<Object>} - JSON object with match score, strengths, gaps, and action steps.
  */
 export async function callGemini(jobText) {
-  const GEMINI_API_KEY = await getGeminiApiKey();
-  const resume = await getUsersResume();
+  const usersData = await getUserData();
+  const GEMINI_API_KEY = await usersData.GeminiAPIKey;
+  const resume = await usersData.resume;
+  console.log(jobText, usersData);
 
   if (!GEMINI_API_KEY) {
     throw new Error("Gemini API key not found. Please add it in the settings.");
@@ -74,7 +77,7 @@ Respond only with a JSON object.
   const data = await response.json();
 
   const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  console.log("Gemini response:", data);
+  console.log("Gemini response:", rawText);
 
   if (!rawText) throw new Error("No response from Gemini.");
 
