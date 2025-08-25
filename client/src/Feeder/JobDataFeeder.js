@@ -1,4 +1,5 @@
 export async function addJob(data) {
+  console.log("JObs feeedr;", data)
   return new Promise((resolve, reject) => {
     chrome.runtime.sendMessage({ action: "Job_AddJob", data }, (response) => {
       if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);

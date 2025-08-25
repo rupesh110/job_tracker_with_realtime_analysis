@@ -13,4 +13,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action.startsWith("Gemini")) {
     return Geminis.handleUserMessage(request, sender, sendResponse);
   }
+  return true;
 });

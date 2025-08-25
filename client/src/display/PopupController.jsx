@@ -2,96 +2,92 @@ import React, { useState, useEffect } from "react";
 
 import App from "./popuppages/App.jsx";
 import UsersData from "./popuppages/UsersData.jsx";
-import {addJob} from "../Feeder/JobDataFeeder.js";
-
+import { addJob } from "../Feeder/JobDataFeeder.js";
 import { getPageData } from "../utils/getPageData.js";
-//import { isUserDataAvailable } from "../utils/getUserData.js";
 import { isUserAvailable } from "../Feeder/UsersDataFeeder.js";
-import { setJobData } from "../data/jobConfig.js";
-
 
 export default function PopupController() {
   const [userDataExists, setUserDataExists] = useState(null);
   const [pageData, setPageData] = useState(null);
   const [visible, setVisible] = useState(true);
+  const [manuallyClosed, setManuallyClosed] = useState(false);
   const [showUserData, setShowUserData] = useState(false);
   const [saveData, setSaveData] = useState(false);
   const [notification, setNotification] = useState(null);
+  const [currentUrl, setCurrentUrl] = useState(window.location.href);
 
-
+  // Load data from page and check user
   async function loadData() {
     setPageData(null);
+
     const userExists = await isUserAvailable();
     setUserDataExists(userExists);
 
     if (userExists) {
-      const scrapedData = await getPageData((geminiResult) => {
-        setPageData((prev) => ({ ...prev, gemini: geminiResult }));
-      });
+      const scrapedData = await getPageData();
       setPageData(scrapedData);
     }
 
-    setVisible(true);
+    // Reset popup visibility unless manually closed
+    if (!manuallyClosed) setVisible(true);
   }
 
-useEffect(() => {
-  if (saveData && pageData) {
-    console.log("Sending data to storage:", pageData);
-
-    // Send to service worker
-    addJob(pageData)
-      .then((res) => console.log("Response from SW:", res))
-      .catch((err) => console.error("Failed to send to SW:", err));
-
-    // Existing storage save
-    setJobData(pageData)
-      .then((response) => {
-        console.log("Data save success:", response);
-        setNotification({ type: "success", message: "Data saved!" });
-      })
-      .catch((error) => {
-        console.error("Data save failed:", error);
-        setNotification({ type: "error", message: "Failed to save data: " + error });
-      })
-      .finally(() => {
-        setSaveData(false);
-        setTimeout(() => setNotification(null), 4000);
-      });
-  }
-}, [saveData, pageData]);
-
-
-
-
+  // Handle save button click
   useEffect(() => {
-    loadData();
-    let currentUrl = window.location.href;
+    if (saveData && pageData) {
+      addJob(pageData)
+        .then(() => {
+          setNotification({ type: "success", message: "Data saved!" });
+        })
+        .catch((err) => {
+          console.error("Failed to save data:", err);
+          setNotification({ type: "error", message: "Failed to save data: " + err });
+        })
+        .finally(() => {
+          setSaveData(false);
+          setTimeout(() => setNotification(null), 4000);
+        });
+    }
+  }, [saveData, pageData]);
+
+  // Initial load & watch URL changes
+  useEffect(() => {
+    loadData(); // initial load
+
     const intervalId = setInterval(() => {
       if (window.location.href !== currentUrl) {
-        currentUrl = window.location.href;
-        console.log("URL changed, refetching data...");
-        setVisible(false);
+        setCurrentUrl(window.location.href);
         loadData();
       }
     }, 1000);
 
     return () => clearInterval(intervalId);
-  }, []);
+  }, [currentUrl, manuallyClosed]);
+
+  // Auto-reopen popup whenever new pageData arrives
+  useEffect(() => {
+    if (pageData && !visible && !manuallyClosed) {
+      setVisible(true);
+    }
+  }, [pageData, visible, manuallyClosed]);
+
+  const handleClose = () => {
+    setVisible(false);
+    setManuallyClosed(true);
+  };
 
   if (!visible) return null;
   if (userDataExists === null) return <div>Loading...</div>;
   if (!userDataExists || showUserData) {
-    return <UsersData onClose={() => setVisible(false)} />;
+    return <UsersData onClose={handleClose} />;
   }
   if (!pageData) return <div>Processing data...</div>;
-
-
 
   return (
     <>
       <App
         data={pageData}
-        onClose={() => setVisible(false)}
+        onClose={handleClose}
         onChangeDataClick={() => setShowUserData(true)}
         onSaveButton={() => setSaveData(true)}
       />
@@ -106,7 +102,7 @@ useEffect(() => {
             padding: "10px 16px",
             borderRadius: "8px",
             boxShadow: "0px 2px 6px rgba(0,0,0,0.2)",
-            zIndex: 9999
+            zIndex: 9999,
           }}
         >
           {notification.message}
@@ -114,5 +110,4 @@ useEffect(() => {
       )}
     </>
   );
-
 }

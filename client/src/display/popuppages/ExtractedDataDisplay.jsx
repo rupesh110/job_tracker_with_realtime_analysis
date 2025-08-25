@@ -1,17 +1,33 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import "./ExtractedDataDisplay.css";
-import { getGeminiAnalysis } from "../../Feeder/GeminiJobFeeder"
+import { getGeminiAnalysis } from "../../Feeder/GeminiJobFeeder";
 
 export default function ExtractedDataDisplay({ data }) {
   const [gemini, setGemini] = useState(null);
+  const [loadingGemini, setLoadingGemini] = useState(false);
+  const ongoingRequest = useRef(false); // prevents overlap
 
   useEffect(() => {
     if (!data) return;
 
     const fetchGemini = async () => {
-      const fullText = document.body.innerText.toLowerCase();
-      const geminiResponse = await getGeminiAnalysis(fullText);
-      setGemini(geminiResponse?.available || {}); // <- use .available
+      // Skip if already processing
+      if (ongoingRequest.current) return;
+
+      ongoingRequest.current = true;
+      setLoadingGemini(true);
+      setGemini(null); // reset on new data
+
+      try {
+        const fullText = document.body.innerText.toLowerCase();
+        const geminiResponse = await getGeminiAnalysis(fullText);
+        setGemini(geminiResponse?.available || {});
+      } catch (err) {
+        console.error("Gemini fetch failed:", err);
+      } finally {
+        setLoadingGemini(false);
+        ongoingRequest.current = false;
+      }
     };
 
     fetchGemini();
@@ -25,7 +41,9 @@ export default function ExtractedDataDisplay({ data }) {
     <div className="container">
       <h2>{title}</h2>
 
-      {gemini ? (
+      {loadingGemini && <p>Loading Gemini data...</p>}
+
+      {!loadingGemini && gemini && (
         <>
           <h3>Gemini Analysis</h3>
           <p><strong>Summary:</strong> {gemini.summary}</p>
@@ -35,8 +53,6 @@ export default function ExtractedDataDisplay({ data }) {
           <SkillList title="Resume Strengths" skills={gemini.strengths} />
           <SkillList title="Resume Gaps" skills={gemini.gaps} highlight />
         </>
-      ) : (
-        <p>Loading Gemini data...</p>
       )}
     </div>
   );

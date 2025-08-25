@@ -1,5 +1,5 @@
-//import { getGeminiApiKey, getUsersResume } from "../data/config.js";
-import {getUserData} from "./IndexedDbUsers.js"
+// background.js
+import { getUserData } from "./IndexedDbUsers.js";
 
 /**
  * Calls Gemini API to analyze a resume against a job description.
@@ -8,9 +8,8 @@ import {getUserData} from "./IndexedDbUsers.js"
  */
 export async function callGemini(jobText) {
   const usersData = await getUserData();
-  const GEMINI_API_KEY = await usersData.GeminiAPIKey;
-  const resume = await usersData.resume;
-  console.log(jobText, usersData);
+  const GEMINI_API_KEY = usersData.GeminiAPIKey;
+  const resume = usersData.resume;
 
   if (!GEMINI_API_KEY) {
     throw new Error("Gemini API key not found. Please add it in the settings.");
@@ -42,12 +41,10 @@ Output strictly in this JSON structure:
   "matchScore": [0-100 integer],
   "summary": "[1–2 sentences of alignment analysis]",
   "strengths": [
-    {"skill": "[Skill]", "evidence": "[Exact quote from resume]"},
-    ...
+    {"skill": "[Skill]", "evidence": "[Exact quote from resume]"}
   ],
   "gaps": [
-    {"skill": "[Skill]", "priority": "[CRITICAL or PREFERRED]", "status": "[CLEAR / PARTIAL / MISSING]", "notes": "[Why it's a gap — quote resume if relevant, and give exact wording to fix it]"},
-    ...
+    {"skill": "[Skill]", "priority": "[CRITICAL or PREFERRED]", "status": "[CLEAR / PARTIAL / MISSING]", "notes": "[Why it's a gap — quote resume if relevant, and give exact wording to fix it]"}
   ],
   "actionStep": "[1 high-impact improvement step]"
 }
@@ -65,28 +62,42 @@ Respond only with a JSON object.
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`,
     {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-      }),
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
     }
   );
 
   const data = await response.json();
-
-  const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-  console.log("Gemini response:", rawText);
+  let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
   if (!rawText) throw new Error("No response from Gemini.");
 
-  try {
-    // Remove any ```json code fencing and parse
-    const cleaned = rawText.replace(/^```json\s*|\s*```$/g, "");
-    return JSON.parse(cleaned);
-  } catch (err) {
-    console.error("❌ Failed to parse Gemini JSON:", rawText);
-    throw new Error("Gemini returned invalid JSON");
+  const maxRetries = 3;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      // Attempt to extract JSON strictly from the text
+      const cleaned = rawText
+        .replace(/^```json\s*|\s*```$/g, "") // remove code fences
+        .trim();
+
+      // If the response has extra commentary around JSON, extract {...}
+      const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) throw new Error("No JSON object found in Gemini response");
+
+      return JSON.parse(jsonMatch[0]);
+    } catch (err) {
+      console.warn(`❌ Failed to parse Gemini JSON (attempt ${attempt}):`, rawText);
+
+      if (attempt === maxRetries) {
+        throw new Error("Gemini returned invalid JSON after multiple retries");
+      }
+
+      // Remove extra backticks or stray characters for next attempt
+      rawText = rawText.replace(/```/g, "").trim();
+
+      // Wait a bit before retrying
+      await new Promise((res) => setTimeout(res, 500));
+    }
   }
 }

@@ -1,7 +1,10 @@
 const DB_NAME = "RealtimeAnalysisDB";
-const DB_VERSION = 4;
+const DB_VERSION = 12;
 
 let dbPromise = null;
+const JOBS_STORE = "jobsData";
+const USERS_STORE = "usersData";
+
 
 // Open the database once and cache it
 export function getDB() {

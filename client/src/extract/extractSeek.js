@@ -1,20 +1,21 @@
 import { detectWorkType } from "./helper.js";
-import { getGeminiAnalysis } from "../Feeder/GeminiJobFeeder.js";
 
 export async function extractSeekData() {
   const titleEl = document.querySelector('[data-automation="job-detail-title"]');
   const companyEl = document.querySelector('[data-automation="advertiser-name"]');
   const locationEl = document.querySelector('[data-automation="job-detail-location"]');
 
-  if (!titleEl) return null;
+  if (!titleEl) {
+    console.log("No title element found. Skipping extraction.");
+    return null;
+  }
 
   const fullText = document.body.innerText.toLowerCase();
-  // const geminiResponse = await getGeminiAnalysis(fullText) || {};
 
   const dateObj = new Date();
   const formattedDate = `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`;
 
-  return {
+  const jobData = {
     title: titleEl.innerText.trim() || "Unknown",
     company: companyEl?.childNodes[0]?.nodeValue?.trim() || companyEl?.innerText?.trim() || "Unknown",
     location: locationEl?.innerText.trim() || "Unknown",
@@ -24,6 +25,9 @@ export async function extractSeekData() {
     status: "Applied",
     date: formattedDate,
     syncStatus: "pending",
-    //gemini: geminiResponse
   };
+
+  console.log("Extracted job data:", jobData); // <-- debug here
+
+  return jobData;
 }

@@ -3,6 +3,7 @@ import { setJobItem, getAllJobs, updateJobStatus, getJobStatusCounts } from "./I
 export function handleJobMessage(request, sender, sendResponse) {
   switch (request.action) {
     case "Job_AddJob": {
+      console.log("backgorund add job")
       const key = `job_${Date.now()}`;
       setJobItem(key, request.data)
         .then(() => sendResponse({ status: "ok", storedKey: key }))

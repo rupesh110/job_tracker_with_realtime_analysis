@@ -1,4 +1,4 @@
-//import {callGemini} from "./callGemini.js"
+import { detectWorkType } from "./helper";
 
 export async function extractLinkedInData() {
   const titleEl = document.querySelector('.job-details-jobs-unified-top-card__job-title');
@@ -8,8 +8,9 @@ export async function extractLinkedInData() {
   const locationEl = document.querySelector('.job-details-jobs-unified-top-card__tertiary-description-container span.tvm__text--low-emphasis');
  
   const fullText = document.body.innerText.toLowerCase();
-  // const geminiResponse = await callGemini(fullText);
-  // console.log(geminiResponse);
+  
+  const dateObj = new Date();
+  const formattedDate = `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`;
 
   return {
     title: titleEl?.innerText?.trim() || 'N/A',
@@ -21,8 +22,10 @@ export async function extractLinkedInData() {
     platform: 'LinkedIn',
     url: window.location.href,
     location: locationEl?.innerText?.trim() || 'N/A',
-     // gemini: geminiResponse
-
+    workType: detectWorkType(fullText),
+    status: "Applied",
+    date: formattedDate,
+    syncStatus: "pending",
   };
 }
 

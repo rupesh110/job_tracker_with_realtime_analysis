@@ -14,7 +14,6 @@ export default function attachClickListeners(root = document) {
     }
   });
 
-  // Recursively check shadow roots
   root.querySelectorAll('*').forEach(el => {
     if (el.shadowRoot) attachClickListeners(el.shadowRoot);
   });

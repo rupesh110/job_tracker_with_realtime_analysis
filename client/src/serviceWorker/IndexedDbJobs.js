@@ -1,22 +1,35 @@
 import {getDB} from "./IndexDb.js"
 
 const JOBS_STORE = "jobsData";
-const USERS_STORE = "usersData";
 
-
-// Store a job
+// Store a job, but only if URL doesn't exist already
 export function setJobItem(key, value) {
   return getDB().then(db => {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(JOBS_STORE, "readwrite");
       const store = tx.objectStore(JOBS_STORE);
-      store.put({ key, value });
 
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
+      // Get all jobs and check if URL already exists
+      const getAllReq = store.getAll();
+      getAllReq.onsuccess = () => {
+        const existingJob = getAllReq.result.find(job => job.value.url === value.url);
+
+        if (existingJob) {
+          // URL already exists
+          resolve({ key: existingJob.key, existing: true });
+        } else {
+          // Insert new job
+          const putReq = store.put({ key, value });
+          putReq.onsuccess = () => resolve({ key, existing: false });
+          putReq.onerror = (event) => reject(event.target.error);
+        }
+      };
+
+      getAllReq.onerror = (event) => reject(event.target.error);
     });
   });
 }
+
 
 // Get all jobs
 export function getAllJobs() {
