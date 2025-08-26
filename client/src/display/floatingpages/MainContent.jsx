@@ -30,6 +30,7 @@ export default function MainContent() {
     try {
       setLoading(true);
       const data = await fetchAllJobs();
+      console.log("ALl aplied jobs:", data)
       setJobsData(Array.isArray(data.items) ? data.items : []);
       setShowTable(true);
     } catch (error) {
