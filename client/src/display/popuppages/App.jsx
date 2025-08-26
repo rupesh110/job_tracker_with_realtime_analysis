@@ -1,30 +1,43 @@
 import React, { useEffect } from "react";
-import ExtractedDataDisplay from "./ExtractedDataDisplay.jsx"
-import "./App.css"
+import ExtractedDataDisplay from "./ExtractedDataDisplay.jsx";
+import "./App.css";
 
-export default function App({ data, onClose, onChangeDataClick, onSaveButton}) {
-
+export default function App({ data, onClose, onChangeDataClick, onSaveButton, notification }) {
   useEffect(() => {
-    function handleClickOutside(e) {
-      if (!e.target.closest("#react-extension-popup")) {
-        onClose();
-      }
-    }
+    const handleClickOutside = (e) => {
+      if (!e.target.closest("#react-extension-popup")) onClose();
+    };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
 
-  console.log("data1234A:",data)
-
   return (
     <div id="react-extension-popup">
-      <ExtractedDataDisplay data={data}/>
+      <ExtractedDataDisplay data={data} />
+
       <div id="react-button-footer">
         <button onClick={onSaveButton}>Save as Applied</button>
         <button onClick={onChangeDataClick}>Update Resume/Key</button>
         <button onClick={onClose}>Close</button>
       </div>
-     
+
+      {notification && (
+        <div
+          style={{
+            position: "fixed",
+            bottom: "20px",
+            right: "20px",
+            background: notification.type === "success" ? "#4CAF50" : "#F44336",
+            color: "white",
+            padding: "10px 16px",
+            borderRadius: "8px",
+            boxShadow: "0px 2px 6px rgba(0,0,0,0.2)",
+            zIndex: 9999,
+          }}
+        >
+          {notification.message}
+        </div>
+      )}
     </div>
   );
 }

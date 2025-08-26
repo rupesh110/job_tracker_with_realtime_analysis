@@ -3,7 +3,7 @@ import { isUserDataAvailable, getUserData, setUserData } from "./IndexedDbUsers.
 export function handleUserMessage(request, sender, sendResponse) {
   switch (request.action) {
     case "User_isUserDataAvailable": {
-      console.log("User_isUserDataAvailable");
+      //console.log("User_isUserDataAvailable");
       isUserDataAvailable()
         .then(available => sendResponse({ available }))
         .catch(err => sendResponse({ status: "error", error: err.message }));

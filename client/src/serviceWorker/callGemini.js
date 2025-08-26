@@ -7,6 +7,7 @@ import { getUserData } from "./IndexedDbUsers.js";
  * @returns {Promise<Object>} - JSON object with match score, strengths, gaps, and action steps.
  */
 export async function callGemini(jobText) {
+  console.log("From Gemini:", jobText)
   const usersData = await getUserData();
   const GEMINI_API_KEY = usersData.GeminiAPIKey;
   const resume = usersData.resume;

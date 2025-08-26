@@ -10,23 +10,33 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
   const dragOffset = useRef({ x: 0, y: 0 });
   const dragging = useRef(false);
 
-  // Initialize job statuses from jobs array
+  // Normalize job fields and initialize statuses
+  const normalizedJobs = jobs.map((job) => ({
+    ...job,
+    value: {
+      company: job.value?.company || "Unknown",
+      title: job.value?.title || "Unknown",
+      location: job.value?.location || "Unknown",
+      status: job.value?.status || "Unknown",
+      platform: job.value?.platform || "Unknown",
+      workType: job.value?.workType || "Unknown",
+      date: job.value?.date || "Unknown",
+      url: job.value?.url || "#",
+    },
+  }));
+
   useEffect(() => {
-    const initialStatuses = jobs.reduce((acc, job) => {
-      acc[job.key] = job.value.status || "Unknown"; // Use 'key' from IndexedDB
+    const initialStatuses = normalizedJobs.reduce((acc, job) => {
+      acc[job.key] = job.value.status;
       return acc;
     }, {});
     setJobStatuses(initialStatuses);
   }, [jobs]);
 
-  console.log(jobs)
-  // Handle status change
   const handleStatusChange = async (jobKey, newStatus) => {
-    // Update UI immediately
     setJobStatuses((prev) => ({ ...prev, [jobKey]: newStatus }));
 
     try {
-      // Call service worker to update status in IndexedDB
       const response = await updateJobStatus({ id: jobKey, newStatus });
       console.log("Status update response:", response);
     } catch (error) {
@@ -39,22 +49,14 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
   // Dragging handlers
   const handleMouseDown = (e) => {
     dragging.current = true;
-    dragOffset.current = {
-      x: e.clientX - position.x,
-      y: e.clientY - position.y,
-    };
+    dragOffset.current = { x: e.clientX - position.x, y: e.clientY - position.y };
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
   };
-
   const handleMouseMove = (e) => {
     if (!dragging.current) return;
-    setPosition({
-      x: e.clientX - dragOffset.current.x,
-      y: e.clientY - dragOffset.current.y,
-    });
+    setPosition({ x: e.clientX - dragOffset.current.x, y: e.clientY - dragOffset.current.y });
   };
-
   const handleMouseUp = () => {
     dragging.current = false;
     document.removeEventListener("mousemove", handleMouseMove);
@@ -68,27 +70,24 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
       case "Rejected": return "row-rejected";
       case "Interview":
       case "Offer": return "row-green";
-      case "Unknown": return "row-unknown";
-      default: return "";
+      default: return "row-unknown";
     }
   };
 
-  // Filter jobs by search term
-  const filteredJobs = jobs.filter((job) =>
-    job.value.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.value.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    job.value.location.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Safe filtering
+  const filteredJobs = normalizedJobs.filter((job) => {
+    const search = searchTerm.toLowerCase();
+    return (
+      job.value.company.toLowerCase().includes(search) ||
+      job.value.title.toLowerCase().includes(search) ||
+      job.value.location.toLowerCase().includes(search)
+    );
+  });
 
-  if (!jobs || jobs.length === 0)
-    return <div className="jobs-table-empty">No jobs available</div>;
+  if (!jobs || jobs.length === 0) return <div className="jobs-table-empty">No jobs available</div>;
 
   return (
-    <div
-      className="jobs-table-panel"
-      ref={panelRef}
-      style={{ left: position.x, top: position.y }}
-    >
+    <div className="jobs-table-panel" ref={panelRef} style={{ left: position.x, top: position.y }}>
       <div className="jobs-table-header" onMouseDown={handleMouseDown}>
         <h3>Jobs Table</h3>
         <button className="close-button" onClick={onClose}>×</button>
@@ -135,7 +134,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
                 </td>
                 <td>{job.value.platform}</td>
                 <td>{job.value.workType}</td>
-                <td>{job.value.date || "Unknown"}</td>
+                <td>{job.value.date}</td>
                 <td>
                   <a href={job.value.url} target="_blank" rel="noopener noreferrer" className="link">
                     View

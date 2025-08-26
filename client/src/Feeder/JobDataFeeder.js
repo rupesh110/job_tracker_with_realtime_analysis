@@ -1,43 +1,35 @@
+import { safeSendMessage } from "./helper";
+
 export async function addJob(data) {
-  console.log("JObs feeedr;", data)
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({ action: "Job_AddJob", data }, (response) => {
-      if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
-      if (!response) return reject(new Error("No response from service worker"));
-      resolve(response);
-    });
-  });
+  console.log("Jobs feeder:", data);
+  return safeSendMessage({ action: "Job_AddJob", data });
 }
 
 export async function fetchAllJobs() {
   console.log("Fetch all jobs from Feeder");
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({ action: "Job_FetchAllJobs" }, (response) => {
-      if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
-      resolve(response || []);
+  return safeSendMessage({ action: "Job_FetchAllJobs" })
+    .catch(err => {
+      console.warn("Fetch jobs failed:", err.message);
+      return []; // fallback to prevent breakage
     });
-  });
 }
 
 export async function updateJobStatus({ id, newStatus }) {
   console.log("Update status", id, newStatus);
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(
-      { action: "Job_UpdateStatus", data: { id, newStatus } },
-      (response) => {
-        if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
-        resolve(response || []);
-      }
-    );
+  return safeSendMessage({
+    action: "Job_UpdateStatus",
+    data: { id, newStatus }
+  }).catch(err => {
+    console.warn("Update job status failed:", err.message);
+    return [];
   });
 }
 
 export async function getAllJobStatus() {
   console.log("Get All job status");
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({ action: "Job_GetAllJobStatus" }, (response) => {
-      if (chrome.runtime.lastError) return reject(chrome.runtime.lastError);
-      resolve(response || []);
+  return safeSendMessage({ action: "Job_GetAllJobStatus" })
+    .catch(err => {
+      console.warn("Get job status failed:", err.message);
+      return [];
     });
-  });
 }

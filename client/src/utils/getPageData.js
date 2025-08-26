@@ -8,13 +8,14 @@ export async function getPageData() {
   const url = window.location.href;
 
   // Only handle Seek and LinkedIn job pages
-  if (!url.includes("seek.com.au/") && !url.includes("linkedin.com/jobs/")) {
+  if (!url.includes("seek.com.au") && !url.includes("linkedin.com/jobs/")) {
     return null;
   }
 
   // Extract job data based on platform
   let jobData = null;
-  if (url.includes("seek.com.au/")) {
+  if (url.includes("seek.com.au")) {
+    await new Promise(resolve => setTimeout(resolve, 2000));
     jobData = await extractSeekData();
   } else if (url.includes("linkedin.com/jobs/")) {
     await new Promise(resolve => setTimeout(resolve, 3000));
