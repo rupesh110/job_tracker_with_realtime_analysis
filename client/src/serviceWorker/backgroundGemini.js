@@ -1,8 +1,8 @@
 import { callGemini } from "./callGemini";
 
-export function handleUserMessage(request, sender, sendResponse) {
+export function handleGeminiMessage(request, sender, sendResponse) {
   switch (request.action) {
-    case "Gemini_GetGeminiAnalysis": {
+    case "Gemini_CallAnalysis": {
       callGemini(request.data)
         .then(available => sendResponse({ available }))
         .catch(err => sendResponse({ status: "error", error: err.message }));

@@ -63,7 +63,7 @@ export default function MainContent() {
 
   return (
     <div className="main-content">
-      <h2 className="main-title">Job Helper</h2>
+      <h2 className="main-title">Job Summary</h2>
 
       <div className="job-counts">
         {Object.entries(jobCount).map(([status, count]) => (

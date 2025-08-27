@@ -2,7 +2,8 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import PopupController from "./display/PopupController.jsx";
 import FloatController from "./display/floatingController.jsx";
-import attachClickListeners from "./detect/detectClicks.js"
+import attachClickListenersSeek from "./detect/detectApplySeek.js"
+import attachClickListenersLinkedin from "./detect/detectApplyLinkedin.js";
 
 const container = document.createElement("div");
 container.id = "react-extension-container";
@@ -18,7 +19,8 @@ document.body.appendChild(floatingContainer);
 const floatingRoot = ReactDOM.createRoot(floatingContainer);
 floatingRoot.render(<FloatController />);
 
-attachClickListeners();
+attachClickListenersSeek();
+attachClickListenersLinkedin();
 
 
 const observer = new MutationObserver((mutationsList) => {
@@ -26,7 +28,8 @@ const observer = new MutationObserver((mutationsList) => {
     if (mutation.addedNodes.length) {
       mutation.addedNodes.forEach(node => {
         if (node.nodeType === 1) { // element node
-          attachClickListeners(node);
+          attachClickListenersSeek(node);
+          attachClickListenersLinkedin(node)
         }
       });
     }
