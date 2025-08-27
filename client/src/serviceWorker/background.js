@@ -13,7 +13,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     } else if (request.action.startsWith("User")) {
       handled = Users.handleUserMessage(request, sender, sendResponse);
     } else if (request.action.startsWith("Gemini")) {
-      handled = Geminis.handleUserMessage(request, sender, sendResponse);
+      handled = Geminis.handleGeminiMessage(request, sender, sendResponse);
     }
   } catch (err) {
     console.error("Background error:", err);
@@ -29,4 +29,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
   return true; // keep the message channel open for async responses
 });
-

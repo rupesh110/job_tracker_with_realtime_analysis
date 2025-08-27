@@ -3,7 +3,6 @@
   "name": "Job Tracker with realtime analysis",
   "version": "3.1",
   "description": "Helps users analyse resumes and save records",
-  "permissions": ["activeTab", "storage"],
   "background": {
     "service_worker": "assets/background.js",
     "type": "module"

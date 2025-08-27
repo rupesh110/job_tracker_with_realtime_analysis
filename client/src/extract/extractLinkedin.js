@@ -6,13 +6,21 @@ export async function extractLinkedInData() {
   const companySpanFallback = document.querySelector('.job-details-jobs-unified-top-card__company-name');
   const companyFallbackSpan = document.querySelector('.job-details-jobs-unified-top-card__primary-description span span');
   const locationEl = document.querySelector('.job-details-jobs-unified-top-card__tertiary-description-container span.tvm__text--low-emphasis');
- 
+
+  // Extract job description container
+  const descriptionEl = document.querySelector('article.jobs-description__container');
+
+  // Grab all text content inside the description, collapsing multiple newlines
+  const descriptionText = descriptionEl
+    ? descriptionEl.innerText.replace(/\n{2,}/g, '\n').trim()
+    : '';
+
   const fullText = document.body.innerText.toLowerCase();
-  
+
   const dateObj = new Date();
   const formattedDate = `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`;
 
-  return {
+  const jobData = {
     title: titleEl?.innerText?.trim() || 'N/A',
     company:
       companyAnchor?.innerText?.trim() ||
@@ -26,11 +34,9 @@ export async function extractLinkedInData() {
     status: "Applied",
     date: formattedDate,
     syncStatus: "pending",
+    description: descriptionText
   };
+
+   console.log("Extracted job data for Linkedin:", jobData);
+  return jobData
 }
-
-
-
-
-
-

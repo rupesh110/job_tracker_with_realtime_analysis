@@ -22,7 +22,7 @@ export default function ExtractedDataDisplay({ data }) {
       try {
         const relevantText = data.description || document.body.innerText;
         const geminiResponse = await getGeminiAnalysis(relevantText.toLowerCase());
-
+        await console.log(geminiResponse);
         if (latestDataRef.current === data) {
           setGemini(geminiResponse?.available || null);
         }
@@ -58,6 +58,21 @@ export default function ExtractedDataDisplay({ data }) {
 
           <SkillList title="Resume Strengths" skills={gemini.strengths} />
           <SkillList title="Resume Gaps" skills={gemini.gaps} highlight />
+
+          {/* Domain Analysis */}
+          {gemini.analysis?.domainMatch && (
+            <div className="domain-analysis">
+              <h3>Domain Analysis</h3>
+              {gemini.analysis.domainMatch.map((domain, idx) => (
+                <div key={idx} className="domain-item">
+                  <h4>{domain.domain}</h4>
+                  <p><strong>Required Skills:</strong> {domain.requiredSkills.join(", ")}</p>
+                  <p><strong>Matched Skills:</strong> {domain.matchedSkills.join(", ") || "None"}</p>
+                  <p><strong>Match %:</strong> {domain.matchPercentage}%</p>
+                </div>
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>

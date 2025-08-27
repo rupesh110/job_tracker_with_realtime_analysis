@@ -15,7 +15,7 @@ export async function getPageData() {
   // Extract job data based on platform
   let jobData = null;
   if (url.includes("seek.com.au")) {
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 3000));
     jobData = await extractSeekData();
   } else if (url.includes("linkedin.com/jobs/")) {
     await new Promise(resolve => setTimeout(resolve, 3000));
