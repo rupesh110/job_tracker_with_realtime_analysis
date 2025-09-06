@@ -23,7 +23,7 @@ export async function getUserData() {
 }
 
 export async function setUserData(value) {
-  console.log("Set users data:", value);
+  console.log("Set users data:", value)
   try {
     const response = await safeSendMessage({ action: "User_SetUserData", data: value });
     return response || {};

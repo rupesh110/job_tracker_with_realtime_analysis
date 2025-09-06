@@ -11,7 +11,6 @@ export const DEFAULT_USER_DATA = {
   IsResume: false,
 };
 
-// Check if the default user data exists
 export function isUserDataAvailable(tries = 3, delay = 200) {
   return new Promise(async (resolve, reject) => {
     for (let attempt = 1; attempt <= tries; attempt++) {
@@ -19,27 +18,26 @@ export function isUserDataAvailable(tries = 3, delay = 200) {
         const db = await getDB();
         const tx = db.transaction(USERS_STORE, "readonly");
         const store = tx.objectStore(USERS_STORE);
-        const request = store.get(DEFAULT_USER_ID);
 
-        request.onsuccess = () => {
-          const result = request.result;
-          const isAvailable = !!(
-            result &&
-            result.value &&
-            (result.value.GeminiAPIKey?.trim() || result.value.resume?.trim())
-          );
-          resolve(isAvailable);
-        };
+        const result = await new Promise((res, rej) => {
+          const request = store.get(DEFAULT_USER_ID);
+          request.onsuccess = () => res(request.result);
+          request.onerror = () => rej(request.error);
+        });
 
-        request.onerror = () => reject(request.error);
+        const isAvailable = !!(
+          result &&
+          result.value &&
+          (result.value.GeminiAPIKey?.trim() || result.value.resume?.trim())
+        );
 
-        break; // exit loop if success
+        return resolve(isAvailable); // ✅ exit cleanly once success
       } catch (err) {
         if (err.message.includes("Extension context invalidated") && attempt < tries) {
           console.warn(`Attempt ${attempt} failed: ${err.message}. Retrying in ${delay}ms...`);
           await new Promise(res => setTimeout(res, delay));
         } else {
-          reject(err);
+          return reject(err);
         }
       }
     }
@@ -50,6 +48,13 @@ export function isUserDataAvailable(tries = 3, delay = 200) {
 // Overwrite user data completely
 export function setUserData(value) {
   console.log("From db set users data:", value)
+    if (value.resumeFile) {
+    console.log("Resume file details:");
+    console.log("Name:", value.resumeFile.name);
+    console.log("Size:", value.resumeFile.size);
+    console.log("Type:", value.resumeFile.type);
+  }
+
   return getDB().then((db) => {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(USERS_STORE, "readwrite");
@@ -82,4 +87,5 @@ export function getUserData() {
     });
   });
 }
+
 

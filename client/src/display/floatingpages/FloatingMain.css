@@ -7,15 +7,33 @@
 
 /* Floating Button */
 .floating-toggle-btn {
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 50%;
   width: 50px;
   height: 50px;
-  font-size: 24px;
+  padding: 0;
+  border: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent; /* default: no background when showing icon */
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+
+/* When panel is open, apply blue background and show "×" */
+.floating-toggle-btn.open {
+  background-color: #007bff;
+  color: white;
+  font-size: 24px;
+  border-radius: 50%;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Icon inside button */
+.floating-toggle-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
 }
 
 /* Panel that appears above the button */

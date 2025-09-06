@@ -1,6 +1,6 @@
 import { safeSendMessage } from "./helper";
 
-export async function getGeminiAnalysis(data) {
+export async function getGeminiAnalysis({data}) {
   try {
     const response = await safeSendMessage({ action: "Gemini_CallAnalysis", data });
     return response;
