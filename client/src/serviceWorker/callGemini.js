@@ -1,16 +1,19 @@
 // background.js
 import { getUserData } from "./IndexedDbUsers.js";
+;
 
 /**
  * Calls Gemini API to analyze a resume against a job description.
  * @param {string} jobText - The job description text.
  * @returns {Promise<Object>} - JSON object with match score, strengths, gaps, and action steps.
  */
-export async function callGemini(jobText) {
-  console.log("From Gemini:", await jobText)
+export async function callGemini({ jobTitle, jobDescription }) {
+  console.log("From Gemini:-------------------", await jobTitle, jobDescription)
   const usersData = await getUserData();
   const GEMINI_API_KEY = usersData.GeminiAPIKey;
   const resume = usersData.resume;
+
+  console.log("resume:", resume)
 
   if (!GEMINI_API_KEY) {
     throw new Error("Gemini API key not found. Please add it in the settings.");
@@ -20,35 +23,48 @@ export async function callGemini(jobText) {
   You are an expert in resume optimization, ATS alignment, and job-candidate matching. 
   I will provide a job description (JD) and a resume.
 
-  Perform your analysis in TWO STRICT STEPS:
+  Perform your analysis in THREE STRICT STEPS and include all results in a single JSON object:
 
-  Step 1 — Extract everything from the resume:
+  Step 1 — Title Analysis:
+  - Extract the main job title from the JD.
+  - Extract the most relevant title or role from the resume (if available).
+  - Determine if the resume title is closely related to the job title.
+  - Provide a recommendation:
+    - If related: "Run full analysis"
+    - If unrelated: suggest certifications, courses, or degrees from university that could help improve alignment.
+
+  Step 2 — Resume Extraction:
   - Identify and list all programming languages, frameworks, platforms, cloud services, databases, methodologies, certifications, and projects with dates.
-  - Quote every item verbatim from the resume. Do not infer or assume anything beyond what is explicitly stated.
+  - Quote every item verbatim from the resume.
   - Group extracted items into categories: Languages, Frameworks, Platforms, Cloud/DevOps, Databases, Methodologies, Certifications, Projects.
+  - Identify Domain-Level Analysis :
+    - Group JD skills into broader domains such as:
+      - Technical
+      - Non-technical
+    - For each domain:
+      - requiredSkills: most important JD skills in the domain
+      - matchedSkills: skills present in the resume (include synonyms/equivalents)
+      - matchPercentage = (matchedSkills ÷ requiredSkills × 100, integer)
 
-  Step 2 — Compare extracted resume data to the job description:
+  Step 3 — Skill Comparison:
   - Identify all required or preferred skills, technologies, and qualifications from the JD.
   - For each skill, classify as:
-    - CLEAR: explicitly present in the resume,
-    - PARTIAL: mentioned but lacks sufficient detail or context,
-    - MISSING: not mentioned at all.
-  - If MISSING, provide **exact wording** to add to the resume to address the gap.
-  - Give higher weight to CRITICAL skills (70%) than PREFERRED skills (30%) when computing the overall matchScore.
+    - CLEAR: explicitly present in the resume
+    - PARTIAL: mentioned but lacks sufficient detail
+    - MISSING: not mentioned at all
+  - If MISSING, provide **exact wording** to add to the resume.
+  - Give higher weight to CRITICAL skills (70%) than PREFERRED skills (30%) for matchScore.
   - Highlight the top 3–5 most critical requirements and how well the resume addresses them.
 
-  Additionally — **Domain-Level Analysis (update only this part)**:
-  - Group all JD skills into broader domains:
-    - Technical domains: Frontend, Backend, Cloud/DevOps, Database, Testing, System Design
-    - Non-technical domains: Client Handling, Customer Service, Project Management, Leadership, Communication
-  - For each domain, provide:
-    - requiredSkills: all JD skills in the domain
-    - matchedSkills: skills present in the resume (include semantic matches, synonyms, or equivalent terminology)
-    - matchPercentage = (matchedSkills ÷ requiredSkills × 100, integer)
-  - Ensure only the domainMatch array is updated; do not modify strengths, gaps, or actionStep.
+  Output strictly in this JSON structure:
 
-  Output strictly in this JSON structure (do not change it):
   {
+    "titleAnalysis": {
+      "jobTitle": "[Extracted job title from JD]",
+      "resumeTitle": "[Extracted title from resume]",
+      "related": [true/false],
+      "recommendation": "[Actionable suggestion if unrelated]"
+    },
     "matchScore": [0-100 integer],
     "summary": "[1–2 sentences of alignment analysis]",
     "analysis": {
@@ -65,13 +81,16 @@ export async function callGemini(jobText) {
       {"skill": "[Skill]", "evidence": "[Exact quote from resume]"}
     ],
     "gaps": [
-      {"skill": "[Skill]", "priority": "[CRITICAL or PREFERRED]", "status": "[CLEAR / PARTIAL / MISSING]", "notes": "[Why it's a gap — quote resume if relevant, and give exact wording to fix it]"}
+      {"skill": "[Skill]", "priority": "[CRITICAL or PREFERRED]", "status": "[CLEAR / PARTIAL / MISSING]", "notes": "[Quote resume if relevant and provide exact wording to fix]"}
     ],
     "actionStep": "[1 high-impact improvement step]"
   }
 
+  Job Title
+  ${jobTitle}
+
   Job Description:
-  ${jobText}
+  ${jobDescription}
 
   Resume:
   ${resume}
@@ -85,14 +104,19 @@ export async function callGemini(jobText) {
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+      body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }],
+       generationConfig: {
+        temperature: 0.4,
+      } 
+    }),
     }
   );
 
   const data = await response.json();
   let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  
 
-  await console.log("From Gemini:", rawText)
+  await console.log("From Gemini:", JSON.stringify(data))
   if (!rawText) throw new Error("No response from Gemini.");
 
   const maxRetries = 3;

@@ -20,9 +20,11 @@ export default function ExtractedDataDisplay({ data }) {
       ongoingRequest.current = true;
 
       try {
-        const relevantText = data.description || document.body.innerText;
-        const geminiResponse = await getGeminiAnalysis(relevantText.toLowerCase());
-        await console.log(geminiResponse);
+        const jobTitle = data.title || "";
+        const jobDescription = data.description || "";
+
+        const geminiResponse = await getGeminiAnalysis({ data: { jobTitle, jobDescription } });
+
         if (latestDataRef.current === data) {
           setGemini(geminiResponse?.available || null);
         }
@@ -56,21 +58,31 @@ export default function ExtractedDataDisplay({ data }) {
           <p><strong>Match:</strong> {gemini.matchScore ?? 0}%</p>
           <p><strong>Action Step:</strong> {gemini.actionStep || "N/A"}</p>
 
-          <SkillList title="Resume Strengths" skills={gemini.strengths} />
-          <SkillList title="Resume Gaps" skills={gemini.gaps} highlight />
+          {gemini.titleAnalysis?.related ? (
+            <>
+              {/* Show only if the job is related */}
+              <SkillList title="Resume Strengths" skills={gemini.strengths} />
+              <SkillList title="Resume Gaps" skills={gemini.gaps} highlight />
 
-          {/* Domain Analysis */}
-          {gemini.analysis?.domainMatch && (
-            <div className="domain-analysis">
-              <h3>Domain Analysis</h3>
-              {gemini.analysis.domainMatch.map((domain, idx) => (
-                <div key={idx} className="domain-item">
-                  <h4>{domain.domain}</h4>
-                  <p><strong>Required Skills:</strong> {domain.requiredSkills.join(", ")}</p>
-                  <p><strong>Matched Skills:</strong> {domain.matchedSkills.join(", ") || "None"}</p>
-                  <p><strong>Match %:</strong> {domain.matchPercentage}%</p>
+              {gemini.analysis?.domainMatch && (
+                <div className="domain-analysis">
+                  <h3>Domain Analysis</h3>
+                  {gemini.analysis.domainMatch.map((domain, idx) => (
+                    <div key={idx} className="domain-item">
+                      <h4>{domain.domain}</h4>
+                      <p><strong>Required Skills:</strong> {domain.requiredSkills.join(", ")}</p>
+                      <p><strong>Matched Skills:</strong> {domain.matchedSkills.join(", ") || "None"}</p>
+                      <p><strong>Match %:</strong> {domain.matchPercentage}%</p>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              )}
+            </>
+          ) : (
+            /* Show only recommendation if job is NOT related */
+            <div className="recommendation">
+              <h3>Recommendation</h3>
+              <p>{gemini.titleAnalysis?.recommendation || "No recommendation available"}</p>
             </div>
           )}
         </>

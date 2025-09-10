@@ -134,3 +134,28 @@ p {
     opacity: 1;
   }
 }
+
+/* Recommendation container */
+.recommendation {
+  background-color: #fff4e5;   /* Soft light orange background */
+  border-left: 4px solid #ff9800; /* Highlight with orange border */
+  padding: 12px 16px;
+  margin: 12px 0;
+  border-radius: 6px;
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+/* Recommendation title */
+.recommendation h3 {
+  margin: 0 0 6px 0;
+  font-size: 1.1rem;
+  color: #e65100;
+}
+
+/* Recommendation text */
+.recommendation p {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}

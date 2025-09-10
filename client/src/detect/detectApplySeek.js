@@ -1,15 +1,15 @@
 import { addJob } from '../Feeder/JobDataFeeder.js';
 import { extractLinkedInData } from '../extract/extractLinkedin.js';
 
-export default function attachClickListenersLinkedin(root = document) {
+export default function attachClickListenersSeek(root = document) {
   root.querySelectorAll('a, button').forEach(el => {
     if (!el.dataset.listenerAdded) {
       el.dataset.listenerAdded = "true";
       el.addEventListener('click', e => {
         const text = e.currentTarget.textContent.toLowerCase();
-        if (text.includes("apply")) {
+        if (text.includes("Quick apply")) {
           e.stopPropagation();
-          console.log("LinkedIn Apply clicked:", e.currentTarget);
+          console.log("Seek Apply clicked:", e.currentTarget);
 
           // Poll for modal content
           const startTime = Date.now();
@@ -17,7 +17,7 @@ export default function attachClickListenersLinkedin(root = document) {
           const interval = setInterval(async () => {
             const titleEl = document.querySelector('.job-details-jobs-unified-top-card__job-title');
             if (titleEl) {
-              clearInterval(interval); // Stop polling
+              clearInterval(interval); 
 
               try {
                 const data = await extractLinkedInData();

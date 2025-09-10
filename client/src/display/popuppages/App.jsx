@@ -1,16 +1,8 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ExtractedDataDisplay from "./ExtractedDataDisplay.jsx";
 import "./App.css";
 
 export default function App({ data, onClose, onChangeDataClick, onSaveButton, notification }) {
-  useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (!e.target.closest("#react-extension-popup")) onClose();
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [onClose]);
-
   return (
     <div id="react-extension-popup">
       <ExtractedDataDisplay data={data} />

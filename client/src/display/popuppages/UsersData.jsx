@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getUserData, setUserData } from "../../Feeder/UsersDataFeeder.js";
+import { extractTextFromPDF } from "./helper.js";
 import "./UsersData.css";
 
 export default function UsersData({ onClose }) {
@@ -12,9 +13,9 @@ export default function UsersData({ onClose }) {
   useEffect(() => {
     async function fetchData() {
       const savedData = await getUserData();
-      if (savedData?.IsResume && savedData?.resume) {
+      if (savedData?.IsResume && savedData?.resumeName) {
         setIsResumeRequired(false);
-        setExistingResumeName(savedData.resumeName || "Previously Uploaded Resume");
+        setExistingResumeName(savedData.resumeName);
 
         // Convert base64 back to File object for local display if needed
         const blob = await (await fetch(savedData.resume)).blob();
@@ -39,7 +40,7 @@ export default function UsersData({ onClose }) {
 
   const handleApiKeyChange = (e) => setApiKey(e.target.value);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (isResumeRequired && !resumeFile) {
@@ -52,31 +53,34 @@ export default function UsersData({ onClose }) {
       return;
     }
 
-    const saveData = async (resumeData) => {
-      const newData = {
-        resume: resumeData || "", 
-        resumeName: existingResumeName,
-        IsResume: Boolean(resumeData),
-        GeminiAPIKey: apiKey,
-        IsAPIKey: Boolean(apiKey.trim()),
-      };
+    let extractedText = null;
 
+    if (resumeFile && resumeFile.type === "application/pdf") {
       try {
-        await setUserData(newData);
-        alert("✅ User data saved!");
-        onClose();
-      } catch (error) {
-        alert("❌ Failed to save user data.");
-        console.error(error);
+        extractedText = await extractTextFromPDF(resumeFile);
+        if (!extractedText) throw new Error("No text extracted");
+        console.log("PDF text extracted:", extractedText);
+      } catch (err) {
+        console.error("Failed to extract PDF text:", err);
+        alert("Failed to extract text from PDF.");
       }
+    }
+
+    const newData = {
+      resume: extractedText,
+      resumeName: existingResumeName,
+      IsResume: !!resumeFile,
+      GeminiAPIKey: apiKey,
+      IsAPIKey: !!apiKey.trim(),
     };
 
-    if (resumeFile) {
-      const reader = new FileReader();
-      reader.onload = () => saveData(reader.result);
-      reader.readAsDataURL(resumeFile);
-    } else {
-      saveData(null);
+    try {
+      await setUserData(newData);
+      alert("✅ User data saved!");
+      onClose();
+    } catch (error) {
+      alert("❌ Failed to save user data.");
+      console.error(error);
     }
   };
 
@@ -87,8 +91,8 @@ export default function UsersData({ onClose }) {
 
       <form onSubmit={handleSubmit} className="form-wrapper">
         <div className="form-group">
-          <label htmlFor="resume">Resume (PDF/DOC):</label>
-          <input type="file" id="resume" accept=".pdf,.doc,.docx" onChange={handleResumeChange} />
+          <label htmlFor="resume">Resume (PDF):</label>
+          <input type="file" id="resume" accept=".pdf" onChange={handleResumeChange} />
           {existingResumeName && <p className="resume-name">📄 {existingResumeName}</p>}
         </div>
 
