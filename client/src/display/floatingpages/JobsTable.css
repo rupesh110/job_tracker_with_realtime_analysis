@@ -1,6 +1,6 @@
 .jobs-table-panel {
   position: fixed;
-  width: 90%;
+  width: 95%;
   max-width: 900px;
   max-height: 80vh; /* limits the panel height */
   background: #fff;
@@ -59,14 +59,23 @@
 .row-unknown { background-color: #f0f0f0; }
 
 .status-select {
-  padding: 4px 6px;
-  border-radius: 4px;
+  appearance: none; /* removes default arrow (cross-browser) */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background: white url("data:image/svg+xml;utf8,<svg fill='black' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 10px center;
+  background-size: 12px;
+
+  padding: 5px 30px 5px 10px; /* extra right padding for arrow */
   border: 1px solid #ccc;
+  border-radius: 6px;
   font-size: 14px;
+  cursor: pointer;
 }
 
+
 .search-input {
-  width: 100%;
+  width: auto;
   padding: 8px 12px;
   margin-bottom: 12px;
   border-radius: 6px;

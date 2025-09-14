@@ -74,7 +74,7 @@ export function updateJobStatus(key, newStatus) {
 export function getJobStatusCounts() {
   return getDB().then(db => {
     return new Promise((resolve, reject) => {
-      const tx = db.transaction(JOBS_STORE, "readonly");
+      const tx = db.transaction(JOBS_STORE, "readwrite"); // readwrite to update Follow Up
       const store = tx.objectStore(JOBS_STORE);
 
       let index;
@@ -85,14 +85,55 @@ export function getJobStatusCounts() {
         return;
       }
 
-      const counts = { Applied: 0, "In Progress": 0, "Follow Up": 0, Rejected: 0, Offer: 0 };
+      const counts = {
+        Applied: 0,
+        "In Progress": 0,
+        "Follow Up": 0,
+        Rejected: 0,
+        Offer: 0,
+        Unknown: 0
+      };
+
+      const IN_PROGRESS_STATUSES = ["Recruiters call", "1st Round", "Interview"];
+      const FOLLOW_UP_THRESHOLD_DAYS = 21; // 3 weeks
 
       const request = index.openCursor();
       request.onsuccess = (event) => {
         const cursor = event.target.result;
         if (cursor) {
-          const status = cursor.value.value.status;
-          counts[status] = (counts[status] || 0) + 1;
+          const jobEntry = cursor.value;
+          const job = jobEntry.value;
+          let status = job.status || "Unknown";
+
+          if (IN_PROGRESS_STATUSES.includes(status)) {
+            counts["In Progress"] += 1;
+          } else if (status === "Applied") {
+            if (job.date) {
+              const appliedDate = new Date(job.date.split("/").reverse().join("-"));
+              const now = new Date();
+              const diffDays = (now - appliedDate) / (1000 * 60 * 60 * 24);
+
+              if (diffDays > FOLLOW_UP_THRESHOLD_DAYS) {
+                counts["Follow Up"] += 1;
+
+                // update job status in IndexedDB
+                job.status = "Follow Up";
+                const putReq = store.put(jobEntry);
+                putReq.onerror = (err) => console.error("Failed to update Follow Up:", err.target.error);
+              } else {
+                counts["Applied"] += 1;
+              }
+            } else {
+              counts["Applied"] += 1;
+            }
+          } else if (status === "Follow Up") {
+            counts["Follow Up"] += 1;
+          } else if (["Offer", "Rejected"].includes(status)) {
+            counts[status] += 1;
+          } else {
+            counts["Unknown"] += 1;
+          }
+
           cursor.continue();
         } else {
           resolve(counts);
@@ -103,4 +144,3 @@ export function getJobStatusCounts() {
     });
   });
 }
-

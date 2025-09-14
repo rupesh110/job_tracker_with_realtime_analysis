@@ -1,44 +1,31 @@
-/* ExtractedDataDisplay.css */
-.loading {
-  text-align: center;
-  color: #888;
-  font-style: italic;
-  position: relative;
-  padding-left: 25px;
-}
-
-/* Create a single animated dot before the text */
-.loading::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 50%;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background-color: #007bff;
-  transform: translateY(-50%);
-  animation: loadingDot 1s infinite ease-in-out;
-}
-
+/* ============================= */
+/* Container                     */
+/* ============================= */
 .container {
   max-width: 800px;
-  max-height: 80vh; /* Limit height to 80% of viewport */
-  margin: 10px auto;
-  padding: 10px;
+  max-height: 80vh;          /* viewport height limit */
+  margin: 15px auto;
+  padding: 22px;
   background-color: #f8f9fa;
-  border-radius: 10px;
-  font-family: Arial, sans-serif;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  overflow-y: auto; /* Enable vertical scroll */
-  overflow-x: hidden; /* Prevent horizontal scroll */
-  scrollbar-width: thin; /* For Firefox */
-  scrollbar-color: #007bff #e0e0e0; /* Scrollbar colors for Firefox */
+  border-radius: 12px;
+  font-family: Arial, sans-serif !important;
+  font-size: 16px !important;
+  color: #333 !important;
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+
+  overflow-y: auto;          /* vertical scrolling */
+  overflow-x: hidden;        /* hide horizontal overflow */
+
+  scrollbar-width: thin;     /* Firefox */
+  scrollbar-color: #007bff #e0e0e0; /* thumb and track color */
+
+  -webkit-overflow-scrolling: touch; /* smooth scroll on mobile */
+  touch-action: auto;        /* ensure mouse & touch events propagate */
+  scroll-behavior: smooth;   /* smooth scrolling for mouse wheel & scrollbar */
 }
 
-/* Optional: custom scrollbar for Chrome, Edge, Safari */
 .container::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
 
 .container::-webkit-scrollbar-track {
@@ -51,111 +38,229 @@
   border-radius: 4px;
 }
 
-h2 {
+/* ============================= */
+/* Headings                      */
+/* ============================= */
+h2.job-title {
+  font-size: 24px !important;
   color: #333;
-  margin-bottom: 10px;
+  margin-bottom: 18px;
 }
 
-h3 {
+h3.section-title {
+  font-size: 20px !important;
   color: #555;
-  margin-top: 20px;
+  margin-top: 28px;
+  margin-bottom: 14px;
 }
 
 h4 {
+  font-size: 16px !important;
   color: #444;
-  margin-top: 15px;
-  margin-bottom: 5px;
+  margin-top: 14px;
+  margin-bottom: 8px;
 }
 
+/* ============================= */
+/* Paragraphs                    */
+/* ============================= */
 p {
-  margin: 5px 0;
-  line-height: 1.5;
+  margin: 6px 0;
+  line-height: 1.7;
+  font-size: 16px !important;
 }
 
-/* Skill list styling */
+/* ============================= */
+/* Loading Spinner               */
+/* ============================= */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 22px 0;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================= */
+/* Summary Cards                 */
+/* ============================= */
+.summary-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin-top: 12px;
+}
+
+.summary-card {
+  flex: 1 1 240px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 14px 18px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.summary-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.summary-card .icon {
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  color: #007bff;
+}
+
+.summary-card .icon.match { color: #28a745; }
+.summary-card .icon.action { color: #ff9800; }
+
+/* ============================= */
+/* Skills Section                */
+/* ============================= */
+.skill-list {
+  margin-top: 18px;
+}
+
 .skill-list ul {
   list-style-type: none;
   padding-left: 0;
+  margin: 0;
 }
 
 .skill-list li {
   background-color: #ffffff;
-  margin: 5px 0;
-  padding: 10px;
+  margin: 8px 0;
+  padding: 12px 16px;
   border-left: 4px solid #007bff;
-  border-radius: 4px;
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+  font-size: 16px !important;
+}
+
+.skill-list li:hover {
+  background-color: #f0f8ff;
 }
 
 .skill-list li strong {
   display: block;
-  margin-bottom: 3px;
+  margin-bottom: 4px;
+  color: #007bff;
 }
 
-/* Highlighted gaps */
 .skill-list ul.highlight li {
   border-left-color: #dc3545;
   background-color: #ffe6e6;
 }
 
-/* Domain Analysis Styling */
+/* ============================= */
+/* Domain Analysis               */
+/* ============================= */
 .domain-analysis {
-  margin-top: 20px;
-  padding: 10px;
+  margin-top: 22px;
+  padding: 18px;
   background-color: #eef6ff;
   border-radius: 8px;
   border: 1px solid #007bff;
 }
 
 .domain-item {
-  margin-bottom: 15px;
-  padding: 8px 12px;
+  margin-bottom: 16px;
+  padding: 14px 18px;
   background-color: #ffffff;
   border-left: 4px solid #007bff;
-  border-radius: 4px;
+  border-radius: 6px;
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeInUp 0.5s ease forwards;
 }
 
 .domain-item h4 {
-  margin: 0 0 5px 0;
+  margin: 0 0 6px 0;
+  font-size: 16px !important;
   color: #007bff;
 }
 
 .domain-item p {
-  margin: 2px 0;
-  font-size: 0.95rem;
+  margin: 3px 0;
+  font-size: 15px !important;
 }
 
-@keyframes loadingDot {
-  0%, 80%, 100% {
-    transform: translateY(-50%) scale(0);
-    opacity: 0;
-  }
-  40% {
-    transform: translateY(-50%) scale(1);
-    opacity: 1;
-  }
-}
-
-/* Recommendation container */
+/* ============================= */
+/* Recommendation Section        */
+/* ============================= */
 .recommendation {
-  background-color: #fff4e5;   /* Soft light orange background */
-  border-left: 4px solid #ff9800; /* Highlight with orange border */
-  padding: 12px 16px;
-  margin: 12px 0;
-  border-radius: 6px;
-  font-family: Arial, sans-serif;
-  color: #333;
+  background-color: #fff4e5;
+  border-left: 4px solid #ff9800;
+  padding: 20px 24px;
+  margin: 22px 0;
+  border-radius: 8px;
+  font-family: Arial, sans-serif !important;
+  color: #333 !important;
+  line-height: 1.7;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.05);
+  opacity: 0;
+  transform: translateY(12px);
+  animation: fadeInUp 0.6s ease forwards;
+  font-size: 16px !important;
 }
 
-/* Recommendation title */
+.recommendation .icon.recommend {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  color: #e65100;
+  margin-top: 2px;
+}
+
 .recommendation h3 {
-  margin: 0 0 6px 0;
-  font-size: 1.1rem;
+  margin: 0 0 10px 0;
+  font-size: 18px !important;
+  font-weight: 600;
   color: #e65100;
 }
 
-/* Recommendation text */
 .recommendation p {
   margin: 0;
-  font-size: 0.95rem;
-  line-height: 1.4;
+  font-size: 16px !important;
+}
+
+/* ============================= */
+/* Animations                    */
+/* ============================= */
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ============================= */
+/* No Data Text                  */
+/* ============================= */
+.no-data {
+  text-align: center;
+  font-style: italic;
+  color: #888;
+  margin-top: 18px;
+  font-size: 16px !important;
 }

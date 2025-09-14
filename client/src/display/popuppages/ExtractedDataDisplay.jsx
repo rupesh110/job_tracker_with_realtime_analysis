@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import "./ExtractedDataDisplay.css";
 import { getGeminiAnalysis } from "../../Feeder/GeminiJobFeeder";
+import { CheckCircle, AlertCircle, Target, ClipboardList } from "lucide-react";
 
 export default function ExtractedDataDisplay({ data }) {
   const [gemini, setGemini] = useState(null);
@@ -23,7 +24,9 @@ export default function ExtractedDataDisplay({ data }) {
         const jobTitle = data.title || "";
         const jobDescription = data.description || "";
 
-        const geminiResponse = await getGeminiAnalysis({ data: { jobTitle, jobDescription } });
+        const geminiResponse = await getGeminiAnalysis({
+          data: { jobTitle, jobDescription },
+        });
 
         if (latestDataRef.current === data) {
           setGemini(geminiResponse?.available || null);
@@ -46,43 +49,84 @@ export default function ExtractedDataDisplay({ data }) {
 
   return (
     <div className="container">
-      <h2>{title || "Untitled"}</h2>
+      <h2 className="job-title">{title || "Untitled"}</h2>
 
-      {loadingGemini && <p>Loading Gemini data...</p>}
-      {!loadingGemini && !hasGeminiData && <p>No Gemini analysis available</p>}
+      {loadingGemini && (
+        <div className="loading-container">
+          <div className="spinner"></div>
+          <p>Analyzing with Gemini...</p>
+        </div>
+      )}
+
+      {!loadingGemini && !hasGeminiData && (
+        <p className="no-data">No Gemini analysis available</p>
+      )}
 
       {hasGeminiData && (
         <>
-          <h3>Gemini Analysis</h3>
-          <p><strong>Summary:</strong> {gemini.summary || "N/A"}</p>
-          <p><strong>Match:</strong> {gemini.matchScore ?? 0}%</p>
-          <p><strong>Action Step:</strong> {gemini.actionStep || "N/A"}</p>
+          <h3 className="section-title">Gemini Analysis</h3>
+
+          <div className="summary-cards">
+            <div className="summary-card">
+              <ClipboardList className="icon summary" />
+              <p>
+                <strong>Summary:</strong> {gemini.summary || "N/A"}
+              </p>
+            </div>
+            <div className="summary-card">
+              <Target className="icon match" />
+              <p>
+                <strong>Match:</strong> {gemini.matchScore ?? 0}%
+              </p>
+            </div>
+            <div className="summary-card">
+              <CheckCircle className="icon action" />
+              <p>
+                <strong>Action Step:</strong> {gemini.actionStep || "N/A"}
+              </p>
+            </div>
+          </div>
 
           {gemini.titleAnalysis?.related ? (
             <>
-              {/* Show only if the job is related */}
+              {/* Resume Strengths & Gaps */}
               <SkillList title="Resume Strengths" skills={gemini.strengths} />
               <SkillList title="Resume Gaps" skills={gemini.gaps} highlight />
 
+              {/* Domain Analysis */}
               {gemini.analysis?.domainMatch && (
                 <div className="domain-analysis">
                   <h3>Domain Analysis</h3>
                   {gemini.analysis.domainMatch.map((domain, idx) => (
                     <div key={idx} className="domain-item">
                       <h4>{domain.domain}</h4>
-                      <p><strong>Required Skills:</strong> {domain.requiredSkills.join(", ")}</p>
-                      <p><strong>Matched Skills:</strong> {domain.matchedSkills.join(", ") || "None"}</p>
-                      <p><strong>Match %:</strong> {domain.matchPercentage}%</p>
+                      <p>
+                        <strong>Required Skills:</strong>{" "}
+                        {domain.requiredSkills.join(", ")}
+                      </p>
+                      <p>
+                        <strong>Matched Skills:</strong>{" "}
+                        {domain.matchedSkills.join(", ") || "None"}
+                      </p>
+                      <p>
+                        <strong>Match %:</strong> {domain.matchPercentage}%
+                      </p>
                     </div>
                   ))}
                 </div>
               )}
             </>
           ) : (
-            /* Show only recommendation if job is NOT related */
+            /* Show recommendation if job is NOT related */
             <div className="recommendation">
-              <h3>Recommendation</h3>
-              <p>{gemini.titleAnalysis?.recommendation || "No recommendation available"}</p>
+              <AlertCircle className="icon recommend" />
+              <div>
+                <h3>Recommendation</h3>
+                <p>
+                  {gemini.titleAnalysis?.recommendation ||
+                    "No recommendation available"}
+                </p>
+              </div>
             </div>
           )}
         </>
@@ -100,7 +144,9 @@ function SkillList({ title, skills, highlight }) {
         {skills.map((skillItem, i) => (
           <li key={i}>
             <strong>{skillItem.skill || "Unknown Skill"}:</strong>{" "}
-            {highlight ? skillItem.notes || skillItem.evidence : skillItem.evidence || "N/A"}
+            {highlight
+              ? skillItem.notes || skillItem.evidence
+              : skillItem.evidence || "N/A"}
           </li>
         ))}
       </ul>

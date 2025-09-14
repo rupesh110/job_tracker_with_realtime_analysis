@@ -9,7 +9,7 @@ export default function attachClickListenersSeek(root = document) {
         const text = e.currentTarget.textContent.toLowerCase();
         if (text.includes("Quick apply")) {
           e.stopPropagation();
-          console.log("Seek Apply clicked:", e.currentTarget);
+          //console.log("Seek Apply clicked:", e.currentTarget);
 
           // Poll for modal content
           const startTime = Date.now();
@@ -23,7 +23,7 @@ export default function attachClickListenersSeek(root = document) {
                 const data = await extractLinkedInData();
                 if (data && data.title && data.title !== 'N/A') {
                   await addJob(data);
-                  console.log("Job saved:", data);
+                  //console.log("Job saved:", data);
                 } else {
                   console.warn("No job data found — skipping save.");
                 }

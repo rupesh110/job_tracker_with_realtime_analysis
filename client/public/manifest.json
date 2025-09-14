@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "AAA Job Tracker with realtime analysis Testing",
-  "version": "4",
+  "name": "A Job Tracker with realtime analysis",
+  "version": "5",
   "description": "Helps users analyse resumes and save records",
   "background": {
     "service_worker": "assets/background.js",

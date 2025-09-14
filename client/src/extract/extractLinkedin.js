@@ -37,6 +37,5 @@ export async function extractLinkedInData() {
     description: descriptionText
   };
 
-   console.log("Extracted job data for Linkedin:", jobData);
   return jobData
 }
