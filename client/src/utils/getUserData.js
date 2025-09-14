@@ -5,6 +5,6 @@ import { isUserAvailable, getUserData } from "../Feeder/UsersDataFeeder";
 
 export async function isUserDataAvailable() {
   const usersData = await isUserAvailable();
-  console.log("IsUserdata:", usersData)
+ // console.log("IsUserdata:", usersData)
   const stored = await getUserData();
 }

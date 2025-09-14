@@ -1,23 +1,24 @@
-import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
+import * as pdfjsLib from "pdfjs-dist";
+import workerSrc from "pdfjs-dist/build/pdf.worker.min.js?raw";
 
-// Load worker via chrome.runtime.getURL to bypass CSP
-pdfjsLib.GlobalWorkerOptions.workerSrc = chrome.runtime.getURL("pdf/pdf.worker.js");
+// 👉 Create an inline Blob worker so no external script is loaded
+pdfjsLib.GlobalWorkerOptions.workerSrc = URL.createObjectURL(
+  new Blob([workerSrc], { type: "application/javascript" })
+);
 
 export async function extractTextFromPDF(file) {
-  try {
-    const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const arrayBuffer = await file.arrayBuffer();
 
-    let textContent = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      textContent += content.items.map(item => item.str).join(" ") + "\n";
-    }
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
 
-    return textContent.trim();
-  } catch (err) {
-    console.error("PDF extraction failed:", err);
-    return null;
+  let fullText = "";
+
+  for (let i = 1; i <= pdf.numPages; i++) {
+    const page = await pdf.getPage(i);
+    const textContent = await page.getTextContent();
+    const pageText = textContent.items.map(item => item.str).join(" ");
+    fullText += pageText + "\n";
   }
+
+  return fullText;
 }

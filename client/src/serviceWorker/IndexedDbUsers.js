@@ -45,16 +45,7 @@ export function isUserDataAvailable(tries = 3, delay = 200) {
 }
 
 
-// Overwrite user data completely
 export function setUserData(value) {
-  console.log("From db set users data:", value)
-    if (value.resumeFile) {
-    console.log("Resume file details:");
-    console.log("Name:", value.resumeFile.name);
-    console.log("Size:", value.resumeFile.size);
-    console.log("Type:", value.resumeFile.type);
-  }
-
   return getDB().then((db) => {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(USERS_STORE, "readwrite");

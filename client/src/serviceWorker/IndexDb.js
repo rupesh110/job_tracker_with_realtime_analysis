@@ -1,9 +1,10 @@
-const DB_NAME = "RealtimeAnalysisDBTest";
-const DB_VERSION = 14;
+const DB_NAME = "RealtimeAnalysisDB";
+const DB_VERSION = 17;
 
 let dbPromise = null;
 const JOBS_STORE = "jobsData";
 const USERS_STORE = "usersData";
+
 
 
 // Open the database once and cache it

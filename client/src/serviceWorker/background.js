@@ -3,7 +3,6 @@ import * as Users from "./backgroundUsers.js";
 import * as Geminis from "./backgroundGemini.js"
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  console.log("Received message:", request.action, "from", sender);
 
   let handled = false;
 

@@ -10,7 +10,7 @@ export function setUserData(data) {
           console.error("Error saving user data:", chrome.runtime.lastError);
           reject(chrome.runtime.lastError);
         } else {
-          console.log("User data saved successfully");
+          //console.log("User data saved successfully");
           resolve();
         }
       });

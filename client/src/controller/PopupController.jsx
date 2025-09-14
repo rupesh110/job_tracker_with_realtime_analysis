@@ -16,7 +16,6 @@ export default function PopupController() {
   // Load page data
   const loadData = async () => {
     const userExists = await isUserAvailable();
-    await console.log("------------------", userExists)
     setUserDataExists(userExists);
 
     if (userExists) {
@@ -29,7 +28,10 @@ export default function PopupController() {
   const handleSave = async () => {
     if (!pageData) return;
     try {
-      await addJob(pageData);
+
+    const { description, ...dataWithoutDescription } = pageData;
+    await addJob(dataWithoutDescription);
+
       setNotification({ type: "success", message: "Data saved!" });
     } catch (err) {
       console.error("Failed to save data:", err);

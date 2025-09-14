@@ -38,7 +38,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
 
     try {
       const response = await updateJobStatus({ id: jobKey, newStatus });
-      console.log("Status update response:", response);
+      //console.log("Status update response:", response);
     } catch (error) {
       console.error("Failed to update status:", error);
     }
@@ -63,16 +63,33 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     document.removeEventListener("mouseup", handleMouseUp);
   };
 
-  const statusOptions = ["Applied", "Interview", "Offer", "Rejected", "Unknown"];
-  const getRowColor = (status) => {
-    switch (status) {
-      case "Applied": return "row-applied";
-      case "Rejected": return "row-rejected";
-      case "Interview":
-      case "Offer": return "row-green";
-      default: return "row-unknown";
-    }
-  };
+    const statusOptions = [
+      "Applied",
+      "Recruiters call",
+      "1st Round",
+      "Interview",
+      "Offer",
+      "Rejected",
+      "Unknown",
+      "Follow Up"
+    ];
+
+    const getRowColor = (status) => {
+      switch (status) {
+        case "Applied":
+          return "row-applied";
+        case "Recruiters call":
+        case "1st Round":
+        case "Interview":
+        case "Offer":
+          return "row-green"; // all in-progress/interview stages as green
+        case "Rejected":
+          return "row-rejected";
+        case "Follow Up":
+        default:
+          return "row-unknown";
+      }
+    };
 
   // Safe filtering
   const filteredJobs = normalizedJobs.filter((job) => {

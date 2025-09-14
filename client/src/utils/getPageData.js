@@ -22,7 +22,7 @@ export async function getPageData() {
     jobData = await extractLinkedInData();
   }
 
-  console.log("from extracted data:", jobData)
+  //console.log("from extracted data:", jobData)
   // Check if new data
   if (!jobData) return null;
   if (jobData.url === lastProcessedUrl && jobData.title === lastJobTitle) {

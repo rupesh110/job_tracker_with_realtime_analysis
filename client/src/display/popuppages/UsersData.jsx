@@ -16,11 +16,7 @@ export default function UsersData({ onClose }) {
       if (savedData?.IsResume && savedData?.resumeName) {
         setIsResumeRequired(false);
         setExistingResumeName(savedData.resumeName);
-
-        // Convert base64 back to File object for local display if needed
-        const blob = await (await fetch(savedData.resume)).blob();
-        const file = new File([blob], savedData.resumeName, { type: blob.type });
-        setResumeFile(file);
+        
       }
       if (savedData?.IsAPIKey && savedData?.GeminiAPIKey) {
         setIsApiKeyRequired(false);
@@ -59,7 +55,7 @@ export default function UsersData({ onClose }) {
       try {
         extractedText = await extractTextFromPDF(resumeFile);
         if (!extractedText) throw new Error("No text extracted");
-        console.log("PDF text extracted:", extractedText);
+        //console.log("PDF text extracted:", extractedText);
       } catch (err) {
         console.error("Failed to extract PDF text:", err);
         alert("Failed to extract text from PDF.");

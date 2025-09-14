@@ -8,12 +8,12 @@ import { getUserData } from "./IndexedDbUsers.js";
  * @returns {Promise<Object>} - JSON object with match score, strengths, gaps, and action steps.
  */
 export async function callGemini({ jobTitle, jobDescription }) {
-  console.log("From Gemini:-------------------", await jobTitle, jobDescription)
+  //console.log("From Gemini:-------------------", await jobTitle, jobDescription)
   const usersData = await getUserData();
   const GEMINI_API_KEY = usersData.GeminiAPIKey;
   const resume = usersData.resume;
 
-  console.log("resume:", resume)
+  //console.log("resume:", resume)
 
   if (!GEMINI_API_KEY) {
     throw new Error("Gemini API key not found. Please add it in the settings.");
@@ -116,7 +116,7 @@ export async function callGemini({ jobTitle, jobDescription }) {
   let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
   
 
-  await console.log("From Gemini:", JSON.stringify(data))
+  //await console.log("From Gemini:", JSON.stringify(data))
   if (!rawText) throw new Error("No response from Gemini.");
 
   const maxRetries = 3;

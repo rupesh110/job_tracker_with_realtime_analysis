@@ -14,7 +14,6 @@ export default function attachClickListenersLinkedin(root = document) {
       if (!textSpan || textSpan.textContent.trim().toLowerCase() !== 'apply') return;
 
       e.stopPropagation();
-      console.log("LinkedIn Top-Card Apply clicked:", btn);
 
       // Wait for modal content using MutationObserver
       const observer = new MutationObserver(async (mutations, obs) => {
@@ -26,7 +25,7 @@ export default function attachClickListenersLinkedin(root = document) {
             const data = await extractLinkedInData();
             if (data && data.title && data.title !== 'N/A') {
               await addJob(data);
-              console.log("Job saved:", data);
+              //console.log("Job saved:", data);
             } else {
               console.warn("No job data found in modal — skipping save.");
             }

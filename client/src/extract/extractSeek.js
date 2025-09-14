@@ -11,7 +11,6 @@ export async function extractSeekData() {
   const buttonEl = document.querySelector('#newTabButton');
 
   if (!titleEl) {
-    console.log("No title element found. Skipping extraction.");
     return null;
   }
 
@@ -52,8 +51,6 @@ export async function extractSeekData() {
     syncStatus: "pending",
     description: rawDescription,
   };
-
-  console.log("Extracted job data for DB/Gemini:", jobData);
 
   return jobData;
 }

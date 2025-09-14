@@ -14,9 +14,7 @@ export default function MainContent() {
   useEffect(() => {
     async function fetchStatuses() {
       try {
-        const response = await getAllJobStatus();
-        console.log("Received job statuses:", response.items);
- 
+        const response = await getAllJobStatus(); 
         setJobCount(response.items || {});
       } catch (err) {
         console.error("Failed to fetch job statuses:", err);
@@ -30,7 +28,6 @@ export default function MainContent() {
     try {
       setLoading(true);
       const data = await fetchAllJobs();
-      console.log("ALl aplied jobs:", data)
       setJobsData(Array.isArray(data.items) ? data.items : []);
       setShowTable(true);
     } catch (error) {

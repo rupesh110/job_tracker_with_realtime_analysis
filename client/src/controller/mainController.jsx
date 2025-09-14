@@ -37,8 +37,8 @@ export default class MainController {
             if (node.nodeType === 1) {
               attachClickListenersSeek(node);
               attachClickListenersLinkedin(node);
-              injectTestButtonSeek(node);
-              injectTestButtonsLinkedIn(node);
+              // injectTestButtonSeek(node);
+              // injectTestButtonsLinkedIn(node);
             }
           });
         }

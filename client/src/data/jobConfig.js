@@ -44,7 +44,6 @@ export async function setJobData(jobsArray) {
           console.error("Error saving job data:", chrome.runtime.lastError);
           reject(chrome.runtime.lastError);
         } else {
-          console.log("Job data saved successfully", combinedJobs);
           resolve(combinedJobs);
         }
       });
@@ -78,7 +77,6 @@ export async function updateJobData(jobId, field, value) {
           console.error("Error updating job data:", chrome.runtime.lastError);
           reject(chrome.runtime.lastError);
         } else {
-          console.log("Job updated successfully", updatedJobs);
           resolve(updatedJobs);
         }
       });
