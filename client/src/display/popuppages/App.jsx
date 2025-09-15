@@ -2,12 +2,13 @@ import React from "react";
 import ExtractedDataDisplay from "./ExtractedDataDisplay.jsx";
 import "./App.css";
 
-export default function App({ data, onClose, onChangeDataClick, onSaveButton, notification }) {
+export default function App({ data, onClose, onGenerateCoverLetter, onChangeDataClick, onSaveButton, notification }) {
   return (
     <div id="react-extension-popup">
       <ExtractedDataDisplay data={data} />
 
-      <div id="react-button-footer">
+      <div id="react-button-footer">   
+        <button onClick={onGenerateCoverLetter}>Cover Letter</button>
         <button onClick={onSaveButton}>Save as Applied</button>
         <button onClick={onChangeDataClick}>Update Resume/Key</button>
         <button onClick={onClose}>Close</button>

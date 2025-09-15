@@ -23,7 +23,9 @@
     "vite-plugin-static-copy": "^3.1.1"
   },
   "dependencies": {
+    "docx": "^9.5.1",
     "idb": "^8.0.3",
+    "jspdf": "^3.0.2",
     "lucide-react": "^0.542.0",
     "pdf-lib": "^1.17.1",
     "pdfjs-dist": "^2.16.105"
