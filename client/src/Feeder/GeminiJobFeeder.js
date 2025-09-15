@@ -9,3 +9,15 @@ export async function getGeminiAnalysis({data}) {
     return {}; // fallback to prevent breakage
   }
 }
+
+
+export async function getCoverLetter(data) {
+  console.log("from feeder:", JSON.stringify(data))
+  try {
+    const response = await safeSendMessage({ action: "Gemini_CoverLetter", data });
+    return response;
+  } catch (err) {
+    console.warn("Gemini_CoverLetter failed:", err.message);
+    return {}; // fallback to prevent breakage
+  }
+}

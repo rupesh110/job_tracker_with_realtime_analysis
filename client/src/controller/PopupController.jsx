@@ -4,6 +4,8 @@ import UsersData from "../display/popuppages/UsersData.jsx";
 import { addJob } from "../Feeder/JobDataFeeder.js";
 import { getPageData } from "../utils/getPageData.js";
 import { isUserAvailable } from "../Feeder/UsersDataFeeder.js";
+import { getCoverLetter} from "../Feeder/GeminiJobFeeder.js"
+import { generateCoverLetterPDF} from "../utils/convertTextToPdf.js"
 
 export default function PopupController() {
   const [userDataExists, setUserDataExists] = useState(null);
@@ -40,6 +42,48 @@ export default function PopupController() {
       setTimeout(() => setNotification(null), 4000);
     }
   };
+
+
+  const handleCoverLetter = async () => {
+    if (!pageData) return;
+
+    try {
+      // 1️⃣ Send pageData to Gemini and get full text
+      const coverLetterResponse = await getCoverLetter(pageData);
+
+      // 2️⃣ Extract raw text (Gemini output)
+      const rawText = coverLetterResponse; // assuming getCoverLetter returns full text string
+      console.log("Full Gemini output:", rawText);
+
+      if (!rawText) {
+        setNotification({
+          type: "error",
+          message: "No cover letter data received from Gemini.",
+        });
+        return;
+      }
+
+      // 3️⃣ Generate PDF directly from raw text
+      generateCoverLetterPDF(rawText);
+
+      // 4️⃣ Notify user
+      setNotification({
+        type: "success",
+        message: "Cover letter generated and downloaded!",
+      });
+      setTimeout(() => setNotification(null), 6000);
+
+    } catch (err) {
+      console.error("Error generating cover letter:", err);
+      setNotification({
+        type: "error",
+        message: "Failed to generate cover letter.",
+      });
+      setTimeout(() => setNotification(null), 6000);
+    }
+  };
+
+
 
   const handleClose = () => setVisible(false);
 
@@ -100,6 +144,7 @@ export default function PopupController() {
       onClose={handleClose}
       onChangeDataClick={() => setShowUserData(true)}
       onSaveButton={handleSave}
+      onGenerateCoverLetter={handleCoverLetter}
     />
   );
 }
