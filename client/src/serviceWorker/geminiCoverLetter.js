@@ -67,12 +67,13 @@ Sincerely,
 [Email]  
 ${linkedInUrl ? `[${linkedInUrl}]` : ""} 
 
-6. Formatting rules and rules:
+6. STRICT Formatting rules and rules:
 - Replace ALL placeholders. **Do not leave any brackets or hints.**
 - If you don't have the hiring manager's name, use "Hiring Team".
 - If specific details (like job board or project name) are unknown, omit that sentence completely.
 - Do not invent personal info; use only what is provided above.
 - Estimate years of experience from resume if not explicit.
+- If skills are not mentioned on resume don't mention that in cover letter but you can add as if like transferable skills present in that way
 - Use clean bullets ("• ") only.
 - Keep spacing professional: one blank line between sections, one blank line after each paragraph.
 - Output must be ready-to-use text, no brackets, no hints, no placeholders.
