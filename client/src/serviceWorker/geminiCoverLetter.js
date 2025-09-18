@@ -68,6 +68,8 @@ Sincerely,
 ${linkedInUrl ? `[${linkedInUrl}]` : ""} 
 
 6. STRICT Formatting rules and rules:
+- Don't add anything that's not mentioned in resume. Only add if they are transferable clarify that or are mentioned in resume.
+- Remove uncessary jargons from cover letter, title and company such as if its inside brackets (), -, * , x remove all, 100% Remote - Multiple position, multiple poisiton, etc.
 - Replace ALL placeholders. **Do not leave any brackets or hints.**
 - If you don't have the hiring manager's name, use "Hiring Team".
 - If specific details (like job board or project name) are unknown, omit that sentence completely.
@@ -77,6 +79,7 @@ ${linkedInUrl ? `[${linkedInUrl}]` : ""}
 - Use clean bullets ("• ") only.
 - Keep spacing professional: one blank line between sections, one blank line after each paragraph.
 - Output must be ready-to-use text, no brackets, no hints, no placeholders.
+- Double check your output.
 
 Ensure the letter is **ready to send**, factual, aligned with the job description, and clearly showcases your achievements and skills.
 `;
