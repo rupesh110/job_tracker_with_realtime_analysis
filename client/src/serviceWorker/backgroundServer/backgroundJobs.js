@@ -1,5 +1,5 @@
 // backgroundJobs.js
-import { setJobItem, getAllJobs, updateJobStatus, getJobStatusCounts } from "./IndexedDbJobs.js";
+import { setJobItem, getAllJobs, updateJobStatus, getJobStatusCounts } from "../dbServer/IndexedDbJobs";
 
 export function handleJobMessage(request, sender, sendResponse) {
   switch (request.action) {

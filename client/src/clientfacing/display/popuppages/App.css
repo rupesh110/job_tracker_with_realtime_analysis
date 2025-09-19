@@ -9,7 +9,7 @@
   width: 95vw;        /* Width responsive to viewport width */
   max-width: 400px;   /* Maximum width */
   max-height: auto;   /* Maximum height relative to viewport */
-  overflow-y: auto;   /* Scroll if content is too tall */
+  overflow-y: auto;  /* Scroll if content is too tall */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 6px;
   font-family: Arial, sans-serif;

@@ -1,4 +1,4 @@
-import { getUserData } from "./IndexedDbUsers.js";
+import { getUserData } from "../dbServer/IndexedDbUsers.js";
 
 /**
  * Generate a fully formatted plain text cover letter using Gemini.

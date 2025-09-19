@@ -1,10 +1,10 @@
-import { callGemini } from "./callGemini";
-import {geminiCoverLetter} from "./geminiCoverLetter"
+import { detailedAnalysis } from "../gemini/geminiDetailedAnalysis";
+import {geminiCoverLetter} from "../gemini/geminiCoverLetter"
 
 export function handleGeminiMessage(request, sender, sendResponse) {
   switch (request.action) {
     case "Gemini_CallAnalysis": {
-      callGemini(request.data)
+      detailedAnalysis(request.data)
         .then(available => sendResponse({ available }))
         .catch(err => sendResponse({ status: "error", error: err.message }));
       return true; // keep the port open for async response

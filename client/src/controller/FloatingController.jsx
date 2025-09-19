@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import FloatingMain from "../display/floatingpages/FloatingMain.jsx";
-import JobsTable from "../display/floatingpages/JobsTable.jsx";
-import {fetchAllJobs} from "../Feeder/JobDataFeeder.js"
+import FloatingMain from "../clientfacing/display/floatingpages/FloatingMain.jsx";
+import JobsTable from "../clientfacing/display/floatingpages/JobsTable.jsx";
+import {fetchAllJobs} from "../clientfacing/Feeder/JobDataFeeder.js"
 
 export default function FloatController() {
   const [showJobsTable, setShowJobsTable] = useState(false);

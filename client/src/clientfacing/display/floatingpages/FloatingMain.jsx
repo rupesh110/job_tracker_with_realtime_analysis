@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import MainContent from "../floatingpages/MainContent";
 import "./FloatingMain.css";
-import icon48 from "../../../public/icons/icon48.webp"
+import icon48 from "../../../../public/icons/icon48.webp"
 
 
 export default function FloatingMain({ onSeeAll }) {
