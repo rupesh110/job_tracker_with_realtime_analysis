@@ -1,8 +1,11 @@
-import * as Jobs from "./backgroundJobs.js";
-import * as Users from "./backgroundUsers.js";
-import * as Geminis from "./backgroundGemini.js"
+import * as Jobs from "./backgroundServer/backgroundJobs.js";
+import * as Users from "./backgroundServer/backgroundUsers.js";
+import * as Geminis from "./backgroundServer/backgroundGemini.js"
+import {setupGeminiContextMenu } from "./fetchSelectedText.js"
 
+setupGeminiContextMenu();
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  //setupGeminiContextMenu();
 
   let handled = false;
 

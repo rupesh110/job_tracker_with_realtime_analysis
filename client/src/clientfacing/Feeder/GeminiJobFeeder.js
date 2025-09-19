@@ -21,3 +21,5 @@ export async function getCoverLetter(data) {
     return {}; // fallback to prevent breakage
   }
 }
+
+

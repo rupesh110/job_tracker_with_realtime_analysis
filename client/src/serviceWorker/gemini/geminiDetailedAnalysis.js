@@ -1,5 +1,5 @@
 // background.js
-import { getUserData } from "./IndexedDbUsers.js";
+import { getUserData } from "../dbServer/IndexedDbUsers.js";
 ;
 
 /**
@@ -7,8 +7,8 @@ import { getUserData } from "./IndexedDbUsers.js";
  * @param {string} jobText - The job description text.
  * @returns {Promise<Object>} - JSON object with match score, strengths, gaps, and action steps.
  */
-export async function callGemini({ jobTitle, jobDescription }) {
-  //console.log("From Gemini:-------------------", await jobTitle, jobDescription)
+export async function detailedAnalysis({ jobTitle, jobDescription }) {
+  console.log("From Gemini:-------------------", await jobTitle, jobDescription)
   const usersData = await getUserData();
   const GEMINI_API_KEY = usersData.GeminiAPIKey;
   const resume = usersData.resume;
@@ -87,7 +87,7 @@ export async function callGemini({ jobTitle, jobDescription }) {
   }
 
   Job Title
-  ${jobTitle}
+  ${jobTitle} || 'N/A'
 
   Job Description:
   ${jobDescription}
@@ -116,7 +116,7 @@ export async function callGemini({ jobTitle, jobDescription }) {
   let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
   
 
-  //await console.log("From Gemini:", JSON.stringify(data))
+  await console.log("From Gemini:", JSON.stringify(data))
   if (!rawText) throw new Error("No response from Gemini.");
 
   const maxRetries = 3;

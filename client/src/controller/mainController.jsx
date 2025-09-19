@@ -2,10 +2,10 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import PopupController from "./PopupController.jsx";
 import FloatController from "./FloatingController.jsx";
-import attachClickListenersSeek from "../detect/detectApplySeek.js";
-import attachClickListenersLinkedin from "../detect/detectApplyLinkedin.js";
-import injectTestButtonSeek from "../display/injectButton/InjectButtonSeek.js";
-import injectTestButtonsLinkedIn from "../display/injectButton/InjectButtonLinkedin.js"
+import attachClickListenersSeek from "../clientfacing/detect/detectApplySeek.js";
+import attachClickListenersLinkedin from "../clientfacing/detect/detectApplyLinkedin.js";
+import injectTestButtonSeek from "../clientfacing/display/injectButton/InjectButtonSeek.js";
+import injectTestButtonsLinkedIn from "../clientfacing/display/injectButton/InjectButtonLinkedin.js"
 
 export default class MainController {
   constructor() {
@@ -25,8 +25,8 @@ export default class MainController {
     document.body.appendChild(this.floatContainer);
     ReactDOM.createRoot(this.floatContainer).render(<FloatController />);
 
-    attachClickListenersSeek();
-    attachClickListenersLinkedin();
+    // attachClickListenersSeek();
+    // attachClickListenersLinkedin();
     // injectTestButtonSeek();
     // injectTestButtonsLinkedIn();
 

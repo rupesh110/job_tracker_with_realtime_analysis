@@ -1,5 +1,5 @@
 // backgroundUsers.js
-import { isUserDataAvailable, getUserData, setUserData } from "./IndexedDbUsers.js";
+import { isUserDataAvailable, getUserData, setUserData } from "../dbServer/IndexedDbUsers";
 
 export function handleUserMessage(request, sender, sendResponse) {
   switch (request.action) {

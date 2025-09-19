@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
-import App from "../display/popuppages/App.jsx";
-import UsersData from "../display/popuppages/UsersData.jsx";
-import { addJob } from "../Feeder/JobDataFeeder.js";
-import { getPageData } from "../utils/getPageData.js";
-import { isUserAvailable } from "../Feeder/UsersDataFeeder.js";
-import { getCoverLetter} from "../Feeder/GeminiJobFeeder.js"
-import { generateCoverLetterPDF} from "../utils/convertTextToPdf.js"
+import App from "../clientfacing/display/popuppages/App.jsx";
+import UsersData from "../clientfacing/display/popuppages/UsersData.jsx";
+import { addJob } from "../clientfacing/Feeder/JobDataFeeder.js";
+import { getPageData } from "../clientfacing/utils/getPageData.js";
+
+import { isUserAvailable } from "../clientfacing/Feeder/UsersDataFeeder.js";
+import { getCoverLetter} from "../clientfacing/Feeder/GeminiJobFeeder.js"
+import { generateCoverLetterPDF} from "../clientfacing/service/convertTextToPdf.js"
+import { generateCoverLetterDoc } from "../clientfacing/service/convertToDocs.js"
 
 export default function PopupController() {
   const [userDataExists, setUserDataExists] = useState(null);
@@ -15,7 +17,42 @@ export default function PopupController() {
   const [notification, setNotification] = useState(null);
   const [currentUrl, setCurrentUrl] = useState(window.location.href);
 
-  // Load page data
+
+  useEffect(() => {
+    // Real-time updates
+    const listener = (msg) => {
+      if (msg.action === "Client_UpdateText" && msg.data) {
+        console.log("Popup received real-time data:", msg.data);
+        setPageData(msg.data);
+      }
+    };
+    chrome.runtime.onMessage.addListener(listener);
+
+    // Polling in case popup opens before data arrives
+    const intervalId = setInterval(() => {
+      chrome.runtime.sendMessage({ action: "Request_LatestData" }, (res) => {
+        if (res?.data) {
+          console.log("Popup got latest data via polling:", res.data);
+          setPageData(res.data);
+          clearInterval(intervalId);
+        }
+      });
+    }, 500); // check every 0.5s
+
+    // Stop polling after 15s
+    const timeoutId = setTimeout(() => {
+      clearInterval(intervalId);
+    }, 15000);
+
+    return () => {
+      chrome.runtime.onMessage.removeListener(listener);
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+
+
   const loadData = async () => {
     const userExists = await isUserAvailable();
     setUserDataExists(userExists);
@@ -64,7 +101,8 @@ export default function PopupController() {
       }
 
       // 3️⃣ Generate PDF directly from raw text
-      generateCoverLetterPDF(rawText);
+      //generateCoverLetterPDF(rawText);
+      generateCoverLetterDoc(rawText)
 
       // 4️⃣ Notify user
       setNotification({

@@ -7,6 +7,11 @@
     "service_worker": "assets/background.js",
     "type": "module"
   },
+  "permissions": [
+    "contextMenus",
+    "scripting",
+    "activeTab"
+  ],
   "host_permissions": [
     "https://script.google.com/*",
     "https://script.googleusercontent.com/*"
