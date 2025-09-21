@@ -128,7 +128,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
               <th>Status</th>
               <th>Platform</th>
               <th>Work Type</th>
-              <th>Last Updated on</th>
+              <th>Applied on</th>
               <th>URL</th>
             </tr>
           </thead>

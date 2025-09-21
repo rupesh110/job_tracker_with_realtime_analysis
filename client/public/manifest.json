@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "A Job Tracker with realtime analysis",
+  "name": "Job Tracker with realtime analysis",
   "version": "5",
   "description": "Helps users analyse resumes and save records",
   "background": {
