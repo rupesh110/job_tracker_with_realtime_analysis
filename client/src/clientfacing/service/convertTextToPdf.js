@@ -159,7 +159,7 @@ export function generateCoverLetterPDF(data) {
 
   // --- DOWNLOAD PDF ---
   const pdfBlob = doc.output("blob");
-  const filename = "Rupesh Shrestha Cover Letter.pdf";
+  const filename = "Cover Letter.pdf";
   const url = URL.createObjectURL(pdfBlob);
 
   const a = document.createElement("a");

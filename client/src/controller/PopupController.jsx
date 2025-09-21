@@ -101,8 +101,8 @@ export default function PopupController() {
       }
 
       // 3️⃣ Generate PDF directly from raw text
-      //generateCoverLetterPDF(rawText);
-      generateCoverLetterDoc(rawText)
+      generateCoverLetterPDF(rawText);
+      //generateCoverLetterDoc(rawText)
 
       // 4️⃣ Notify user
       setNotification({
