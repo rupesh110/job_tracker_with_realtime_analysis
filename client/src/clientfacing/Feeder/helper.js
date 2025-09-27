@@ -1,24 +1,23 @@
 export function safeSendMessage(message, tries = 3, delay = 500) {
   return new Promise((resolve, reject) => {
-    try {
+    const attempt = (n) => {
       chrome.runtime.sendMessage(message, (response) => {
         if (chrome.runtime.lastError) {
-          if (tries > 0) {
-            setTimeout(() => {
-              safeSendMessage(message, tries - 1, delay)
-                .then(resolve)
-                .catch(reject);
-            }, delay);
+          if (n > 0) {
+            console.warn("Retrying sendMessage:", chrome.runtime.lastError.message);
+            setTimeout(() => attempt(n - 1), delay);
           } else {
-            reject(chrome.runtime.lastError);
+            reject(new Error(chrome.runtime.lastError.message));
           }
           return;
         }
-        if (!response) return reject(new Error("No response from background"));
-        resolve(response);
+        if (!response) {
+          reject(new Error("No response from background"));
+        } else {
+          resolve(response);
+        }
       });
-    } catch (err) {
-      reject(err);
-    }
+    };
+    attempt(tries);
   });
 }
