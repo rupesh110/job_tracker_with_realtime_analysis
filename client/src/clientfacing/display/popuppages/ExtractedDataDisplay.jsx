@@ -28,6 +28,8 @@ export default function ExtractedDataDisplay({ data }) {
           data: { jobTitle, jobDescription },
         });
 
+        console.log("From extracted data display:",geminiResponse)
+
         if (latestDataRef.current === data) {
           setGemini(geminiResponse?.available || null);
         }

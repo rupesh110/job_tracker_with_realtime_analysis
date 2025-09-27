@@ -5,7 +5,6 @@ import {setupGeminiContextMenu } from "./fetchSelectedText.js"
 
 setupGeminiContextMenu();
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  //setupGeminiContextMenu();
 
   let handled = false;
 
