@@ -4,29 +4,33 @@ import * as Geminis from "./backgroundServer/backgroundGemini.js"
 import {setupGeminiContextMenu } from "./fetchSelectedText.js"
 
 setupGeminiContextMenu();
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
-  let handled = false;
+chrome.runtime.onConnect.addListener((port) => {
+  console.log("Port connected:", port.name);
 
-  try {
-    if (request.action.startsWith("Job")) {
-      handled = Jobs.handleJobMessage(request, sender, sendResponse);
-    } else if (request.action.startsWith("User")) {
-      handled = Users.handleUserMessage(request, sender, sendResponse);
-    } else if (request.action.startsWith("Gemini")) {
-      handled = Geminis.handleGeminiMessage(request, sender, sendResponse);
+  port.onMessage.addListener(async (msg) => {
+    console.log("Background got full message:", msg);
+
+    const { requestId, action, data } = msg;
+
+    try {
+      if (action.startsWith("Job")) {
+        await Jobs.handleJobMessage({ action, data, requestId }, port);
+      } else if (action.startsWith("User")) {
+        await Users.handleUserMessage({ action, data, requestId }, port);
+      } else if (action.startsWith("Gemini")) {
+        await Geminis.handleGeminiMessage({ action, data, requestId }, port);
+      } else {
+        console.warn("Unhandled action:", action);
+        port.postMessage({ requestId, error: "Unhandled action: " + action });
+      }
+    } catch (err) {
+      console.error("Background error:", err);
+      port.postMessage({ requestId, error: err.message });
     }
-  } catch (err) {
-    console.error("Background error:", err);
-    sendResponse({ error: err.message });
-    return false; // stop further processing
-  }
+  });
 
-  // Default response if nothing handled it
-  if (!handled) {
-    console.warn("Unhandled action:", request.action);
-    sendResponse({ error: "Unhandled action: " + request.action });
-  }
-
-  return true; // keep the message channel open for async responses
+  // port.onDisconnect.addListener(() => {
+  //   console.log("Port disconnected:", port.name);
+  // });
 });
