@@ -1,25 +1,23 @@
-import { safeSendMessage } from "./helper";
+import { safeSendMessage } from "./MainFeeder";
 
-export async function getGeminiAnalysis({data}) {
+export async function getGeminiAnalysis({ data }) {
   try {
+    console.log("from feederGeminni:", data)
     const response = await safeSendMessage({ action: "Gemini_CallAnalysis", data });
+    console.log("Repsonse from feederGemini:", response)
     return response;
   } catch (err) {
     console.warn("getGeminiAnalysis failed:", err.message);
-    return {}; // fallback to prevent breakage
+    return {}; // fallback
   }
 }
 
-
 export async function getCoverLetter(data) {
-  console.log("from feeder:", JSON.stringify(data))
   try {
     const response = await safeSendMessage({ action: "Gemini_CoverLetter", data });
     return response;
   } catch (err) {
-    console.warn("Gemini_CoverLetter failed:", err.message);
-    return {}; // fallback to prevent breakage
+    console.warn("getCoverLetter failed:", err.message);
+    return {}; // fallback
   }
 }
-
-

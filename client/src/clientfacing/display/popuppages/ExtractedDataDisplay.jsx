@@ -8,11 +8,12 @@ export default function ExtractedDataDisplay({ data }) {
   const [loadingGemini, setLoadingGemini] = useState(false);
   const ongoingRequest = useRef(false);
   const latestDataRef = useRef(null);
-
+  console.log("From extracted data display:", {data})
   useEffect(() => {
     if (!data) return;
 
-    latestDataRef.current = data;
+    const currentDataId = Date.now(); // unique ID for this request
+    latestDataRef.current = currentDataId;
     setGemini(null);
     setLoadingGemini(true);
 
@@ -28,10 +29,11 @@ export default function ExtractedDataDisplay({ data }) {
           data: { jobTitle, jobDescription },
         });
 
-        console.log("From extracted data display:",geminiResponse)
+        console.log("From extracted data display gemini:", geminiResponse);
 
-        if (latestDataRef.current === data) {
-          setGemini(geminiResponse?.available || null);
+        // Update state only if this is still the latest request
+        if (latestDataRef.current === currentDataId) {
+          setGemini(geminiResponse || {}); // don't just use .available
         }
       } catch (err) {
         console.error("Gemini fetch failed:", err);
@@ -43,6 +45,7 @@ export default function ExtractedDataDisplay({ data }) {
 
     fetchGemini();
   }, [data]);
+
 
   if (!data) return <p className="loading">Loading data...</p>;
 

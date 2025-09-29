@@ -1,27 +1,32 @@
 import { detailedAnalysis } from "../gemini/geminiDetailedAnalysis";
-import {geminiCoverLetter} from "../gemini/geminiCoverLetter"
+import { geminiCoverLetter } from "../gemini/geminiCoverLetter";
 
-export function handleGeminiMessage(request, sender, sendResponse) {
-  switch (request.action) {
-    case "Gemini_CallAnalysis": {
-      detailedAnalysis(request.data)
-        .then(available => sendResponse({ available }))
-        .catch(err => sendResponse({ status: "error", error: err.message }));
-      return true; // keep the port open for async response
+export async function handleGeminiMessage({ action, data, requestId }, port) {
+  try {
+    let result;
+
+    switch (action) {
+      case "Gemini_CallAnalysis":
+        result = await detailedAnalysis(data);
+        console.log("From backgorund gemini:", result)
+        break;
+
+      case "Gemini_CoverLetter":
+        result = await geminiCoverLetter(data);
+        break;
+
+      default:
+        console.warn("Unknown Gemini action:", action);
+        port.postMessage({ requestId, error: "Unknown Gemini action: " + action });
+        return true; // handled, response sent
     }
 
-    case "Gemini_CoverLetter":{
-        geminiCoverLetter(request.data)
-          .then(available => sendResponse({ available }))
-          .catch(err => sendResponse({ status: "error", error: err.message }));
-      return true; // keep the port open for async response
-    }
-
-    default:
-      console.warn("Unknown User action:", request.action);
-      sendResponse({ status: "error", error: "Unknown User action" });
-      return false; // no async operation here
+    // Send back the result
+    port.postMessage({ requestId, result });
+    return true;
+  } catch (err) {
+    console.error("Error in Gemini handler:", err);
+    port.postMessage({ requestId, error: err.message });
+    return true;
   }
 }
-
-

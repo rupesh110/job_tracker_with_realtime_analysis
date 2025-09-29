@@ -17,6 +17,7 @@ export async function getPageData() {
   if (url.includes("seek.com.au")) {
     await new Promise(resolve => setTimeout(resolve, 3000));
     jobData = await extractSeekData();
+    
   } else if (url.includes("linkedin.com/jobs/")) {
     await new Promise(resolve => setTimeout(resolve, 3000));
     jobData = await extractLinkedInData();

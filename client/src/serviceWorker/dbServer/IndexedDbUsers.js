@@ -50,9 +50,11 @@ export function setUserData(value) {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(USERS_STORE, "readwrite");
       const store = tx.objectStore(USERS_STORE);
-      const request = store.put({ id: DEFAULT_USER_ID, value });
 
-      request.onsuccess = () => resolve();
+      const payload = { id: DEFAULT_USER_ID, value };
+      const request = store.put(payload);
+
+      request.onsuccess = () => resolve(value); // return the saved value
       request.onerror = () => reject(request.error);
     });
   });

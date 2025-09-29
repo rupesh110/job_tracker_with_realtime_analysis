@@ -1,28 +1,40 @@
 // backgroundUsers.js
 import { isUserDataAvailable, getUserData, setUserData } from "../dbServer/IndexedDbUsers";
 
-export function handleUserMessage(request, sender, sendResponse) {
-  switch (request.action) {
-    case "User_isUserDataAvailable":
-      isUserDataAvailable()
-        .then((available) => sendResponse({ available }))
-        .catch((err) => sendResponse({ status: "error", error: err.message }));
-      return true;
+export async function handleUserMessage({ action, data, requestId }, port) {
+  try {
+    let result;
 
-    case "User_GetUserData":
-      getUserData()
-        .then((user) => sendResponse({ user: user || {} }))
-        .catch((err) => sendResponse({ status: "error", error: err.message }));
-      return true;
+    switch (action) {
+      case "User_isUserDataAvailable": {
+        const available = await isUserDataAvailable();
+        await console.log("from background User_isUserDataAvailable:", {available})
+        result = { available }; // ✅ always inside result
+        break;
+      }
 
-    case "User_SetUserData":
-      setUserData(request.data)
-        .then((user) => sendResponse({ user: user || {} }))
-        .catch((err) => sendResponse({ status: "error", error: err.message }));
-      return true;
+      case "User_GetUserData": {
+        const user = await getUserData();
+        await console.log("from background User_GetUserData:", {user})
+        result = { user }; // ✅ always inside result
+        break;
+      }
 
-    default:
-      sendResponse({ status: "error", error: "Unknown User action" });
-      return false;
+      case "User_SetUserData": {
+        const user = await setUserData(data);
+        result = { user }; // ✅ always inside result
+        break;
+      }
+
+      default:
+        port.postMessage({ requestId, error: "Unknown User action: " + action });
+        return;
+    }
+
+
+    port.postMessage({ requestId, result });
+  } catch (err) {
+    console.error("Error in User handler:", err);
+    port.postMessage({ requestId, error: err.message });
   }
 }
