@@ -10,6 +10,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
   const dragOffset = useRef({ x: 0, y: 0 });
   const dragging = useRef(false);
 
+
   // Normalize job fields and initialize statuses
   const normalizedJobs = jobs.map((job) => ({
     ...job,
@@ -33,18 +34,12 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     setJobStatuses(initialStatuses);
   }, [jobs]);
 
-  const handleStatusChange = async (jobKey, newStatus) => {
+  const handleStatusChange = (jobKey, newStatus) => {
     setJobStatuses((prev) => ({ ...prev, [jobKey]: newStatus }));
-
-    try {
-      const response = await updateJobStatus({ id: jobKey, newStatus });
-      //console.log("Status update response:", response);
-    } catch (error) {
-      console.error("Failed to update status:", error);
-    }
 
     if (onStatusChange) onStatusChange(jobKey, newStatus);
   };
+
 
   // Dragging handlers
   const handleMouseDown = (e) => {

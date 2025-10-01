@@ -14,9 +14,11 @@ export default function PopupController() {
   const [showUserData, setShowUserData] = useState(false);
   const [notification, setNotification] = useState(null);
   const [currentUrl, setCurrentUrl] = useState(window.location.href);
-
   const ongoingUserCheck = useRef(false);
 
+  // ==========================
+  // Load initial user/page data
+  // ==========================
   const loadData = async () => {
     if (ongoingUserCheck.current) return;
     ongoingUserCheck.current = true;
@@ -36,12 +38,11 @@ export default function PopupController() {
     }
   };
 
-  // ✅ Initial load
   useEffect(() => {
     loadData();
   }, []);
 
-  // ✅ Detect LinkedIn URL changes (full page reload)
+  // Detect URL changes (LinkedIn)
   useEffect(() => {
     const intervalId = setInterval(() => {
       if (window.location.href !== currentUrl) {
@@ -52,7 +53,7 @@ export default function PopupController() {
     return () => clearInterval(intervalId);
   }, [currentUrl]);
 
-  // ✅ Detect Seek dynamic content changes with debounce
+  // Detect dynamic DOM changes (Seek)
   useEffect(() => {
     if (!window.location.href.includes("seek.com.au")) return;
 
@@ -62,7 +63,7 @@ export default function PopupController() {
 
     const callback = () => {
       if (debounceTimeout) clearTimeout(debounceTimeout);
-      debounceTimeout = setTimeout(loadData, 100); // debounce rapid DOM changes
+      debounceTimeout = setTimeout(loadData, 100);
     };
 
     const observer = new MutationObserver(callback);
@@ -71,11 +72,26 @@ export default function PopupController() {
     return () => observer.disconnect();
   }, []);
 
-  // Always show popup when new data arrives
+  // =======================================
+  // Listen for Gemini updates from content.js
+  // =======================================
   useEffect(() => {
-    if (pageData) setVisible(true);
-  }, [pageData]);
+    const handleGeminiUpdate = (e) => {
+      const newData = e.detail; // sanitized data
+      console.log("Gemini update received:", newData);
 
+      // You can merge or replace with existing pageData
+      setPageData(prev => ({ ...prev, ...newData }));
+      setVisible(true); // show popup automatically
+    };
+
+    window.addEventListener("GeminiUpdate", handleGeminiUpdate);
+    return () => window.removeEventListener("GeminiUpdate", handleGeminiUpdate);
+  }, []);
+
+  // ======================
+  // Save job
+  // ======================
   const handleSave = async () => {
     if (!pageData) return;
     try {
@@ -90,18 +106,17 @@ export default function PopupController() {
     }
   };
 
+  // ======================
+  // Generate Cover Letter
+  // ======================
   const handleCoverLetter = async () => {
     if (!pageData) return;
-
     try {
-      const coverLetterResponse = await getCoverLetter(pageData);
-      const rawText = coverLetterResponse;
-
+      const rawText = await getCoverLetter(pageData);
       if (!rawText) {
         setNotification({ type: "error", message: "No cover letter data received from Gemini." });
         return;
       }
-
       generateCoverLetterPDF(rawText);
       setNotification({ type: "success", message: "Cover letter generated and downloaded!" });
       setTimeout(() => setNotification(null), 6000);
@@ -114,6 +129,9 @@ export default function PopupController() {
 
   const handleClose = () => setVisible(false);
 
+  // ======================
+  // Render logic
+  // ======================
   if (!visible) return null;
   if (userDataExists === null) return <div>Loading...</div>;
   if (!userDataExists || showUserData) return <UsersData onClose={handleClose} />;

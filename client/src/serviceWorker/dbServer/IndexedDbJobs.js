@@ -9,26 +9,34 @@ export function setJobItem(key, value) {
       const tx = db.transaction(JOBS_STORE, "readwrite");
       const store = tx.objectStore(JOBS_STORE);
 
-      // Get all jobs and check if URL already exists
       const getAllReq = store.getAll();
       getAllReq.onsuccess = () => {
         const existingJob = getAllReq.result.find(job => job.value.url === value.url);
 
         if (existingJob) {
-          // URL already exists
+          console.log("Duplicate job found:", existingJob);
           resolve({ key: existingJob.key, existing: true });
         } else {
-          // Insert new job
           const putReq = store.put({ key, value });
-          putReq.onsuccess = () => resolve({ key, existing: false });
-          putReq.onerror = (event) => reject(event.target.error);
+          putReq.onsuccess = () => {
+            console.log("Inserted new job:", { key, value });
+            resolve({ key, existing: false });
+          };
+          putReq.onerror = (event) => {
+            console.error("Put failed:", event.target.error);
+            reject(event.target.error);
+          };
         }
       };
 
       getAllReq.onerror = (event) => reject(event.target.error);
+
+      tx.oncomplete = () => console.log("Transaction committed");
+      tx.onerror = (e) => console.error("Transaction failed:", e.target.error);
     });
   });
 }
+
 
 
 // Get all jobs
@@ -47,6 +55,10 @@ export function getAllJobs() {
 
 // Update only the status field of a job
 export function updateJobStatus(key, newStatus) {
+  if (!key) {
+    return Promise.reject(new Error("updateJobStatus called without a valid key"));
+  }
+
   return getDB().then(db => {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(JOBS_STORE, "readwrite");
@@ -69,6 +81,7 @@ export function updateJobStatus(key, newStatus) {
     });
   });
 }
+
 
 // Get count of jobs by status
 export function getJobStatusCounts() {

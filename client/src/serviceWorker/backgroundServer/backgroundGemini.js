@@ -13,6 +13,7 @@ export async function handleGeminiMessage({ action, data, requestId }, port) {
 
       case "Gemini_CoverLetter":
         result = await geminiCoverLetter(data);
+        console.log("From backgorund cover lettter:", result)
         break;
 
       default:

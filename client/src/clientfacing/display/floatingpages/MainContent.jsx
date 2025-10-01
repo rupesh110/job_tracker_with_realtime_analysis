@@ -28,7 +28,8 @@ export default function MainContent() {
     try {
       setLoading(true);
       const data = await fetchAllJobs();
-      setJobsData(Array.isArray(data.items) ? data.items : []);
+      console.log("from maincontent:", data)
+      setJobsData(Array.isArray(data) ? data : []);
       setShowTable(true);
     } catch (error) {
       console.error("Failed to fetch jobs:", error);
@@ -40,23 +41,26 @@ export default function MainContent() {
   // Handle status change
   const handleStatusChange = async (jobKey, newStatus) => {
     try {
-      await updateJobStatus(jobKey, newStatus);
+      await updateJobStatus({ key: jobKey, newStatus });
+
       const updatedJobs = jobsData.map(job =>
         job.key === jobKey ? { ...job, value: { ...job.value, status: newStatus } } : job
       );
       setJobsData(updatedJobs);
 
-      // Recalculate job counts dynamically
+      // update counts
       const counts = updatedJobs.reduce((acc, job) => {
         const status = job.value?.status || "Unknown";
         acc[status] = (acc[status] || 0) + 1;
         return acc;
       }, {});
       setJobCount(counts);
+
     } catch (error) {
       console.error("Failed to update job status:", error);
     }
   };
+
 
   return (
     <div className="main-content">
