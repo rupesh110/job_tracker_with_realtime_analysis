@@ -33,7 +33,7 @@ export function safeSendMessage({ action, data }) {
     pendingRequests.set(requestId, { resolve, reject });
     port.postMessage({ requestId, action, data });
 
-    // Optional timeout
+    // Optional timeout gg
     setTimeout(() => {
       if (pendingRequests.has(requestId)) {
         pendingRequests.delete(requestId);
