@@ -17,7 +17,7 @@ function getPort() {
     });
 
     port.onDisconnect.addListener(() => {
-      console.warn("Port disconnected, reconnecting...");
+      //console.warn("Port disconnected, reconnecting...");
       port = null;
     });
   }

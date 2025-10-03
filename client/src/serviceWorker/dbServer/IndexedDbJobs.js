@@ -47,28 +47,38 @@ export function getAllJobs() {
 
 // Update only the status field of a job
 export function updateJobStatus(key, newStatus) {
+  console.log("Updating job status:", key, newStatus);
   return getDB().then(db => {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(JOBS_STORE, "readwrite");
       const store = tx.objectStore(JOBS_STORE);
 
       const getReq = store.get(key);
-
       getReq.onsuccess = () => {
         const record = getReq.result;
+        console.log("Index from reccord:", record)
         if (!record) return reject(new Error(`Job with key ${key} not found`));
 
-        record.value.status = newStatus;
+        record.value.status = newStatus; 
+
         const putReq = store.put(record);
 
-        putReq.onsuccess = () => resolve({ key, newStatus });
+        putReq.onsuccess = () => {
+          console.log("Update successful");
+          resolve({ key, newStatus });
+        };
         putReq.onerror = (event) => reject(event.target.error);
       };
 
       getReq.onerror = (event) => reject(event.target.error);
+
+      tx.oncomplete = () => console.log("Transaction complete");
+      tx.onerror = (event) => console.error("Transaction error", event);
     });
   });
 }
+
+
 
 // Get count of jobs by status
 export function getJobStatusCounts() {

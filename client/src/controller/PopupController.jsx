@@ -71,6 +71,24 @@ export default function PopupController() {
     return () => observer.disconnect();
   }, []);
 
+  // ✅ Port connection to background
+  useEffect(() => {
+    const port = chrome.runtime.connect({ name: "feeder-port" });
+    console.log("Popup connected to feeder-port");
+
+    port.onMessage.addListener((msg) => {
+      console.log("Popup received message:", msg);
+
+      if (msg.action === "Client_UpdateText" && msg.data) {
+        setPageData(msg.data);   // 🔥 Update UI with background-provided job data
+        setVisible(true);
+      }
+    });
+    return () => {
+      port.disconnect();
+    };
+  }, []);
+
   // Always show popup when new data arrives
   useEffect(() => {
     if (pageData) setVisible(true);

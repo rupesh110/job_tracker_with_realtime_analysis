@@ -13,6 +13,7 @@ export async function addJob(data) {
 export async function fetchAllJobs() {
   try {
     const response = await safeSendMessage({ action: "Job_FetchAllJobs" });
+    console.log("From feeder client fetchall jobs:", response)
     return response || [];
   } catch (err) {
     console.warn("fetchAllJobs failed:", err.message);
@@ -20,11 +21,11 @@ export async function fetchAllJobs() {
   }
 }
 
-export async function updateJobStatus({ id, newStatus }) {
+export async function updateJobStatus({ key, newStatus }) {
   try {
     const response = await safeSendMessage({
       action: "Job_UpdateStatus",
-      data: { id, newStatus }
+      data: { key, newStatus }  
     });
     return response || {};
   } catch (err) {

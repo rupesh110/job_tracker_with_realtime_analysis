@@ -28,6 +28,7 @@ export default function MainContent() {
     try {
       setLoading(true);
       const data = await fetchAllJobs();
+      console.log("from main content fetchall jobs:", data)
       setJobsData(Array.isArray(data.items) ? data.items : []);
       setShowTable(true);
     } catch (error) {
@@ -40,7 +41,7 @@ export default function MainContent() {
   // Handle status change
   const handleStatusChange = async (jobKey, newStatus) => {
     try {
-      await updateJobStatus(jobKey, newStatus);
+     // await updateJobStatus(jobKey, newStatus);
       const updatedJobs = jobsData.map(job =>
         job.key === jobKey ? { ...job, value: { ...job.value, status: newStatus } } : job
       );

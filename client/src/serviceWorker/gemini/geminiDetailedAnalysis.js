@@ -119,7 +119,7 @@ export async function detailedAnalysis({ jobTitle, jobDescription }) {
   await console.log("From Gemini:", JSON.stringify(data))
   if (!rawText) throw new Error("No response from Gemini.");
 
-  const maxRetries = 3;
+  const maxRetries = 5;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
