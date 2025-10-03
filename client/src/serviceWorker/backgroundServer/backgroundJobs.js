@@ -1,40 +1,40 @@
 // backgroundJobs.js
 import { setJobItem, getAllJobs, updateJobStatus, getJobStatusCounts } from "../dbServer/IndexedDbJobs";
 
-export function handleJobMessage(request, sender, sendResponse) {
-  switch (request.action) {
+export function handleJobMessage({ action, data, requestId }, port) {
+  switch (action) {
     case "Job_AddJob": {
       const key = `job_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-      setJobItem(key, request.data)
-        .then(() => sendResponse({ status: "ok", storedKey: key }))
-        .catch((err) => sendResponse({ status: "error", error: err.message }));
-      return true;
+      setJobItem(key, data)
+        .then(() => port.postMessage({ requestId, result: { status: "ok", storedKey: key } }))
+        .catch((err) => port.postMessage({ requestId, error: err.message }));
+      break;
     }
 
     case "Job_FetchAllJobs": {
       getAllJobs()
-        .then((items) => sendResponse({ items: items || [] }))
-        .catch((err) => sendResponse({ status: "error", error: err.message }));
-      return true;
+        .then((items) => port.postMessage({ requestId, result: { items: items || [] } }))
+        .catch((err) => port.postMessage({ requestId, error: err.message }));
+      break;
     }
 
     case "Job_UpdateStatus": {
-      const { id, newStatus } = request.data;
-      updateJobStatus(id, newStatus)
-        .then(() => sendResponse({ status: "ok", id, newStatus }))
-        .catch((err) => sendResponse({ status: "error", error: err.message }));
-      return true;
+      const { key, newStatus } = data;
+      updateJobStatus(key, newStatus)
+        .then(() => port.postMessage({ requestId, result: { status: "ok", key, newStatus } }))
+        .catch((err) => port.postMessage({ requestId, error: err.message }));
+      break;
     }
 
     case "Job_GetAllJobStatus": {
       getJobStatusCounts()
-        .then((items) => sendResponse({ items: items || {} }))
-        .catch((err) => sendResponse({ status: "error", error: err.message }));
-      return true;
+        .then((items) => port.postMessage({ requestId, result: { items: items || {} } }))
+        .catch((err) => port.postMessage({ requestId, error: err.message }));
+      break;
     }
 
     default:
-      sendResponse({ status: "error", error: "Unknown Job action" });
-      return false;
+      port.postMessage({ requestId, error: "Unknown Job action" });
   }
 }
+
