@@ -80,6 +80,34 @@ export function updateJobStatus(key, newStatus, updatedDate) {
   });
 }
 
+export function updateJobNotes(key, notes) {
+  console.log("Updating job notes:", key, notes);
+
+  return getDB().then((db) => {
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction(JOBS_STORE, "readwrite");
+      const store = tx.objectStore(JOBS_STORE);
+
+      const getReq = store.get(key);
+      getReq.onsuccess = () => {
+        const record = getReq.result;
+        if (!record) return reject(new Error(`Job with key ${key} not found`));
+
+        record.value.notes = notes;
+        const putReq = store.put(record);
+
+        putReq.onsuccess = () => {
+          console.log("Update successful:", record);
+          resolve(record);
+        };
+        putReq.onerror = (event) => reject(event.target.error);
+      };
+
+      getReq.onerror = (event) => reject(event.target.error);
+    });
+  });
+}
+
 
 
 // Get count of jobs by status

@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from "react";
-import { updateJobStatus } from "../../Feeder/JobDataFeeder.js";
+import { updateJobStatus, updateJobNotes } from "../../Feeder/JobDataFeeder.js";
 import "./JobsTable.css";
 
 export default function JobsTable({ jobs, onStatusChange, onClose }) {
   const [jobStatuses, setJobStatuses] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
   const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [editingJobKey, setEditingJobKey] = useState(null);
+  const [editingNotes, setEditingNotes] = useState("");
   const panelRef = useRef(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const dragging = useRef(false);
 
-  // Normalize job fields and initialize statuses
+  // Normalize jobs
   const normalizedJobs = jobs.map((job) => ({
     ...job,
     value: {
@@ -22,6 +24,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
       workType: job.value?.workType || "Unknown",
       date: job.value?.date || "Unknown",
       url: job.value?.url || "#",
+      notes: job.value?.notes || "",
     },
   }));
 
@@ -35,12 +38,12 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
 
   const handleStatusChange = async (jobKey, newStatus) => {
     const dateObj = new Date();
-    const updatedDate = `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`;
+    const updatedDate = `${String(dateObj.getDate()).padStart(2,"0")}/${String(dateObj.getMonth()+1).padStart(2,"0")}/${dateObj.getFullYear()}`;
 
     setJobStatuses((prev) => ({ ...prev, [jobKey]: newStatus }));
 
     try {
-      await updateJobStatus({ key: jobKey, newStatus, updatedDate });
+      await updateJobStatus(jobKey, newStatus, updatedDate);
     } catch (error) {
       console.error("Failed to update status:", error);
     }
@@ -48,8 +51,17 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     if (onStatusChange) onStatusChange(jobKey, newStatus, updatedDate);
   };
 
+  const handleSaveNotes = async () => {
+    try {
+    await updateJobNotes({ key: editingJobKey, notes: editingNotes });
+      setEditingJobKey(null);
+      setEditingNotes("");
+    } catch (error) {
+      console.error("Failed to save notes:", error);
+    }
+  };
 
-  // Dragging handlers
+  // Drag handlers
   const handleMouseDown = (e) => {
     dragging.current = true;
     dragOffset.current = { x: e.clientX - position.x, y: e.clientY - position.y };
@@ -58,7 +70,10 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
   };
   const handleMouseMove = (e) => {
     if (!dragging.current) return;
-    setPosition({ x: e.clientX - dragOffset.current.x, y: e.clientY - dragOffset.current.y });
+    setPosition({
+      x: e.clientX - dragOffset.current.x,
+      y: e.clientY - dragOffset.current.y,
+    });
   };
   const handleMouseUp = () => {
     dragging.current = false;
@@ -66,35 +81,23 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     document.removeEventListener("mouseup", handleMouseUp);
   };
 
-    const statusOptions = [
-      "Applied",
-      "Recruiters call",
-      "1st Round",
-      "Interview",
-      "Offer",
-      "Rejected",
-      "Unknown",
-      "Follow Up"
-    ];
+  const statusOptions = [
+    "Applied", "Recruiters call", "1st Round", "Interview",
+    "Offer", "Rejected", "Unknown", "Follow Up"
+  ];
 
-    const getRowColor = (status) => {
-      switch (status) {
-        case "Applied":
-          return "row-applied";
-        case "Recruiters call":
-        case "1st Round":
-        case "Interview":
-        case "Offer":
-          return "row-green"; // all in-progress/interview stages as green
-        case "Rejected":
-          return "row-rejected";
-        case "Follow Up":
-        default:
-          return "row-unknown";
-      }
-    };
+  const getRowColor = (status) => {
+    switch (status) {
+      case "Applied": return "row-applied";
+      case "Recruiters call":
+      case "1st Round":
+      case "Interview":
+      case "Offer": return "row-green";
+      case "Rejected": return "row-rejected";
+      default: return "row-unknown";
+    }
+  };
 
-  // Safe filtering
   const filteredJobs = normalizedJobs.filter((job) => {
     const search = searchTerm.toLowerCase();
     return (
@@ -104,7 +107,8 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     );
   });
 
-  if (!jobs || jobs.length === 0) return <div className="jobs-table-empty">No jobs available</div>;
+  if (!jobs || jobs.length === 0)
+    return <div className="jobs-table-empty">No jobs available</div>;
 
   return (
     <div className="jobs-table-panel" ref={panelRef} style={{ left: position.x, top: position.y }}>
@@ -133,7 +137,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
               <th>Work Type</th>
               <th>Updated on</th>
               <th>URL</th>
-       
+              <th>Notes</th>
             </tr>
           </thead>
           <tbody>
@@ -157,15 +161,40 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
                 <td>{job.value.workType}</td>
                 <td>{job.value.date}</td>
                 <td>
-                  <a href={job.value.url} target="_blank" rel="noopener noreferrer" className="link">
-                    View
-                  </a>
+                  <a href={job.value.url} target="_blank" rel="noopener noreferrer" className="link">View</a>
+                </td>
+                <td>
+                  <div
+                    className="notes-cell"
+                    onClick={() => {
+                      setEditingJobKey(job.key);
+                      setEditingNotes(job.value.notes);
+                    }}
+                  >
+                    {job.value.notes || <span className="placeholder">Add notes...</span>}
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* Notes popup */}
+      {editingJobKey && (
+        <div className="notes-popup">
+          <h4>Edit Notes</h4>
+          <textarea
+            value={editingNotes}
+            onChange={(e) => setEditingNotes(e.target.value)}
+            placeholder="Type your notes here..."
+          />
+          <div className="notes-popup-buttons">
+            <button onClick={handleSaveNotes}>Save</button>
+            <button onClick={() => setEditingJobKey(null)}>Cancel</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

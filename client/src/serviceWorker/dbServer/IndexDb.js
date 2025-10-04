@@ -1,5 +1,5 @@
 const DB_NAME = "RealtimeAnalysisDBTest";
-const DB_VERSION = 21;
+const DB_VERSION = 22;
 
 let dbPromise = null;
 const JOBS_STORE = "jobsData";

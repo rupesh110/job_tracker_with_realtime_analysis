@@ -43,3 +43,17 @@ export async function getAllJobStatus() {
     return []; // fallback
   }
 }
+
+export async function updateJobNotes({ key, notes }) {
+  console.log("from update notes:", key, notes)
+  try {
+    const response = await safeSendMessage({
+      action: "Job_UpdateNotes",
+      data: { key, notes }
+    });
+    return response || {};
+  } catch (err) {
+    console.warn("updateJobNotes failed:", err.message);
+    return {}; // fallback
+  }
+}
