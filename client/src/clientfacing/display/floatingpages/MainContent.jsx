@@ -41,10 +41,15 @@ export default function MainContent() {
   // Handle status change
   const handleStatusChange = async (jobKey, newStatus) => {
     try {
-     // await updateJobStatus(jobKey, newStatus);
+      const dateObj = new Date();
+      const updatedDate = `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`;
+
       const updatedJobs = jobsData.map(job =>
-        job.key === jobKey ? { ...job, value: { ...job.value, status: newStatus } } : job
+        job.key === jobKey
+          ? { ...job, value: { ...job.value, status: newStatus, date: updatedDate } }
+          : job
       );
+
       setJobsData(updatedJobs);
 
       // Recalculate job counts dynamically
@@ -54,10 +59,15 @@ export default function MainContent() {
         return acc;
       }, {});
       setJobCount(counts);
+
+      // optionally persist
+      // await updateJobStatus(jobKey, newStatus, updatedDate);
+
     } catch (error) {
       console.error("Failed to update job status:", error);
     }
   };
+
 
   return (
     <div className="main-content">

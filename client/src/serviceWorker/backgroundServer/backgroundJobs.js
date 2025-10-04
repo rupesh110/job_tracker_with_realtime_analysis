@@ -19,9 +19,9 @@ export function handleJobMessage({ action, data, requestId }, port) {
     }
 
     case "Job_UpdateStatus": {
-      const { key, newStatus } = data;
+      const { key, newStatus, updatedDate } = data;
       updateJobStatus(key, newStatus)
-        .then(() => port.postMessage({ requestId, result: { status: "ok", key, newStatus } }))
+        .then(() => port.postMessage({ requestId, result: { status: "ok", key, newStatus, updatedDate } }))
         .catch((err) => port.postMessage({ requestId, error: err.message }));
       break;
     }

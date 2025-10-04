@@ -46,9 +46,14 @@ export function getAllJobs() {
 }
 
 // Update only the status field of a job
-export function updateJobStatus(key, newStatus) {
-  console.log("Updating job status:", key, newStatus);
-  return getDB().then(db => {
+export function updateJobStatus(key, newStatus, updatedDate) {
+  const today = new Date();
+  const formattedDate = updatedDate || 
+    `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
+
+  console.log("Updating job status:", key, newStatus, formattedDate);
+
+  return getDB().then((db) => {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(JOBS_STORE, "readwrite");
       const store = tx.objectStore(JOBS_STORE);
@@ -56,24 +61,21 @@ export function updateJobStatus(key, newStatus) {
       const getReq = store.get(key);
       getReq.onsuccess = () => {
         const record = getReq.result;
-        console.log("Index from reccord:", record)
         if (!record) return reject(new Error(`Job with key ${key} not found`));
 
-        record.value.status = newStatus; 
+        record.value.status = newStatus;
+        record.value.date = formattedDate;
 
         const putReq = store.put(record);
 
         putReq.onsuccess = () => {
-          console.log("Update successful");
-          resolve({ key, newStatus });
+          console.log("Update successful:", record);
+          resolve(record);
         };
         putReq.onerror = (event) => reject(event.target.error);
       };
 
       getReq.onerror = (event) => reject(event.target.error);
-
-      tx.oncomplete = () => console.log("Transaction complete");
-      tx.onerror = (event) => console.error("Transaction error", event);
     });
   });
 }

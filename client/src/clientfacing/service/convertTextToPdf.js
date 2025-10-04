@@ -1,180 +1,88 @@
-
-export function generateCoverLetterPDF(data) {
-//   if (!data || !data.available) return;
-console.log("From cover letter:", data)
-  return "OK"
+export async function generateCoverLetterPDF(data) {
+  if (!data || !data.available) return;
 }
 
+// import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 
-// import { jsPDF } from "jspdf";
-
-// export function generateCoverLetterPDF(data) {
+// export async function generateCoverLetterPDF(data) {
 //   if (!data || !data.available) return;
 
 //   const content = data.available;
-//   const doc = new jsPDF();
+
+//   // Create PDF
+//   const pdfDoc = await PDFDocument.create();
+//   const page = pdfDoc.addPage([595, 842]); // A4
+//   const { width: pageWidth, height: pageHeight } = page.getSize();
+
 //   const leftMargin = 22;
 //   const rightMargin = 22;
 //   const topMargin = 17;
-//   const lineHeight = 6;
+//   const lineHeight = 16;
 //   const paragraphSpacing = 5;
-//   const pageHeight = doc.internal.pageSize.getHeight();
-//   const pageWidth = doc.internal.pageSize.getWidth();
-//   const maxWidth = pageWidth - leftMargin - rightMargin;
-//   let y = topMargin;
+//   let y = pageHeight - topMargin;
 
-//   // --- Helper: Justified paragraph / bullet text ---
-//   function addWrappedText(doc, text, x, y, maxWidth, lineHeight) {
-//     const isBullet = text.startsWith("•");
-//     const textIndent = isBullet ? 10 : 0;
-//     let cleanedText = isBullet ? text.replace(/^\s*/, "") : text;
-//     const words = cleanedText.split(/\s+/);
-//     let lineWords = [];
-//     let lineWidth = 0;
+//   const helveticaFont = await pdfDoc.embedFont(StandardFonts.Helvetica);
+//   const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
 
-//     for (let i = 0; i < words.length; i++) {
-//       const word = words[i];
-//       const wordWidth = doc.getTextWidth(word + " ");
+//   function addWrappedText(page, text, x, y, maxWidth, font, fontSize, isBullet = false) {
+//     const words = text.split(/\s+/);
+//     let line = "";
+//     const indent = isBullet ? 10 : 0;
 
-//       if (lineWidth + wordWidth > maxWidth - textIndent && lineWords.length > 0) {
-//         if (y > pageHeight - 25) {
-//           doc.addPage();
-//           y = topMargin;
-//         }
+//     for (let word of words) {
+//       const testLine = line ? line + " " + word : word;
+//       const lineWidth = font.widthOfTextAtSize(testLine, fontSize);
 
-//         let extraSpace = maxWidth - textIndent - lineWidth;
-//         let gap = lineWords.length > 1 ? extraSpace / (lineWords.length - 1) : 0;
-
-//         let curX = x + textIndent;
-//         lineWords.forEach((w) => {
-//           doc.text(w, curX, y);
-//           curX += doc.getTextWidth(w + " ") + gap;
-//         });
-
-//         y += lineHeight;
-//         lineWords = [];
-//         lineWidth = 0;
+//       if (lineWidth + indent > maxWidth) {
+//         page.drawText(line, { x: x + indent, y, size: fontSize, font });
+//         y -= lineHeight;
+//         line = word;
+//       } else {
+//         line = testLine;
 //       }
-
-//       lineWords.push(word);
-//       lineWidth += wordWidth;
 //     }
-
-//     // Last line (not justified)
-//     if (lineWords.length > 0) {
-//       if (y > pageHeight - 25) {
-//         doc.addPage();
-//         y = topMargin;
-//       }
-//       let curX = x + textIndent;
-//       lineWords.forEach((w) => {
-//         doc.text(w, curX, y);
-//         curX += doc.getTextWidth(w + " ");
-//       });
-//       y += lineHeight;
+//     if (line) {
+//       page.drawText(line, { x: x + indent, y, size: fontSize, font });
+//       y -= lineHeight;
 //     }
 
 //     return y;
 //   }
 
-//   // --- HEADER ---
 //   const allLines = content.split("\n").map(l => l.trim()).filter(Boolean);
-//   const headerLines = allLines.slice(0, 3); // Name, Phone/Email
-//   doc.setFont("helvetica", "bold");
-//   doc.setFontSize(21); // slightly larger name
 
-//   const nameWidth = doc.getTextWidth(headerLines[0]);
-//   doc.text(headerLines[0], (pageWidth - nameWidth) / 2, y);
-//   y += lineHeight + 1;
+//   // --- HEADER ---
+//   const headerLines = allLines.slice(0, 3);
+//   const nameFontSize = 21;
+//   const contactFontSize = 12;
 
-//   doc.setFont("helvetica", "normal");
-//   doc.setFontSize(12);
+//   const nameWidth = helveticaBold.widthOfTextAtSize(headerLines[0], nameFontSize);
+//   page.drawText(headerLines[0], { x: (pageWidth - nameWidth) / 2, y, size: nameFontSize, font: helveticaBold });
+//   y -= lineHeight + 2;
+
 //   const contactInfo = headerLines.slice(1).join(" | ");
-//   const contactWidth = doc.getTextWidth(contactInfo);
-//   doc.text(contactInfo, (pageWidth - contactWidth) / 2, y);
-//   y += lineHeight + paragraphSpacing - 4;
+//   const contactWidth = helveticaFont.widthOfTextAtSize(contactInfo, contactFontSize);
+//   page.drawText(contactInfo, { x: (pageWidth - contactWidth) / 2, y, size: contactFontSize, font: helveticaFont });
+//   y -= lineHeight + paragraphSpacing;
 
-//   // --- DATE, COMPANY INFO, SUBJECT ---
+//   // --- BODY ---
 //   const bodyLines = allLines.slice(3);
+//   bodyLines.forEach((line) => {
+//     const isBullet = line.startsWith("•");
+//     y = addWrappedText(page, line, leftMargin, y, pageWidth - leftMargin - rightMargin, helveticaFont, 12, isBullet);
+//     y -= paragraphSpacing;
+//   });
 
-//   // Add subtle horizontal line above date
-//   const lineStartX = leftMargin;
-//   const lineEndX = pageWidth - rightMargin;
-//   const lineY = y - 1; // smaller gap
-//   doc.setLineWidth(0.3);
-//   doc.line(lineStartX, lineY, lineEndX, lineY);
-//   y = lineY + 6; // gap after line
-
-//   doc.setFont("helvetica", "normal");
-//   doc.setFontSize(12);
-
-//   if (bodyLines.length > 0) {
-//     // Date
-//     doc.text(bodyLines[0], leftMargin, y);
-//     y += lineHeight + paragraphSpacing;
-
-//     // --- Dynamic company lines ---
-//     let subjectIndex = bodyLines.findIndex(line => line.toLowerCase().startsWith("subject:"));
-//     subjectIndex = subjectIndex === -1 ? bodyLines.length : subjectIndex; // fallback if no subject
-//     const companyLines = bodyLines.slice(1, subjectIndex);
-
-//     companyLines.forEach(line => {
-//       y = addWrappedText(doc, line, leftMargin, y, maxWidth, lineHeight);
-//       y += paragraphSpacing / 2;
-//     });
-
-//     // Subject
-//     if (subjectIndex < bodyLines.length) {
-//       const subjectLine = bodyLines[subjectIndex];
-//       const subjectIndent = leftMargin + 15;
-//       doc.setFont("helvetica", "bold");
-//       doc.setFontSize(12);
-//       doc.text(subjectLine, subjectIndent, y);
-//       doc.setFont("helvetica", "normal");
-//       doc.setFontSize(12);
-//       y += lineHeight + paragraphSpacing;
-//     }
-//   }
-
-//   // --- Remove original signature lines ---
-//   let signatureIndex = bodyLines.findIndex(line => line.trim().toLowerCase() === "sincerely,");
-//   let signatureLines = [];
-//   if (signatureIndex !== -1) {
-//     signatureLines = bodyLines.splice(signatureIndex, bodyLines.length - signatureIndex);
-//   }
-
-//   // --- MAIN BODY: paragraphs & bullets ---
-//   for (let i = 5; i < bodyLines.length; i++) {
-//     const line = bodyLines[i];
-//     if (!line) {
-//       y += paragraphSpacing;
-//       continue;
-//     }
-//     y = addWrappedText(doc, line, leftMargin, y, maxWidth, lineHeight);
-//     y += paragraphSpacing;
-//   }
-
-//   // --- PRINT DYNAMIC SIGNATURE ---
-//   if (signatureLines.length > 0) {
-//     doc.setFont("helvetica", "normal");
-//     doc.setFontSize(12);
-//     signatureLines.forEach((line) => {
-//       if (!line.trim()) return;
-//       doc.text(line.trim(), leftMargin, y);
-//       y += lineHeight;
-//     });
-//   }
-
-//   // --- DOWNLOAD PDF ---
-//   const pdfBlob = doc.output("blob");
-//   const filename = "Cover Letter.pdf";
-//   const url = URL.createObjectURL(pdfBlob);
+//   // --- Save and download PDF ---
+//   const pdfBytes = await pdfDoc.save();
+//   const blob = new Blob([pdfBytes], { type: "application/pdf" });
+//   const url = URL.createObjectURL(blob);
 
 //   const a = document.createElement("a");
 //   a.href = url;
-//   a.download = filename;
+//   a.download = "Cover Letter.pdf";
 //   document.body.appendChild(a);
-//   a.dispatchEvent(new MouseEvent("click", { view: window, bubbles: true, cancelable: true }));
+//   a.click();
 //   document.body.removeChild(a);
 //   URL.revokeObjectURL(url);
 // }

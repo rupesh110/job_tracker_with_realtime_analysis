@@ -1,5 +1,6 @@
 import { detailedAnalysis } from "../gemini/geminiDetailedAnalysis";
 import { geminiCoverLetter } from "../gemini/geminiCoverLetter";
+import { generateCoverLetter } from "../gemini/textConvert"; // <-- our SW PDF function
 
 export async function handleGeminiMessage({ action, data, requestId }, port) {
   try {
@@ -8,11 +9,16 @@ export async function handleGeminiMessage({ action, data, requestId }, port) {
     switch (action) {
       case "Gemini_CallAnalysis":
         result = await detailedAnalysis(data);
-        console.log("From backgorund gemini:", result)
+        console.log("From background gemini:", result);
         break;
 
       case "Gemini_CoverLetter":
+        console.log("From background cover letter request:", data);
         result = await geminiCoverLetter(data);
+        console.log("Generated cover letter text:", result);
+
+        // ✅ Generate PDF and download directly from Service Worker
+        await generateCoverLetter(result, "CoverLetter.pdf");
         break;
 
       default:
@@ -21,7 +27,7 @@ export async function handleGeminiMessage({ action, data, requestId }, port) {
         return true; // handled, response sent
     }
 
-    // Send back the result
+    // Send back the result (text only, PDF already downloaded)
     port.postMessage({ requestId, result });
     return true;
   } catch (err) {
