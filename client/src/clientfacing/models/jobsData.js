@@ -7,6 +7,7 @@ export const JobsData = {
     platform: "",
     workType: "",
     status: "",
+    lastUpdated: "",
     syncStatus: "pending",
     createdAt: 0   
 };

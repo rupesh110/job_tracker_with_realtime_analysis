@@ -34,17 +34,20 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
   }, [jobs]);
 
   const handleStatusChange = async (jobKey, newStatus) => {
+    const dateObj = new Date();
+    const updatedDate = `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`;
+
     setJobStatuses((prev) => ({ ...prev, [jobKey]: newStatus }));
 
     try {
-      const response = await updateJobStatus({ key: jobKey, newStatus });
-      //console.log("Status update response:", response);
+      await updateJobStatus({ key: jobKey, newStatus, updatedDate });
     } catch (error) {
       console.error("Failed to update status:", error);
     }
 
-    if (onStatusChange) onStatusChange(jobKey, newStatus);
+    if (onStatusChange) onStatusChange(jobKey, newStatus, updatedDate);
   };
+
 
   // Dragging handlers
   const handleMouseDown = (e) => {
@@ -128,8 +131,9 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
               <th>Status</th>
               <th>Platform</th>
               <th>Work Type</th>
-              <th>Applied on</th>
+              <th>Updated on</th>
               <th>URL</th>
+       
             </tr>
           </thead>
           <tbody>

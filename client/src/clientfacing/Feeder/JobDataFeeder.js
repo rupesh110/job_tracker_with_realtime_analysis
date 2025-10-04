@@ -21,11 +21,11 @@ export async function fetchAllJobs() {
   }
 }
 
-export async function updateJobStatus({ key, newStatus }) {
+export async function updateJobStatus({ key, newStatus, updatedDate }) {
   try {
     const response = await safeSendMessage({
       action: "Job_UpdateStatus",
-      data: { key, newStatus }  
+      data: { key, newStatus, updatedDate }  
     });
     return response || {};
   } catch (err) {
