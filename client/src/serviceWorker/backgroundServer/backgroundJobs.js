@@ -1,5 +1,5 @@
 // backgroundJobs.js
-import { setJobItem, getAllJobs, updateJobStatus, getJobStatusCounts } from "../dbServer/IndexedDbJobs";
+import { setJobItem, getAllJobs, updateJobStatus, getJobStatusCounts, updateJobNotes } from "../dbServer/IndexedDbJobs";
 
 export function handleJobMessage({ action, data, requestId }, port) {
   switch (action) {
@@ -22,6 +22,15 @@ export function handleJobMessage({ action, data, requestId }, port) {
       const { key, newStatus, updatedDate } = data;
       updateJobStatus(key, newStatus)
         .then(() => port.postMessage({ requestId, result: { status: "ok", key, newStatus, updatedDate } }))
+        .catch((err) => port.postMessage({ requestId, error: err.message }));
+      break;
+    }
+
+    case "Job_UpdateNotes": {
+      const { key, notes } = data;
+      console.log("From backgorun josb notes:", data)
+      updateJobNotes(key, notes)
+        .then(() => port.postMessage({ requestId, result: { status: "ok", key, notes } }))
         .catch((err) => port.postMessage({ requestId, error: err.message }));
       break;
     }

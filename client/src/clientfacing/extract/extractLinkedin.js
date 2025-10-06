@@ -34,7 +34,8 @@ export async function extractLinkedInData() {
     status: "Applied",
     date: formattedDate,
     syncStatus: "pending",
-    description: descriptionText
+    description: descriptionText,
+    notes: ""
   };
 
   return jobData

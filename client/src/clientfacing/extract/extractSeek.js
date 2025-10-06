@@ -50,6 +50,7 @@ export async function extractSeekData() {
     date: formattedDate,
     syncStatus: "pending",
     description: rawDescription,
+    notes: ""
   };
 
   return jobData;
