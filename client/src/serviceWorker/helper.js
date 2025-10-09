@@ -17,7 +17,7 @@ export async function extractTextFromPDF(file) {
 
     return textContent.trim();
   } catch (err) {
-    console.error("PDF extraction failed:", err);
+    console.error("PDF extraction faileds:", err);
     return null;
   }
 }

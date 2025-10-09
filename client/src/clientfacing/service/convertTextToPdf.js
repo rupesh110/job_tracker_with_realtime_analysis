@@ -1,6 +1,6 @@
-export async function generateCoverLetterPDF(data) {
-  if (!data || !data.available) return;
-}
+// export async function generateCoverLetterPDF(data) {
+//   if (!data || !data.available) return;
+// }
 
 // import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
 

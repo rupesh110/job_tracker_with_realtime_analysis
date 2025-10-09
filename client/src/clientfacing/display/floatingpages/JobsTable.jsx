@@ -5,12 +5,18 @@ import "./JobsTable.css";
 export default function JobsTable({ jobs, onStatusChange, onClose }) {
   const [jobStatuses, setJobStatuses] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState(""); // New: selected status filter
   const [position, setPosition] = useState({ x: 20, y: 20 });
   const [editingJobKey, setEditingJobKey] = useState(null);
   const [editingNotes, setEditingNotes] = useState("");
   const panelRef = useRef(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const dragging = useRef(false);
+
+  const statusOptions = [
+    "Applied", "Recruiters call", "1st Round", "Interview",
+    "Offer", "Rejected", "Unknown", "Follow Up"
+  ];
 
   // Normalize jobs
   const normalizedJobs = jobs.map((job) => ({
@@ -53,7 +59,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
 
   const handleSaveNotes = async () => {
     try {
-    await updateJobNotes({ key: editingJobKey, notes: editingNotes });
+      await updateJobNotes({ key: editingJobKey, notes: editingNotes });
       setEditingJobKey(null);
       setEditingNotes("");
     } catch (error) {
@@ -81,11 +87,6 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     document.removeEventListener("mouseup", handleMouseUp);
   };
 
-  const statusOptions = [
-    "Applied", "Recruiters call", "1st Round", "Interview",
-    "Offer", "Rejected", "Unknown", "Follow Up"
-  ];
-
   const getRowColor = (status) => {
     switch (status) {
       case "Applied": return "row-applied";
@@ -100,11 +101,14 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
 
   const filteredJobs = normalizedJobs.filter((job) => {
     const search = searchTerm.toLowerCase();
-    return (
+    const matchesSearch =
       job.value.company.toLowerCase().includes(search) ||
       job.value.title.toLowerCase().includes(search) ||
-      job.value.location.toLowerCase().includes(search)
-    );
+      job.value.location.toLowerCase().includes(search);
+
+    const matchesStatus = statusFilter ? job.value.status === statusFilter : true;
+
+    return matchesSearch && matchesStatus;
   });
 
   if (!jobs || jobs.length === 0)
@@ -117,6 +121,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
         <button className="close-button" onClick={onClose}>×</button>
       </div>
 
+      {/* Search Input */}
       <input
         type="text"
         className="search-input"
@@ -125,6 +130,27 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
+      {/* Status Filter Buttons */}
+      <div className="status-filters">
+        <button
+          className={`status-filter-button ${statusFilter === "" ? "active" : ""}`}
+          onClick={() => setStatusFilter("")}
+        >
+          All
+        </button>
+        {statusOptions.map((status) => (
+          <button
+            key={status}
+            className={`status-filter-button ${statusFilter === status ? "active" : ""}`}
+            onClick={() => setStatusFilter(statusFilter === status ? "" : status)}
+          >
+            {status}
+          </button>
+        ))}
+      </div>
+
+
+      {/* Jobs Table */}
       <div className="table-wrapper">
         <table className="jobs-table">
           <thead>
@@ -180,7 +206,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
         </table>
       </div>
 
-      {/* Notes popup */}
+      {/* Notes Popup */}
       {editingJobKey && (
         <div className="notes-popup">
           <h4>Edit Notes</h4>

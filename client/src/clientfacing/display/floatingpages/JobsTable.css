@@ -140,3 +140,24 @@
   justify-content: flex-end;
   gap: 10px;
 }
+
+.status-filters {
+  margin: 8px 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.status-filter-button {
+  padding: 4px 10px;
+  border: 1px solid #aaa;
+  border-radius: 4px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+}
+
+.status-filter-button.active {
+  background-color: #4caf50;
+  color: white;
+  border-color: #4caf50;
+}
