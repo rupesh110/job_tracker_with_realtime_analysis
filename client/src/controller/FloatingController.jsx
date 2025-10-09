@@ -21,7 +21,7 @@ export default function FloatController() {
 
   return (
     <>
-      {/* Floating Main panel with MainContent */}
+      {/* Floating Main panel with MainContent and*/}
       <FloatingMain onSeeAll={handleSeeAll} />
 
       {/* Floating Jobs Table, only shows when triggered from MainContent */}

@@ -5,7 +5,7 @@ import { addJob } from "../clientfacing/Feeder/JobDataFeeder.js";
 import { getPageData } from "../clientfacing/utils/getPageData.js";
 import { isUserAvailable } from "../clientfacing/Feeder/UsersDataFeeder.js";
 import { getCoverLetter } from "../clientfacing/Feeder/GeminiJobFeeder.js";
-import { generateCoverLetterPDF } from "../clientfacing/service/convertTextToPdf.js";
+//import { generateCoverLetterPDF } from "../clientfacing/service/convertTextToPdf.js";
 
 export default function PopupController() {
   const [userDataExists, setUserDataExists] = useState(null);
@@ -120,7 +120,6 @@ export default function PopupController() {
         return;
       }
 
-      generateCoverLetterPDF(rawText);
       setNotification({ type: "success", message: "Cover letter generated and downloaded!" });
       setTimeout(() => setNotification(null), 6000);
     } catch (err) {
