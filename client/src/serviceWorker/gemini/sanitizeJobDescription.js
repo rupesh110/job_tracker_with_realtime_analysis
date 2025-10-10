@@ -2,6 +2,8 @@ import { getUserData } from "../dbServer/IndexedDbUsers.js";
 
 
 export async function sanitizeJobDescription(jobsDetailsText) {
+console.log("🚀 ~ sanitizeJobDescription ~ sanitizeJobDescription(jobsDetailsText) :", jobsDetailsText);
+
   const usersData = await getUserData();
   const GEMINI_API_KEY = usersData.GeminiAPIKey;
 

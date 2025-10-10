@@ -1,73 +1,130 @@
+/* Main popup container */
 #react-extension-popup.popup-container {
-  background: #ffffff;
-  border-radius: 12px;
-  padding: 24px;
-  width: 350px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-  font-family: "Segoe UI", sans-serif;
   position: fixed;
-  top: 20%;
+  top: 50%;
   left: 50%;
-  transform: translate(-50%, -20%);
+  transform: translate(-50%, -50%);
+  width: 400px;
+  max-width: 95%;
+  background: #fefefe;
+  border-radius: 16px;
+  padding: 28px 24px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  font-family: "Segoe UI", sans-serif;
   z-index: 10000;
+  box-sizing: border-box;
+  animation: popupFade 0.25s ease-in-out;
 }
 
+/* Fade animation */
+@keyframes popupFade {
+  from { opacity: 0; transform: translate(-50%, -45%); }
+  to { opacity: 1; transform: translate(-50%, -50%); }
+}
+
+/* Popup title */
 .popup-title {
-  margin-bottom: 20px;
-  font-size: 1.4rem;
   text-align: center;
-  color: #333;
+  font-size: 24px;
+  font-weight: 700;
+  color: #222;
+  margin-bottom: 24px;
 }
 
+/* Form wrapper */
 .form-wrapper {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
+/* Form group */
 .form-group {
   display: flex;
   flex-direction: column;
 }
 
 .form-group label {
-  margin-bottom: 6px;
-  font-weight: 500;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 14px;
   color: #555;
+  margin-bottom: 6px;
 }
 
+/* Inputs */
 .form-group input[type="text"],
 .form-group input[type="file"] {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 0.95rem;
+  padding: 12px 14px;
+  border: 1px solid #d0d0d0;
+  border-radius: 12px;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
+.form-group input[type="text"]:focus,
+.form-group input[type="file"]:focus {
+  border-color: #1e88e5;
+  box-shadow: 0 0 6px rgba(30, 136, 229, 0.3);
+}
+
+/* Resume name */
+.resume-name {
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+/* Buttons */
+button {
+  font-weight: 600;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Submit button */
 .submit-btn {
   background-color: #1e88e5;
+  color: #1565c0;
   border: none;
-  padding: 10px;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
+  padding: 12px 0;
+  font-size: 16px;
 }
 
 .submit-btn:hover {
   background-color: #1565c0;
 }
 
+
+button[type="button"]:hover {
+  background: #1e88e5;
+  color: #fff;
+  border-color: #1565c0;
+}
+
+/* Buttons container */
+.form-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: space-between;
+  margin-top: 12px;
+}
+
+/* Close button */
 .close-btn {
   position: absolute;
-  top: 8px;
-  right: 12px;
+  top: 12px;
+  right: 16px;
   background: transparent;
   border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
+  font-size: 22px;
   color: #888;
+  cursor: pointer;
+  transition: color 0.2s;
 }
 
 .close-btn:hover {

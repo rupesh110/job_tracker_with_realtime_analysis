@@ -80,14 +80,20 @@ export default function PopupController() {
       console.log("Popup received message:", msg);
 
       if (msg.action === "Client_UpdateText" && msg.data) {
-        setPageData(msg.data);   // 🔥 Update UI with background-provided job data
+        setPageData(msg.data);   // Update UI with background-provided job data
         setVisible(true);
+
+        // Send acknowledgement back to background
+        port.postMessage({ action: "Client_DataReceived", dataId: msg.data?.id || null });
+        console.log("Acknowledgement sent back to background");
       }
     });
+
     return () => {
       port.disconnect();
     };
   }, []);
+
 
   // Always show popup when new data arrives
   useEffect(() => {
@@ -120,7 +126,7 @@ export default function PopupController() {
         return;
       }
 
-      setNotification({ type: "success", message: "Cover letter generated and downloaded!" });
+      setNotification({ type: "success", message: "Cover letter generated" });
       setTimeout(() => setNotification(null), 6000);
     } catch (err) {
       console.error("Error generating cover letter:", err);

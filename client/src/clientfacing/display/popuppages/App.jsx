@@ -6,14 +6,15 @@ export default function App({ data, onClose, onGenerateCoverLetter, onChangeData
     console.log("From apps:", data)
   
   return (
-    <div id="react-extension-popup">
+    <div id="react-extension-popup">  
+      
       
       <ExtractedDataDisplay data={data} />
 
       <div id="react-button-footer">   
         <button onClick={onGenerateCoverLetter}>Cover Letter</button>
         <button onClick={onSaveButton}>Save as Applied</button>
-        <button onClick={onChangeDataClick}>Update Resume/Key</button>
+        <button onClick={onChangeDataClick}>Update Resume</button>
         <button onClick={onClose}>Close</button>
       </div>
 

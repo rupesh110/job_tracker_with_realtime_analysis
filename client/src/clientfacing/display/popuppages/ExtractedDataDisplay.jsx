@@ -8,11 +8,11 @@ export default function ExtractedDataDisplay({ data }) {
   const [loadingGemini, setLoadingGemini] = useState(false);
   const ongoingRequest = useRef(false);
   const latestDataRef = useRef(null);
-  console.log("From extracted data display:", {data})
+
   useEffect(() => {
     if (!data) return;
 
-    const currentDataId = Date.now(); // unique ID for this request
+    const currentDataId = Date.now(); 
     latestDataRef.current = currentDataId;
     setGemini(null);
     setLoadingGemini(true);
@@ -114,7 +114,7 @@ export default function ExtractedDataDisplay({ data }) {
                         {domain.matchedSkills.join(", ") || "None"}
                       </p>
                       <p>
-                        <strong>Match %:</strong> {domain.matchPercentage}%
+                        <strong>Match:</strong> {domain.matchPercentage}%
                       </p>
                     </div>
                   ))}

@@ -15,7 +15,7 @@ export function setJobItem(key, value) {
         const existingJob = getAllReq.result.find(job => job.value.url === value.url);
 
         if (existingJob) {
-          // URL already exists
+       
           resolve({ key: existingJob.key, existing: true });
         } else {
           // Insert new job
@@ -47,6 +47,9 @@ export function getAllJobs() {
 
 // Update only the status field of a job
 export function updateJobStatus(key, newStatus, updatedDate) {
+  if (!key) return Promise.reject(new Error("Missing job key"));
+  if (!newStatus) return Promise.reject(new Error("Missing status"));
+
   const today = new Date();
   const formattedDate = updatedDate || 
     `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
@@ -63,11 +66,12 @@ export function updateJobStatus(key, newStatus, updatedDate) {
         const record = getReq.result;
         if (!record) return reject(new Error(`Job with key ${key} not found`));
 
+        // Update fields directly
         record.value.status = newStatus;
         record.value.date = formattedDate;
 
+        // ✅ Remove the key parameter for in-line key store
         const putReq = store.put(record);
-
         putReq.onsuccess = () => {
           console.log("Update successful:", record);
           resolve(record);
@@ -79,6 +83,7 @@ export function updateJobStatus(key, newStatus, updatedDate) {
     });
   });
 }
+
 
 export function updateJobNotes(key, notes) {
   console.log("Updating job notes:", key, notes);
@@ -149,9 +154,9 @@ export function getJobStatusCounts() {
             counts["In Progress"] += 1;
           } else if (status === "Applied") {
             if (job.date) {
-              const appliedDate = new Date(job.date.split("/").reverse().join("-"));
+              const date = new Date(job.date.split("/").reverse().join("-"));
               const now = new Date();
-              const diffDays = (now - appliedDate) / (1000 * 60 * 60 * 24);
+              const diffDays = (now - date) / (1000 * 60 * 60 * 24);
 
               if (diffDays > FOLLOW_UP_THRESHOLD_DAYS) {
                 counts["Follow Up"] += 1;

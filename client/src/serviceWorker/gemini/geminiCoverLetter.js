@@ -99,6 +99,7 @@ Ensure the letter is **ready to send**, factual, aligned with the job descriptio
 
   const data = await response.json();
   let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+  console.log("From gemini cover letter:", rawText)
 
   if (!rawText) throw new Error("No response from Gemini.");
 
