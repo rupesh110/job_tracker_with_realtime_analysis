@@ -72,10 +72,10 @@ export default function UsersData({ onClose }) {
 
     try {
       await setUserData(newData);
-      alert("✅ User data saved!");
+      alert("User data saved!");
       onClose();
     } catch (error) {
-      alert("❌ Failed to save user data.");
+      alert("Failed to save user data.");
       console.error(error);
     }
   };
@@ -102,13 +102,14 @@ export default function UsersData({ onClose }) {
             placeholder={isApiKeyRequired ? "Enter your Google API key" : ""}
           />
         </div>
-
-        <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div className="form-buttons">
           <button type="button" onClick={() => window.open("https://aistudio.google.com/app/apikey", "_blank")}>
             Get New KEY
           </button>
           <button type="submit" className="submit-btn">Save</button>
         </div>
+
+
       </form>
     </div>
   );

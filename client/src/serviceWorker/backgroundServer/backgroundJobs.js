@@ -20,6 +20,8 @@ export function handleJobMessage({ action, data, requestId }, port) {
 
     case "Job_UpdateStatus": {
       const { key, newStatus, updatedDate } = data;
+      console.log("🚀 ~ handleJobMessage ~ data:", data)
+      console.log("from serviceworker background udpdate:", data)
       updateJobStatus(key, newStatus)
         .then(() => port.postMessage({ requestId, result: { status: "ok", key, newStatus, updatedDate } }))
         .catch((err) => port.postMessage({ requestId, error: err.message }));

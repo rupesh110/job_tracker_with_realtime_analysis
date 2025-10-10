@@ -22,6 +22,7 @@ export async function fetchAllJobs() {
 }
 
 export async function updateJobStatus({ key, newStatus, updatedDate }) {
+  console.log("🚀 ~ updateJobStatus ~ key, newStatus, updatedDate:", key, newStatus, updatedDate)
   try {
     const response = await safeSendMessage({
       action: "Job_UpdateStatus",

@@ -49,7 +49,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     setJobStatuses((prev) => ({ ...prev, [jobKey]: newStatus }));
 
     try {
-      await updateJobStatus(jobKey, newStatus, updatedDate);
+      await updateJobStatus({key:jobKey, newStatus, updatedDate});
     } catch (error) {
       console.error("Failed to update status:", error);
     }

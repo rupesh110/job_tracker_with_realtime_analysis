@@ -4,7 +4,7 @@
 .container {
   max-width: 800px;
   max-height: 80vh;          /* viewport height limit */
-  margin: 15px auto;
+  margin: 15px 20px;
   padding: 22px;
   background-color: #f8f9fa;
   border-radius: 12px;
@@ -176,6 +176,7 @@ p {
 /* ============================= */
 .domain-analysis {
   margin-top: 22px;
+  padding-bottom: 10px;
   padding: 18px;
   background-color: #eef6ff;
   border-radius: 8px;
@@ -184,6 +185,7 @@ p {
 
 .domain-item {
   margin-bottom: 16px;
+  margin-top: 10px;
   padding: 14px 18px;
   background-color: #ffffff;
   border-left: 4px solid #007bff;
@@ -263,4 +265,27 @@ p {
   color: #888;
   margin-top: 18px;
   font-size: 16px !important;
+}
+
+/* === Responsive containment fixes === */
+
+/* Ensure the popup never exceeds viewport width */
+.container {
+  width: 100%;
+  max-width: min(800px, 95vw); /* limit width to viewport width */
+  box-sizing: border-box;
+  margin: 15px auto; /* center horizontally even if parent has flex */
+  overflow-x: hidden !important; /* stop horizontal overflow */
+}
+
+/* Make sure the body or parent wrapper never causes horizontal scrolling */
+html, body {
+  overflow-x: hidden !important;
+}
+
+/* In case a parent flexbox forces expansion */
+#react-extension-popup,
+#react-extension-popup .container {
+  flex-shrink: 1;
+  flex-grow: 0;
 }

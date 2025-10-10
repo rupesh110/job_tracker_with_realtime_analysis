@@ -42,3 +42,33 @@
   max-height: 70vh;
   overflow-y: auto;
 }
+
+#react-button-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+#react-extension-popup button {
+  flex: 1;                     /* ✅ equal widths */
+  max-width: 90px;             /* ✅ consistent size */
+  padding: 5px 6px;            /* compact but readable */
+  font-size: 13px;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;         /* allow text wrap */
+  word-break: break-word;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  transition: background 0.2s ease, transform 0.1s ease;
+  height: auto;                /* consistent height */
+}
+
+#react-extension-popup button:hover {
+  background-color: #eaeaea;
+  transform: translateY(-1px);
+}
+
