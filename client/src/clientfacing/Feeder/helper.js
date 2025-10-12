@@ -22,7 +22,7 @@ export function safeSendMessage(message, tries = 3, delay = 500) {
       chrome.runtime.sendMessage(message, (response) => {
         if (chrome.runtime.lastError) {
           if (n > 0) {
-            console.warn("Retrying sendMessage:", chrome.runtime.lastError.message);
+            //console.warn("Retrying sendMessage:", chrome.runtime.lastError.message);
             setTimeout(() => attempt(n - 1), delay);
           } else {
             reject(new Error(chrome.runtime.lastError.message));

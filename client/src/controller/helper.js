@@ -11,7 +11,7 @@ try {
     // Return the structured cover letter object
     return parsed.cover_letter;
 } catch (err) {
-    console.error("Failed to parse Gemini cover letter JSON:", err);
+    //console.error("Failed to parse Gemini cover letter JSON:", err);
     return null;
 }
 }

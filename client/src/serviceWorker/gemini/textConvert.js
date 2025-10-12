@@ -139,6 +139,6 @@ export async function generateCoverLetter(text, filename = "CoverLetter.pdf") {
       saveAs: true,
     });
   } else {
-    console.error("Downloads API not available");
+    //console.error("Downloads API not available");
   }
 }

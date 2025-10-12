@@ -28,7 +28,7 @@ export default function MainContent() {
     try {
       setLoading(true);
       const data = await fetchAllJobs();
-      console.log("from main content fetchall jobs:", data)
+      
       setJobsData(Array.isArray(data.items) ? data.items : []);
       setShowTable(true);
     } catch (error) {

@@ -6,10 +6,10 @@ import {setupGeminiContextMenu } from "./fetchSelectedText.js"
 setupGeminiContextMenu();
 
 chrome.runtime.onConnect.addListener((port) => {
-  console.log("Port connected:", port.name);
+  
 
   port.onMessage.addListener(async (msg) => {
-    console.log("Background got full message:", msg);
+    
 
     const { requestId, action, data } = msg;
 
@@ -21,16 +21,16 @@ chrome.runtime.onConnect.addListener((port) => {
       } else if (action.startsWith("Gemini")) {
         await Geminis.handleGeminiMessage({ action, data, requestId }, port);
       } else {
-        console.warn("Unhandled action:", action);
+        // console.warn("Unhandled action:", action);
         port.postMessage({ requestId, error: "Unhandled action: " + action });
       }
     } catch (err) {
-      console.error("Background error:", err);
+      // console.error("Background error:", err);
       port.postMessage({ requestId, error: err.message });
     }
   });
 
   // port.onDisconnect.addListener(() => {
-  //   console.log("Port disconnected:", port.name);
+  //   
   // });
 });

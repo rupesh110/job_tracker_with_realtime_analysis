@@ -29,7 +29,7 @@ export default function ExtractedDataDisplay({ data }) {
           data: { jobTitle, jobDescription },
         });
 
-        console.log("From extracted data display gemini:", geminiResponse);
+        
 
         // Update state only if this is still the latest request
         if (latestDataRef.current === currentDataId) {

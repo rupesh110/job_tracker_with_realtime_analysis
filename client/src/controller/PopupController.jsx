@@ -74,10 +74,10 @@ export default function PopupController() {
   // ✅ Port connection to background
   useEffect(() => {
     const port = chrome.runtime.connect({ name: "feeder-port" });
-    console.log("Popup connected to feeder-port");
+    
 
     port.onMessage.addListener((msg) => {
-      console.log("Popup received message:", msg);
+      
 
       if (msg.action === "Client_UpdateText" && msg.data) {
         setPageData(msg.data);   // Update UI with background-provided job data
@@ -85,7 +85,7 @@ export default function PopupController() {
 
         // Send acknowledgement back to background
         port.postMessage({ action: "Client_DataReceived", dataId: msg.data?.id || null });
-        console.log("Acknowledgement sent back to background");
+        
       }
     });
 
@@ -107,7 +107,7 @@ export default function PopupController() {
       await addJob(dataWithoutDescription);
       setNotification({ type: "success", message: "Data saved!" });
     } catch (err) {
-      console.error("Failed to save data:", err);
+      //console.error("Failed to save data:", err);
       setNotification({ type: "error", message: "Failed to save data: " + err });
     } finally {
       setTimeout(() => setNotification(null), 4000);
@@ -129,7 +129,7 @@ export default function PopupController() {
       setNotification({ type: "success", message: "Cover letter generated" });
       setTimeout(() => setNotification(null), 6000);
     } catch (err) {
-      console.error("Error generating cover letter:", err);
+      //console.error("Error generating cover letter:", err);
       setNotification({ type: "error", message: "Failed to generate cover letter." });
       setTimeout(() => setNotification(null), 6000);
     }

@@ -3,17 +3,17 @@ export function pollSelectedText(callback, interval = 500, timeout = 10000) {
   const intervalId = setInterval(() => {
     chrome.runtime.sendMessage({ action: "GetLastSelectedText" }, (response) => {
       if (response) {
-        console.log("Received selected text from background:", response);
+        //console.log("Received selected text from background:", response);
         callback(response.data); // pass data to wherever you want
         clearInterval(intervalId);
       } else {
-        console.log("No selected text yet, waiting...");
+        //console.log("No selected text yet, waiting...");
       }
     });
 
     elapsed += interval;
     if (elapsed >= timeout) {
-      console.warn("Polling timed out, no selected text received.");
+      //console.warn("Polling timed out, no selected text received.");
       clearInterval(intervalId);
     }
   }, interval);
