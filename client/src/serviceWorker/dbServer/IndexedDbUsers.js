@@ -34,7 +34,7 @@ export function isUserDataAvailable(tries = 3, delay = 200) {
         return resolve(isAvailable); // ✅ exit cleanly once success
       } catch (err) {
         if (err.message.includes("Extension context invalidated") && attempt < tries) {
-          console.warn(`Attempt ${attempt} failed: ${err.message}. Retrying in ${delay}ms...`);
+          //console.warn(`Attempt ${attempt} failed: ${err.message}. Retrying in ${delay}ms...`);
           await new Promise(res => setTimeout(res, delay));
         } else {
           return reject(err);

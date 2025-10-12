@@ -8,14 +8,14 @@ export async function handleUserMessage({ action, data, requestId }, port) {
     switch (action) {
       case "User_isUserDataAvailable": {
         const available = await isUserDataAvailable();
-        await console.log("from background User_isUserDataAvailable:", {available})
+        // await console.log("from background User_isUserDataAvailable:", {available})
         result = { available }; // ✅ always inside result
         break;
       }
 
       case "User_GetUserData": {
         const user = await getUserData();
-        await console.log("from background User_GetUserData:", {user})
+        // await console.log("from background User_GetUserData:", {user})
         result = { user }; // ✅ always inside result
         break;
       }
@@ -34,7 +34,7 @@ export async function handleUserMessage({ action, data, requestId }, port) {
 
     port.postMessage({ requestId, result });
   } catch (err) {
-    console.error("Error in User handler:", err);
+    //console.error("Error in User handler:", err);
     port.postMessage({ requestId, error: err.message });
   }
 }

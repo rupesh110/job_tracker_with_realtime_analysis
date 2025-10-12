@@ -54,7 +54,7 @@ export function updateJobStatus(key, newStatus, updatedDate) {
   const formattedDate = updatedDate || 
     `${String(today.getDate()).padStart(2, "0")}/${String(today.getMonth() + 1).padStart(2, "0")}/${today.getFullYear()}`;
 
-  console.log("Updating job status:", key, newStatus, formattedDate);
+  
 
   return getDB().then((db) => {
     return new Promise((resolve, reject) => {
@@ -73,7 +73,7 @@ export function updateJobStatus(key, newStatus, updatedDate) {
         // ✅ Remove the key parameter for in-line key store
         const putReq = store.put(record);
         putReq.onsuccess = () => {
-          console.log("Update successful:", record);
+          
           resolve(record);
         };
         putReq.onerror = (event) => reject(event.target.error);
@@ -86,7 +86,7 @@ export function updateJobStatus(key, newStatus, updatedDate) {
 
 
 export function updateJobNotes(key, notes) {
-  console.log("Updating job notes:", key, notes);
+  
 
   return getDB().then((db) => {
     return new Promise((resolve, reject) => {
@@ -102,7 +102,7 @@ export function updateJobNotes(key, notes) {
         const putReq = store.put(record);
 
         putReq.onsuccess = () => {
-          console.log("Update successful:", record);
+          
           resolve(record);
         };
         putReq.onerror = (event) => reject(event.target.error);

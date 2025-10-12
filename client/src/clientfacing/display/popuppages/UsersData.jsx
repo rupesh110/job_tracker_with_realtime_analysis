@@ -55,7 +55,7 @@ export default function UsersData({ onClose }) {
       try {
         extractedText = await extractTextFromPDF(resumeFile);
         if (!extractedText) throw new Error("No text extracted");
-        //console.log("PDF text extracted:", extractedText);
+        //
       } catch (err) {
         console.error("Failed to extract PDF text:", err);
         alert("Failed to extract text from PDF.");

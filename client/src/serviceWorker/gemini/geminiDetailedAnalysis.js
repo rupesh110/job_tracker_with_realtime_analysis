@@ -8,12 +8,11 @@ import { getUserData } from "../dbServer/IndexedDbUsers.js";
  * @returns {Promise<Object>} - JSON object with match score, strengths, gaps, and action steps.
  */
 export async function detailedAnalysis({ jobTitle, jobDescription }) {
-  console.log("From Gemini:-------------------", await jobTitle, jobDescription)
+  
   const usersData = await getUserData();
   const GEMINI_API_KEY = usersData.GeminiAPIKey;
   const resume = usersData.resume;
 
-  //console.log("resume:", resume)
 
   if (!GEMINI_API_KEY) {
     throw new Error("Gemini API key not found. Please add it in the settings.");
@@ -116,7 +115,7 @@ export async function detailedAnalysis({ jobTitle, jobDescription }) {
   let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
   
 
-  await console.log("From Gemini:", JSON.stringify(data))
+
   if (!rawText) throw new Error("No response from Gemini.");
 
   const maxRetries = 5;
@@ -134,7 +133,7 @@ export async function detailedAnalysis({ jobTitle, jobDescription }) {
 
       return JSON.parse(jsonMatch[0]);
     } catch (err) {
-      console.warn(`❌ Failed to parse Gemini JSON (attempt ${attempt}):`, rawText);
+      //console.warn(`❌ Failed to parse Gemini JSON (attempt ${attempt}):`, rawText);
 
       if (attempt === maxRetries) {
         throw new Error("Gemini returned invalid JSON after multiple retries");

@@ -1,6 +1,6 @@
 export async function extractMailData() {
   const fullText = document.body.innerText.toLowerCase(); // normalize text
-  //console.log("From email: ", fullText);
+  //
 
   // 1. Extract company name
   // Look for common patterns like "at <company>" or sender email domain

@@ -20,8 +20,8 @@ export function handleJobMessage({ action, data, requestId }, port) {
 
     case "Job_UpdateStatus": {
       const { key, newStatus, updatedDate } = data;
-      console.log("🚀 ~ handleJobMessage ~ data:", data)
-      console.log("from serviceworker background udpdate:", data)
+      
+      
       updateJobStatus(key, newStatus)
         .then(() => port.postMessage({ requestId, result: { status: "ok", key, newStatus, updatedDate } }))
         .catch((err) => port.postMessage({ requestId, error: err.message }));
@@ -30,7 +30,7 @@ export function handleJobMessage({ action, data, requestId }, port) {
 
     case "Job_UpdateNotes": {
       const { key, notes } = data;
-      console.log("From backgorun josb notes:", data)
+      
       updateJobNotes(key, notes)
         .then(() => port.postMessage({ requestId, result: { status: "ok", key, notes } }))
         .catch((err) => port.postMessage({ requestId, error: err.message }));

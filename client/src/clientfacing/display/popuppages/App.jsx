@@ -3,7 +3,7 @@ import ExtractedDataDisplay from "./ExtractedDataDisplay.jsx";
 import "./App.css";
 
 export default function App({ data, onClose, onGenerateCoverLetter, onChangeDataClick, onSaveButton, notification }) {
-    console.log("From apps:", data)
+    
   
   return (
     <div id="react-extension-popup">  

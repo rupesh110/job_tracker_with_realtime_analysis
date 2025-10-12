@@ -9,20 +9,20 @@ export async function handleGeminiMessage({ action, data, requestId }, port) {
     switch (action) {
       case "Gemini_CallAnalysis":
         result = await detailedAnalysis(data);
-        console.log("From background gemini:", result);
+        
         break;
 
       case "Gemini_CoverLetter":
-        console.log("From background cover letter request:", data);
+        
         result = await geminiCoverLetter(data);
-        console.log("Generated cover letter text:", result);
+        
 
         // ✅ Generate PDF and download directly from Service Worker
         await generateCoverLetter(result, "CoverLetter.pdf");
         break;
 
       default:
-        console.warn("Unknown Gemini action:", action);
+        //console.warn("Unknown Gemini action:", action);
         port.postMessage({ requestId, error: "Unknown Gemini action: " + action });
         return true; // handled, response sent
     }
@@ -31,7 +31,7 @@ export async function handleGeminiMessage({ action, data, requestId }, port) {
     port.postMessage({ requestId, result });
     return true;
   } catch (err) {
-    console.error("Error in Gemini handler:", err);
+    //console.error("Error in Gemini handler:", err);
     port.postMessage({ requestId, error: err.message });
     return true;
   }

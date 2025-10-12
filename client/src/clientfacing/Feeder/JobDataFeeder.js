@@ -5,7 +5,7 @@ export async function addJob(data) {
     const response = await safeSendMessage({ action: "Job_AddJob", data });
     return response;
   } catch (err) {
-    console.warn("addJob failed:", err.message);
+    //console.warn("addJob failed:", err.message);
     return {}; // fallback
   }
 }
@@ -13,16 +13,16 @@ export async function addJob(data) {
 export async function fetchAllJobs() {
   try {
     const response = await safeSendMessage({ action: "Job_FetchAllJobs" });
-    console.log("From feeder client fetchall jobs:", response)
+    
     return response || [];
   } catch (err) {
-    console.warn("fetchAllJobs failed:", err.message);
+    //console.warn("fetchAllJobs failed:", err.message);
     return []; // fallback
   }
 }
 
 export async function updateJobStatus({ key, newStatus, updatedDate }) {
-  console.log("🚀 ~ updateJobStatus ~ key, newStatus, updatedDate:", key, newStatus, updatedDate)
+  
   try {
     const response = await safeSendMessage({
       action: "Job_UpdateStatus",
@@ -30,7 +30,7 @@ export async function updateJobStatus({ key, newStatus, updatedDate }) {
     });
     return response || {};
   } catch (err) {
-    console.warn("updateJobStatus failed:", err.message);
+   // console.warn("updateJobStatus failed:", err.message);
     return {}; // fallback
   }
 }
@@ -40,13 +40,13 @@ export async function getAllJobStatus() {
     const response = await safeSendMessage({ action: "Job_GetAllJobStatus" });
     return response || [];
   } catch (err) {
-    console.warn("getAllJobStatus failed:", err.message);
+    //console.warn("getAllJobStatus failed:", err.message);
     return []; // fallback
   }
 }
 
 export async function updateJobNotes({ key, notes }) {
-  console.log("from update notes:", key, notes)
+  
   try {
     const response = await safeSendMessage({
       action: "Job_UpdateNotes",
@@ -54,7 +54,7 @@ export async function updateJobNotes({ key, notes }) {
     });
     return response || {};
   } catch (err) {
-    console.warn("updateJobNotes failed:", err.message);
+   // console.warn("updateJobNotes failed:", err.message);
     return {}; // fallback
   }
 }

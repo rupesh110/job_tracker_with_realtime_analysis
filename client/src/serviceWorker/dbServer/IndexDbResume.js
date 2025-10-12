@@ -27,7 +27,7 @@ export async function saveResumeBlob(file) {
     };
 
     request.onerror = () => {
-      console.error("❌ Failed to save resume:", request.error);
+      //console.error("❌ Failed to save resume:", request.error);
       reject(request.error);
     };
   });
