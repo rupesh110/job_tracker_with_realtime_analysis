@@ -74,15 +74,13 @@ export default function PopupController() {
   // ✅ Port connection to background
   useEffect(() => {
     const port = chrome.runtime.connect({ name: "feeder-port" });
-    
-
+  
     port.onMessage.addListener((msg) => {
       
 
       if (msg.action === "Client_UpdateText" && msg.data) {
         setPageData(msg.data);   // Update UI with background-provided job data
         setVisible(true);
-
         // Send acknowledgement back to background
         port.postMessage({ action: "Client_DataReceived", dataId: msg.data?.id || null });
         

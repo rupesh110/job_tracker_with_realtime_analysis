@@ -45,6 +45,7 @@ Only return valid JSON with these keys. Do not add extra text.
   const data = await response.json();
   let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
+
   if (!rawText) throw new Error("No response from Gemini.");
 
   // Clean and parse JSON
