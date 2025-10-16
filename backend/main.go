@@ -1,19 +1,17 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
+	"github.com/gin-gonic/gin"
 )
 
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello from Go server!")
-}
-
 func main() {
-	http.HandleFunc("/", helloHandler) // root URL
+	r := gin.Default() // create a Gin router with default middleware (logger + recovery)
 
-	fmt.Println("Starting server on :8080...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
-		fmt.Println("Server failed:", err)
-	}
+	// Simple GET endpoint
+	r.GET("/", func(c *gin.Context) {
+		c.String(200, "Hello from Gin server!")
+	})
+
+	// Start server on port 8080
+	r.Run(":8080")
 }
