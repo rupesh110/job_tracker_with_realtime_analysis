@@ -1,4 +1,4 @@
-const DB_NAME = "RealtimeAnalysisDB";
+const DB_NAME = "RealtimeAnalysisDB1";
 const DB_VERSION = 22;
 
 let dbPromise = null;

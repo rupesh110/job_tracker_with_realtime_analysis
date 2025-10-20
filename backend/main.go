@@ -1,17 +1,38 @@
 package main
 
 import (
+	"backend/internal/routes"
+
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
-	r := gin.Default() // create a Gin router with default middleware (logger + recovery)
+	r := gin.Default()
 
-	// Simple GET endpoint
-	r.GET("/", func(c *gin.Context) {
-		c.String(200, "Hello from Gin server!")
+	// ✅ Custom CORS Middleware (handles chrome-extension:// too)
+	r.Use(func(c *gin.Context) {
+		origin := c.Request.Header.Get("Origin")
+
+		// Allow Chrome Extension or local dev origins
+		if origin == "chrome-extension://ilbdlnbaaanoepljbjbcaglepcmldbao" ||
+			origin == "http://localhost:3000" ||
+			origin == "https://localhost:3000" {
+			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
+			c.Writer.Header().Set("Vary", "Origin")
+		}
+
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization")
+		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+
+		// Preflight (OPTIONS) requests
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
 	})
-
-	// Start server on port 8080
+	routes.RegisterRoutes1(r)
 	r.Run(":8080")
 }
