@@ -8,6 +8,7 @@ function getPort() {
 
     port.onMessage.addListener((msg) => {
       const { requestId, result, error } = msg;
+      console.log("Message received:", msg);
       if (pendingRequests.has(requestId)) {
         const { resolve, reject } = pendingRequests.get(requestId);
         pendingRequests.delete(requestId);
@@ -32,7 +33,7 @@ export function safeSendMessage({ action, data }) {
 
     pendingRequests.set(requestId, { resolve, reject });
     port.postMessage({ requestId, action, data });
-
+    console.log("Message sent:", { requestId, action, data });
     // Optional timeout gg
     setTimeout(() => {
       if (pendingRequests.has(requestId)) {
