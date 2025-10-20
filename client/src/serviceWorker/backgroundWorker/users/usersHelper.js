@@ -1,22 +1,17 @@
 
 export async function isUserDataAvailable() {
   try {
-    const response = await fetch("http://localhost:8080/test");
+    // ✅ Opens a tab to your Go backend login route (triggers WorkOS AuthKit)
+    chrome.tabs.create({ url: "http://localhost:8080/auth/login" });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json(); // or response.text() if plain text
-    console.log("✅ API Response:", data);
-
-    // Example logic — check if data contains something meaningful
-    return data?.status === "ok";
+    console.log("🔑 Triggered sign-in test via new tab");
+    return true;
   } catch (error) {
-    console.error("❌ API call failed:", error);
+    console.error("❌ Failed to start sign-in test:", error);
     return false;
   }
 }
+
 
 export async function getUserData() {
     return { name: "Demo User", preferences: { theme: "dark" } };
