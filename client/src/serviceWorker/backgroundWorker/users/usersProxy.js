@@ -1,11 +1,11 @@
-import { isUserDataAvailable, getUserData, setUserData } from "./usersHelper.js";
+import { userLogin, getUserData, setUserData } from "./usersHelper.js";
 
 export async function handleUserMessage({ action, data, requestId }, port) {
   try {
 
     switch (action) {
       case "User_isUserDataAvailable": {
-        const available = await isUserDataAvailable();
+        const available = await getUserData();
         await console.log("from background User_isUserDataAvailable:", {available})
         result = { available }; // ✅ always inside result
         break;
