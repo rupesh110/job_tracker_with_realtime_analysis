@@ -17,26 +17,8 @@ func main() {
 	}
 
 	apiKey := os.Getenv("WORKOS_API_KEY")
-	clientID := os.Getenv("WORKOS_CLIENT_ID")
 
-	if apiKey == "" || clientID == "" {
-		log.Fatal("❌ Missing WORKOS_API_KEY or WORKOS_CLIENT_ID in environment")
-	}
-
-	// ✅ Initialize WorkOS user management
 	usermanagement.SetAPIKey(apiKey)
-
-	// Log for debugging (safe for local dev only!)
-	if apiKey == "" {
-		log.Println("❌ WORKOS_API_KEY not found")
-	} else {
-		log.Println("✅ WORKOS_API_KEY loaded:", apiKey[:10]+"...") // log first few chars only
-	}
-	if clientID == "" {
-		log.Println("❌ WORKOS_CLIENT_ID not found")
-	} else {
-		log.Println("✅ WORKOS_CLIENT_ID loaded:", clientID)
-	}
 
 	r := gin.Default()
 
@@ -49,11 +31,7 @@ func main() {
 		MaxAge:           12 * 60 * 60,
 	}))
 
-	routes.TestRoutes(r)
-	routes.TestAuth(r)
-	r.GET("/auth/login", routes.LoginHandler)
-	r.GET("/auth/callback", routes.CallbackHandler)
+	routes.RegisterAuthRoutes(r)
 
-	log.Println("🚀 Server starting on port 8080...")
-	r.Run(":8080")
+	r.Run("")
 }
