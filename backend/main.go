@@ -12,8 +12,9 @@ import (
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("⚠️ No .env file found, using system environment variables")
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("No .env file found")
 	}
 
 	apiKey := os.Getenv("WORKOS_API_KEY")
@@ -31,7 +32,7 @@ func main() {
 		MaxAge:           12 * 60 * 60,
 	}))
 
-	routes.RegisterAuthRoutes(r)
+	routes.AuthRoutes(r)
 
-	r.Run("")
+	r.Run()
 }
