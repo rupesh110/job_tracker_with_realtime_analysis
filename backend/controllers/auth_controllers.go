@@ -51,7 +51,7 @@ func HandleCallback(c *gin.Context) {
 
 	c.Data(http.StatusOK, "text/html", []byte(`
 		<html><body style="font-family:sans-serif;text-align:center;margin-top:50px">
-		<h2>✅ You’re signed in!</h2>
+		<h2>You’re signed in!</h2>
 		<p>You can close this tab and return to Job Tracker.</p>
 		</body></html>
 	`))
