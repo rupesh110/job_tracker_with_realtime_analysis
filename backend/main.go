@@ -35,5 +35,9 @@ func main() {
 	routes.AuthRoutes(r)
 	routes.TestRoutes(r)
 
-	r.Run()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080" // default for local dev
+	}
+	r.Run("0.0.0.0:" + port)
 }
