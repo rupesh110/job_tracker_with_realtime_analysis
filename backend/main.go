@@ -33,6 +33,7 @@ func main() {
 	}))
 
 	routes.AuthRoutes(r)
+	routes.TestRoutes(r)
 
 	r.Run()
 }

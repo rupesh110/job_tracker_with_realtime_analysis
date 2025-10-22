@@ -1,0 +1,5 @@
+.git
+.idea
+temp
+*.exe
+node_modules
