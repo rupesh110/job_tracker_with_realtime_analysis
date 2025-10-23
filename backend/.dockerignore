@@ -3,3 +3,7 @@
 temp
 *.exe
 node_modules
+
+
+
+.dockerignore
