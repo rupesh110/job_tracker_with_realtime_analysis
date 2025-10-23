@@ -18,13 +18,12 @@ func main() {
 	}
 
 	apiKey := os.Getenv("WORKOS_API_KEY")
-
 	usermanagement.SetAPIKey(apiKey)
 
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"}, // use "*" only for testing
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -37,8 +36,11 @@ func main() {
 
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080" // default for local dev
+		port = "8080"
 	}
-	log.Printf("Starting server on port %s", port)
-	r.Run("0.0.0.0:" + port)
+
+	log.Printf("Starting server on 0.0.0.0:%s", port)
+	if err := r.Run("0.0.0.0:" + port); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }
