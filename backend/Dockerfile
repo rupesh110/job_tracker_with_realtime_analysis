@@ -22,8 +22,5 @@ WORKDIR /root/
 # Copy the compiled binary
 COPY --from=builder /app/backend .
 
-# Expose port 8080 (Cloud Run injects PORT automatically)
 EXPOSE 8080
-
-# Start the server
 CMD ["./backend"]
