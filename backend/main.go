@@ -39,5 +39,6 @@ func main() {
 	if port == "" {
 		port = "8080" // default for local dev
 	}
+	log.Printf("Starting server on port %s", port)
 	r.Run("0.0.0.0:" + port)
 }
