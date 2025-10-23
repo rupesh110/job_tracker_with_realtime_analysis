@@ -2,3 +2,13 @@
 
 *.tmp
 tmp/
+*.log
+logs/
+
+backend
+backend.exe
+*.exe
+
+.idea/
+
+.dockerignore
