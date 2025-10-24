@@ -1,13 +1,17 @@
 // --- Job Tracker WorkOS Login Flow ---
-// Base API URL (update for production)
-const API_BASE = "http://localhost:8080";
+
+import { getUserDataDB, setUserDataDB, clearUserDataDB } from "./userDb.js";
+
+const API_BASE =
+  location.hostname === "localhost"
+    ? "http://localhost:8080"
+    : "https://jobtracker-backend-299028719782.australia-southeast1.run.app";
 
 /**
  * Starts login by asking backend to create a session and open WorkOS login tab.
  */
 export async function userLogin() {
   try {
-    // 1️⃣ Start session on backend
     const res = await fetch(`${API_BASE}/auth/session/start`);
     const { session_id, login_url } = await res.json();
 
@@ -16,16 +20,12 @@ export async function userLogin() {
     }
 
     console.log("🌀 Starting WorkOS login session:", session_id);
-
-    // 2️⃣ Open WorkOS login page in a new tab
     chrome.tabs.create({ url: login_url });
-    console.log("🔑 Opened WorkOS login tab via:", login_url);
 
-    // 3️⃣ Poll backend until login completes
     const userData = await pollForSession(session_id);
 
-    // 4️⃣ Store credentials locally
-    await chrome.storage.local.set(userData);
+    // ✅ Store in IndexedDB
+    await setUserDataDB(userData);
 
     console.log("✅ Logged in and saved user:", userData.email);
     return true;
@@ -37,11 +37,10 @@ export async function userLogin() {
 
 /**
  * Poll backend for session completion.
- * This checks /auth/session/:id every 2 seconds until complete.
  */
 async function pollForSession(sessionId) {
-  const maxAttempts = 60; // ~2 minutes
-  const delay = 2000; // 2 seconds
+  const maxAttempts = 60;
+  const delay = 2000;
 
   for (let i = 0; i < maxAttempts; i++) {
     const res = await fetch(`${API_BASE}/auth/session/${sessionId}`, {
@@ -52,9 +51,6 @@ async function pollForSession(sessionId) {
     const data = await res.json();
 
     if (data.status === "complete") {
-      // console.log("✅ Session complete!");
-      // console.log("👤 Email:", data.email);
-      // console.log("🔐 Access Token:", data.token); // <-- debug here
       return { email: data.email, token: data.token };
     }
 
@@ -68,22 +64,38 @@ async function pollForSession(sessionId) {
   throw new Error("Login timed out");
 }
 
-
 /**
- * Reads stored user data (email + token) from chrome.storage.
+ * Reads stored user data from IndexedDB.
  */
 export async function getUserData() {
-  const { email, token } = await chrome.storage.local.get(["email", "token"]);
-  if (!token) {
+  const userData = await getUserDataDB();
+  if (!userData || !userData.token) {
     return { error: "Not logged in" };
   }
-  return { email, token };
+  return userData;
 }
 
 /**
- * Updates user data (if needed, e.g., preferences).
+ * Updates user data (e.g., preferences).
  */
 export async function setUserData(data) {
-  await chrome.storage.local.set(data);
+  console.log("Updating user data in IndexedDB:", data);
+  await setUserDataDB(data);
   return data;
+}
+
+/**
+ * Checks if user data is available.
+ */
+export async function isUserDataAvailable() {
+  const userData = await getUserDataDB();
+  return !!(userData && userData.token);
+}
+
+/**
+ * Clears user data (logout)
+ */
+export async function clearUserData() {
+  await clearUserDataDB();
+  console.log("🧹 Cleared user data from IndexedDB");
 }
