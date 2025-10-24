@@ -41,6 +41,11 @@ func main() {
 			"message": "Welcome to Job Tracker Backend!",
 		})
 	})
+
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
 	routes.AuthRoutes(r)
 	routes.TestRoutes(r)
 
