@@ -1,8 +1,10 @@
 package main
 
 import (
+	"backend/config"
 	"backend/routes"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gin-contrib/cors"
@@ -16,6 +18,9 @@ func main() {
 	if err != nil {
 		log.Println("No .env file found")
 	}
+
+	config.InitDB()
+	defer config.CloseDB()
 
 	apiKey := os.Getenv("WORKOS_API_KEY")
 	usermanagement.SetAPIKey(apiKey)
@@ -31,6 +36,11 @@ func main() {
 		MaxAge:           12 * 60 * 60,
 	}))
 
+	r.GET("/", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Welcome to Job Tracker Backend!",
+		})
+	})
 	routes.AuthRoutes(r)
 	routes.TestRoutes(r)
 

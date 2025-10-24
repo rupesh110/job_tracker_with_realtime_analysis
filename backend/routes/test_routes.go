@@ -8,4 +8,6 @@ import (
 
 func TestRoutes(r *gin.Engine) {
 	r.GET("/test/ping", controllers.TestController)
+	r.POST("/test/items", controllers.AddTestItem)
+	r.GET("/test/items", controllers.GetTestItems)
 }
