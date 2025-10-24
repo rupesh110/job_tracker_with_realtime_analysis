@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/config"
 	"backend/models"
+	"backend/queries"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -19,9 +20,7 @@ func AddTestItem(c *gin.Context) {
 		return
 	}
 
-	query := `INSERT INTO test_items (title, note) VALUES ($1, $2) RETURNING id`
-
-	err := config.DB.QueryRow(query, item.Title, item.Note).Scan(&item.ID)
+	err := config.DB.QueryRow(queries.InsertTestItem, item.Title, item.Note).Scan(&item.ID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to insert item"})
 		return
@@ -31,7 +30,7 @@ func AddTestItem(c *gin.Context) {
 }
 
 func GetTestItems(c *gin.Context) {
-	rows, err := config.DB.Query("SELECT id, title, note FROM test_items")
+	rows, err := config.DB.Query(queries.GetAllTestItems)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
