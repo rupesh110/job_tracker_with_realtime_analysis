@@ -11,6 +11,11 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/workos/workos-go/v5/pkg/usermanagement"
+
+	_ "backend/docs"
+
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func main() {
@@ -49,6 +54,8 @@ func main() {
 	routes.AuthRoutes(r)
 	routes.TestRoutes(r)
 	routes.JobRoutes(r)
+
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	port := os.Getenv("PORT")
 	if port == "" {

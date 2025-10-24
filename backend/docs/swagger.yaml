@@ -1,0 +1,321 @@
+definitions:
+  models.Job:
+    properties:
+      company:
+        type: string
+      id:
+        type: string
+      location:
+        type: string
+      notes:
+        type: string
+      platform:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      updated_at:
+        type: string
+      url:
+        type: string
+      user_id:
+        type: string
+      work_type:
+        type: string
+    type: object
+  models.TestItem:
+    properties:
+      id:
+        type: string
+      note:
+        type: string
+      title:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/auth/callback:
+    get:
+      description: Handles the callback from WorkOS after authentication
+      parameters:
+      - description: Session ID
+        in: query
+        name: state
+        required: true
+        type: string
+      - description: Authorization Code
+        in: query
+        name: code
+        required: true
+        type: string
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML content
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Handle WorkOS callback
+      tags:
+      - auth
+  /api/auth/login:
+    get:
+      description: Redirects the user to the WorkOS authentication page
+      parameters:
+      - description: Session ID
+        in: query
+        name: session_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "302":
+          description: Found
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Redirect to WorkOS login
+      tags:
+      - auth
+  /api/auth/session/{id}:
+    get:
+      description: Retrieves the status of a login session
+      parameters:
+      - description: Session ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get session status
+      tags:
+      - auth
+  /api/auth/start/session:
+    post:
+      description: Initiates a new WorkOS login session and returns the login URL
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Start a new login session
+      tags:
+      - auth
+  /api/jobs:
+    post:
+      consumes:
+      - application/json
+      description: Add a new job entry to the database
+      parameters:
+      - description: Job object
+        in: body
+        name: job
+        required: true
+        schema:
+          $ref: '#/definitions/models.Job'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new job
+      tags:
+      - jobs
+  /api/jobs/{id}:
+    delete:
+      description: Remove a job entry from the database
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: User ID
+        in: query
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a job
+      tags:
+      - jobs
+    put:
+      consumes:
+      - application/json
+      description: Update the status, notes, and updated date of a job
+      parameters:
+      - description: Job ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated job info
+        in: body
+        name: job
+        required: true
+        schema:
+          $ref: '#/definitions/models.Job'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update job details
+      tags:
+      - jobs
+  /api/jobs/{user_id}:
+    get:
+      description: Retrieve all job entries for a specific user
+      parameters:
+      - description: User ID
+        in: path
+        name: user_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get jobs by user ID
+      tags:
+      - jobs
+  /api/test/items:
+    get:
+      description: Retrieves all test items from the database
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all test items
+      tags:
+      - test
+    post:
+      consumes:
+      - application/json
+      description: Adds a new test item to the database
+      parameters:
+      - description: Test Item
+        in: body
+        name: item
+        required: true
+        schema:
+          $ref: '#/definitions/models.TestItem'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Add a test item
+      tags:
+      - test
+  /api/test/ping:
+    get:
+      description: A simple test endpoint to verify the server is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Test endpoint
+      tags:
+      - test
+swagger: "2.0"

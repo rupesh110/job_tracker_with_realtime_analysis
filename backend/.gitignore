@@ -13,3 +13,4 @@ backend.exe
 
 .dockerignore
 
+.air.toml
