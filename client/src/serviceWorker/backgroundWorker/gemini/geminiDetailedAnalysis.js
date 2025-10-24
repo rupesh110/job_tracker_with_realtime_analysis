@@ -1,6 +1,6 @@
 // background.js
-import { getUserData } from "../dbServer/IndexedDbUsers.js";
-;
+
+import { getUserData} from "../../dbServer/IndexedDbUsers.js";
 
 /**
  * Calls Gemini API to analyze a resume against a job description.
@@ -10,8 +10,11 @@ import { getUserData } from "../dbServer/IndexedDbUsers.js";
 export async function detailedAnalysis({ jobTitle, jobDescription }) {
   
   const usersData = await getUserData();
+  console.log("User Data in detailedAnalysis:", usersData);
   const GEMINI_API_KEY = usersData.GeminiAPIKey;
+  console.log("Gemini API Key in detailedAnalysis:", GEMINI_API_KEY);
   const resume = usersData.resume;
+  console.log("Resume in detailedAnalysis:", resume);
 
 
   if (!GEMINI_API_KEY) {

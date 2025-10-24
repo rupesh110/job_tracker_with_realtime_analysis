@@ -3,7 +3,7 @@ import App from "../clientfacing/display/popuppages/App.jsx";
 import UsersData from "../clientfacing/display/popuppages/UsersData.jsx";
 import { addJob } from "../clientfacing/Feeder/JobDataFeeder.js";
 import { getPageData } from "../clientfacing/utils/getPageData.js";
-import { isUserAvailable } from "../clientfacing/Feeder/UsersDataFeeder.js";
+import { isUserDataAvailable } from "../clientfacing/Feeder/UsersDataFeeder.js";
 import { getCoverLetter } from "../clientfacing/Feeder/GeminiJobFeeder.js";
 
 export default function PopupController() {
@@ -12,21 +12,26 @@ export default function PopupController() {
   const [visible, setVisible] = useState(true);
   const [showUserData, setShowUserData] = useState(false);
   const [notification, setNotification] = useState(null);
-  const [currentUrl, setCurrentUrl] = useState(window.location.href);
 
   const ongoingUserCheck = useRef(false);
+  const prevUrlRef = useRef(window.location.href);
 
+
+  // 🔍 Load user + page data (centralized)
   const loadData = async () => {
     if (ongoingUserCheck.current) return;
     ongoingUserCheck.current = true;
 
     try {
-      const userExists = await isUserAvailable();
+      const userExists = await isUserDataAvailable();
+      console.log("User data exists:", userExists);
       setUserDataExists(userExists);
 
       if (userExists) {
         const scrapedData = await getPageData();
-        if (scrapedData) setPageData({ ...scrapedData });
+        if (scrapedData) setPageData(scrapedData);
+      } else {
+        setPageData(null);
       }
     } catch (err) {
       console.error("loadData error:", err);
@@ -40,37 +45,33 @@ export default function PopupController() {
     loadData();
   }, []);
 
-  // Detect LinkedIn URL changes (full page reload)
+  // 🔁 Detect URL change only once per navigation
   useEffect(() => {
-    const intervalId = setInterval(() => {
-      if (window.location.href !== currentUrl) {
-        setCurrentUrl(window.location.href);
+    const observer = new MutationObserver(() => {
+      const currentUrl = window.location.href;
+      if (currentUrl !== prevUrlRef.current) {
+        prevUrlRef.current = currentUrl;
         loadData();
       }
-    }, 1000);
-    return () => clearInterval(intervalId);
-  }, [currentUrl]);
-
-  // Detect Seek dynamic content changes with debounce
-  useEffect(() => {
-    if (!window.location.href.includes("seek.com.au")) return;
-
-    const targetNode = document.body;
-    const config = { childList: true, subtree: true };
-    let debounceTimeout = null;
-
-    const callback = () => {
-      if (debounceTimeout) clearTimeout(debounceTimeout);
-      debounceTimeout = setTimeout(loadData, 100);
-    };
-
-    const observer = new MutationObserver(callback);
-    observer.observe(targetNode, config);
-
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
     return () => observer.disconnect();
   }, []);
 
-  // Port connection to background
+  // 🔎 Optional Seek dynamic detection (debounced)
+  useEffect(() => {
+    if (!window.location.href.includes("seek.com.au")) return;
+
+    const observer = new MutationObserver(() => {
+      clearTimeout(observer.debounce);
+      observer.debounce = setTimeout(loadData, 200);
+    });
+
+    observer.observe(document.body, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
+  // 🛰️ Background Port Connection
   useEffect(() => {
     const port = chrome.runtime.connect({ name: "feeder-port" });
 
@@ -78,18 +79,17 @@ export default function PopupController() {
       if (msg.action === "Client_UpdateText" && msg.data) {
         setPageData(msg.data);
         setVisible(true);
-        port.postMessage({ action: "Client_DataReceived", dataId: msg.data?.id || null });
+        port.postMessage({
+          action: "Client_DataReceived",
+          dataId: msg.data?.id || null,
+        });
       }
     });
 
     return () => port.disconnect();
   }, []);
 
-  // Always show popup when new data arrives
-  useEffect(() => {
-    if (pageData) setVisible(true);
-  }, [pageData]);
-
+  // 💾 Save job to backend
   const handleSave = async () => {
     if (!pageData) return;
     try {
@@ -103,35 +103,46 @@ export default function PopupController() {
     }
   };
 
+  // 🧠 Generate cover letter
   const handleCoverLetter = async () => {
     if (!pageData) return;
-
     try {
-      const coverLetterResponse = await getCoverLetter(pageData);
-      const rawText = coverLetterResponse;
-
-      if (!rawText) {
-        setNotification({ type: "error", message: "No cover letter data received from Gemini." });
+      const response = await getCoverLetter(pageData);
+      if (!response) {
+        setNotification({
+          type: "error",
+          message: "No cover letter data received from Gemini.",
+        });
         return;
       }
-
       setNotification({ type: "success", message: "Cover letter generated" });
       setTimeout(() => setNotification(null), 6000);
-    } catch (err) {
-      setNotification({ type: "error", message: "Failed to generate cover letter." });
+    } catch {
+      setNotification({
+        type: "error",
+        message: "Failed to generate cover letter.",
+      });
       setTimeout(() => setNotification(null), 6000);
     }
   };
 
   const handleClose = () => setVisible(false);
 
-  // Render logic
+  // ✅ After user saves new info
+  const handleUserDataSaved = async () => {
+    setShowUserData(false);
+    await loadData(); // refresh state after saving
+  };
+
+  // ---------------- Render Logic ----------------
   if (!visible) return null;
   if (userDataExists === null) return <div>Loading...</div>;
-  if (!userDataExists || showUserData) return <UsersData onClose={handleClose} />;
-  if (!pageData) return <div>Processing data...</div>;
 
-  // Only render App if title is not "N/A"
+  if (!userDataExists || showUserData) {
+    return <UsersData onClose={handleClose} onDataSaved={handleUserDataSaved} />;
+  }
+
+  if (!pageData) return <div>Processing data...</div>;
   if (pageData.title === "N/A") return <div>No valid job data available.</div>;
 
   return (

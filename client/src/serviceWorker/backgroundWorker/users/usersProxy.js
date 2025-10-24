@@ -1,38 +1,79 @@
-import { userLogin, getUserData, setUserData } from "./usersHelper.js";
+import {
+  userLogin,
+  getUserData,
+  setUserData,
+  isUserDataAvailable,
+} from "./usersHelper.js";
 
 export async function handleUserMessage({ action, data, requestId }, port) {
   try {
+    let result;
 
     switch (action) {
+      /* ------------------------------------------------------
+         ✅ Check user and auto-login if needed
+      ------------------------------------------------------ */
       case "User_isUserDataAvailable": {
-        const available = await getUserData();
-        await console.log("from background User_isUserDataAvailable:", {available})
-        result = { available }; // ✅ always inside result
+        let available = await isUserDataAvailable();
+
+        if (!available) {
+          console.log("⚠️ No user found — triggering login...");
+          const loginSuccess = await userLogin();
+          available = !!loginSuccess;
+        }
+
+        if (available) {
+          const user = await getUserData();
+          const hasAuth = !!(user?.email && user?.token);
+          const hasSetup = !!(user?.resume?.text && user?.geminiApiKey);
+
+          available = hasAuth && hasSetup;
+
+          console.log("🔍 User validation:", {
+            hasAuth,
+            hasSetup,
+            available,
+          });
+        }
+
+        result = available;
         break;
       }
 
+
+      /* ------------------------------------------------------
+         ✅ Return user data
+      ------------------------------------------------------ */
       case "User_GetUserData": {
         const user = await getUserData();
-        await console.log("from background User_GetUserData:", {user})
-        result = { user }; // ✅ always inside result
+        console.log("from background User_GetUserData:", user);
+        result = { user };
         break;
       }
 
+      /* ------------------------------------------------------
+         ✅ Save/update user data
+      ------------------------------------------------------ */
       case "User_SetUserData": {
         const user = await setUserData(data);
-        result = { user }; // ✅ always inside result
+        result = { user };
         break;
       }
 
+      /* ------------------------------------------------------
+         ❌ Unknown action
+      ------------------------------------------------------ */
       default:
-        port.postMessage({ requestId, error: "Unknown User action: " + action });
+        port.postMessage({
+          requestId,
+          error: "Unknown User action: " + action,
+        });
         return;
     }
 
-
     port.postMessage({ requestId, result });
   } catch (err) {
-    //console.error("Error in User handler:", err);
+    console.error("❌ Error in handleUserMessage:", err);
     port.postMessage({ requestId, error: err.message });
   }
 }
