@@ -1,6 +1,7 @@
 package config
 
 import (
+	"backend/queries"
 	"database/sql"
 	"fmt"
 	"log"
@@ -27,17 +28,16 @@ func InitDB() {
 	}
 
 	DB = db
-	fmt.Println("✅ Database connection established")
 
-	query := `
-	CREATE TABLE IF NOT EXISTS test_items (
-		id SERIAL PRIMARY KEY,
-		title TEXT NOT NULL,
-		note TEXT
-	);`
-	if _, err := DB.Exec(query); err != nil {
+	if _, err := DB.Exec(queries.CreateTableTestItems); err != nil {
 		log.Fatal("Failed to create test_items table:", err)
 	}
+
+	if _, err := DB.Exec(queries.CreateJobsItems); err != nil {
+		log.Fatal("Failed to create jobs table:", err)
+	}
+
+	log.Println("✅ Database initialized successfully")
 }
 
 func CloseDB() {

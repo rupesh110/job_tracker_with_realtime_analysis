@@ -48,6 +48,7 @@ func main() {
 
 	routes.AuthRoutes(r)
 	routes.TestRoutes(r)
+	routes.JobRoutes(r)
 
 	port := os.Getenv("PORT")
 	if port == "" {
