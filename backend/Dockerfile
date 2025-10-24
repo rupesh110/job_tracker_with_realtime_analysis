@@ -12,6 +12,7 @@ FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
 COPY --from=builder /app/backend .
+COPY --from=builder /app/docs ./docs
 RUN chmod +x ./backend
 
 ENV PORT=8080

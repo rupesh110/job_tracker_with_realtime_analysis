@@ -7,8 +7,9 @@ import (
 )
 
 func AuthRoutes(r *gin.Engine) {
-	r.GET("/auth/session/start", controllers.StartSession)
-	r.GET("/auth/login", controllers.HandleLogin)
-	r.GET("/auth/callback", controllers.HandleCallback)
-	r.GET("/auth/session/:id", controllers.GetSessionStatus)
+	auth := r.Group("/api/auth")
+	auth.GET("/session/start", controllers.StartSession)
+	auth.GET("/login", controllers.HandleLogin)
+	auth.GET("/callback", controllers.HandleCallback)
+	auth.GET("/session/:id", controllers.GetSessionStatus)
 }
