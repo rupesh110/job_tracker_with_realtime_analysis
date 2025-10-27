@@ -3,6 +3,7 @@ package controllers
 import (
 	"backend/models"
 	"backend/repositories"
+	"log"
 	"net/http"
 	"time"
 
@@ -52,6 +53,7 @@ func CreateJob(c *gin.Context) {
 // @Router /api/jobs/{user_id} [get]
 func GetJobsByUser(c *gin.Context) {
 	userID := c.Param("user_id")
+	log.Println("Fetching jobs for user ID:", userID)
 	jobs, err := repositories.GetJobsByUser(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

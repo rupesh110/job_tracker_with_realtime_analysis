@@ -15,7 +15,7 @@ export async function handleUserMessage({ action, data, requestId }, port) {
       ------------------------------------------------------ */
       case "User_isUserDataAvailable": {
         let available = await isUserDataAvailable();
-
+        
         if (!available) {
           console.log("⚠️ No user found — triggering login...");
           const loginSuccess = await userLogin();
@@ -24,6 +24,7 @@ export async function handleUserMessage({ action, data, requestId }, port) {
 
         if (available) {
           const user = await getUserData();
+          console.log("Fetched user data for validation:", user);
           const hasAuth = !!(user?.email && user?.token);
           const hasSetup = !!(user?.resume?.text && user?.geminiApiKey);
 

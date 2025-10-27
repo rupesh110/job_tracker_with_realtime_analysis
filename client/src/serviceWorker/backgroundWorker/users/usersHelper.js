@@ -4,13 +4,15 @@ import { getUserDataDB, setUserDataDB, clearUserDataDB } from "./userDb.js";
 
 const API_BASE =
   location.hostname === "localhost"
-    ? "http://localhost:8080"
-    : "https://jobtracker-backend-299028719782.australia-southeast1.run.app";
+    ? "http://localhost:8080/api"
+    : "https://jobtracker-backend-299028719782.australia-southeast1.run.app/api";
+
 
 /**
  * Starts login by asking backend to create a session and open WorkOS login tab.
  */
 export async function userLogin() {
+  console.log("🔐 Initiating user login...");
   try {
     const res = await fetch(`${API_BASE}/auth/session/start`);
     const { session_id, login_url } = await res.json();
@@ -89,6 +91,7 @@ export async function setUserData(data) {
  */
 export async function isUserDataAvailable() {
   const userData = await getUserDataDB();
+  console.log("User data availability check:", userData);
   return !!(userData && userData.token);
 }
 

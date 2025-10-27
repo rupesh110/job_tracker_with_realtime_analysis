@@ -34,6 +34,7 @@ export async function setUserDataDB(data) {
   const existing = await getUserDataDB();
 
   const merged = {
+    id: "current",
     ...structuredClone(UserModel),
     ...existing,
     ...data,
@@ -66,7 +67,7 @@ export async function getUserDataDB() {
 
     req.onsuccess = () => {
       const stored = req.result || {};
-      // Merge stored data with default schema
+      console.log("Retrieved stored user data from IndexedDB:", stored);
       const user = {
         ...structuredClone(UserModel),
         ...stored,

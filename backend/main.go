@@ -14,6 +14,8 @@ import (
 
 	_ "backend/docs"
 
+	_ "github.com/joho/godotenv/autoload"
+
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
