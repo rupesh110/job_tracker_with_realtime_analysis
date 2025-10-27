@@ -2,12 +2,14 @@ package routes
 
 import (
 	"backend/controllers"
+	"backend/middleware"
 
 	"github.com/gin-gonic/gin"
 )
 
 func JobRoutes(r *gin.Engine) {
 	jobs := r.Group("/api/jobs")
+	jobs.Use(middleware.AuthMiddleware())
 	{
 		jobs.POST("", controllers.CreateJob)
 		jobs.GET("/:user_id", controllers.GetJobsByUser)
@@ -15,3 +17,13 @@ func JobRoutes(r *gin.Engine) {
 		jobs.DELETE("/:id", controllers.DeleteJob)
 	}
 }
+
+// func JobRoutes(r *gin.Engine) {
+// 	jobs := r.Group("/api/jobs")
+
+// 	jobs.POST("", controllers.CreateJob)
+// 	jobs.GET("/:user_id", controllers.GetJobsByUser)
+// 	jobs.PUT("/:id", controllers.UpdateJob)
+// 	jobs.DELETE("/:id", controllers.DeleteJob)
+
+// }
