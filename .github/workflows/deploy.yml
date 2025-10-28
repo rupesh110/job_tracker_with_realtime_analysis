@@ -15,7 +15,6 @@ jobs:
       WORKOS_REDIRECT_URI: ${{ secrets.WORKOS_REDIRECT_URI }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       PORT: ${{ secrets.PORT }}
-      TEST: ${{ secrets.TEST }}
 
     steps:
       - name: Checkout code
@@ -43,15 +42,27 @@ jobs:
   deploy:
     needs: test
     runs-on: ubuntu-latest
-    if: success()  # only if all tests pass
+    if: success()
     steps:
+      # --- 1Authenticate with your Service Account ---
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      # --- Install and set up gcloud CLI ---
       - name: Set up gcloud
         uses: google-github-actions/setup-gcloud@v2
         with:
           project_id: ${{ secrets.GCP_PROJECT_ID }}
-          service_account_key: ${{ secrets.GCP_SA_KEY }}
-          export_default_credentials: true
 
+      # --- Verify authentication (optional but useful for debugging) ---
+      - name: Verify gcloud authentication
+        run: |
+          gcloud auth list
+          gcloud config list
+
+      # --- Trigger your Cloud Build deploy ---
       - name: Trigger Cloud Build deployment
         run: |
           gcloud builds triggers run \
