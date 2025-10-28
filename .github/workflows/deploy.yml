@@ -67,4 +67,5 @@ jobs:
         run: |
           gcloud builds triggers run \
             rmgpgab-jobtracker-backend-australia-southeast1-rupesh110-jouko \
-            --region=global
+            --region=global \
+            --commit-sha=${{ github.sha }}
