@@ -35,7 +35,7 @@ func VerifyWorkOSToken(ctx context.Context, tokenStr string) (*usermanagement.Us
 		return nil, fmt.Errorf("failed to parse JWKS: %w", err)
 	}
 
-	// 3️⃣ Parse + verify JWT
+	// Parse + verify JWT
 	tok, err := jwt.ParseString(tokenStr, jwt.WithKeySet(set), jwt.WithValidate(true))
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired()) {
@@ -46,10 +46,10 @@ func VerifyWorkOSToken(ctx context.Context, tokenStr string) (*usermanagement.Us
 
 	// 🕒 Log expiration time (useful for debugging)
 	if exp := tok.Expiration(); !exp.IsZero() {
-		log.Printf("✅ Token expires at: %s (%s)\n", exp.UTC().Format(time.RFC3339), exp.Local())
+		log.Printf("Token expires at: %s (%s)\n", exp.UTC().Format(time.RFC3339), exp.Local())
 	}
 
-	// 4️⃣ Extract user_id
+	// Extract user_id
 	sub, ok := tok.Get("sub")
 	if !ok {
 		return nil, fmt.Errorf("missing user_id (sub) in token")
@@ -57,14 +57,14 @@ func VerifyWorkOSToken(ctx context.Context, tokenStr string) (*usermanagement.Us
 	userID := sub.(string)
 	log.Println("🔹 Verified WorkOS user ID:", userID)
 
-	// 5️⃣ Fetch user details
+	// Fetch user details
 	opts := usermanagement.GetUserOpts{User: userID}
 	user, err := usermanagement.GetUser(ctx, opts)
 	if err != nil {
-		log.Println("⚠️ Failed to fetch user info from WorkOS:", err)
+		log.Println("Failed to fetch user info from WorkOS:", err)
 		return nil, fmt.Errorf("verified token but could not fetch user info: %w", err)
 	}
 
-	log.Printf("✅ Successfully verified and fetched user: %s (%s)\n", user.Email, user.ID)
+	log.Printf("Successfully verified and fetched user: %s (%s)\n", user.Email, user.ID)
 	return &user, nil
 }
