@@ -35,7 +35,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		log.Printf("✅ Authenticated user: %s (%s)\n", user.Email, user.ID)
+		log.Printf("Authenticated user: %s (%s)\n", user.Email, user.ID)
 
 		// Store user info in Gin context for downstream handlers
 		c.Set("user_id", user.ID)
