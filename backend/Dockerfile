@@ -5,6 +5,8 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
+
+RUN go test ./... -v && echo "All tests passed!"
 RUN go build -o backend main.go
 
 # --- Stage 2: Run ---
