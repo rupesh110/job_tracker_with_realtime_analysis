@@ -19,6 +19,7 @@ jobs:
           go-version: '1.25'
 
       - name: Run tests
+        working-directory: backend
         env:
           WORKOS_API_KEY: ${{ secrets.WORKOS_API_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
