@@ -24,17 +24,16 @@ jobs:
           WORKOS_API_KEY: ${{ secrets.WORKOS_API_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           WORKOS_REDIRECT_URI: ${{ secrets.WORKOS_REDIRECT_URI }}
-          PORT:  ${{ secrets.PORT }}
+          PORT: ${{ secrets.PORT }}
           WORKOS_ISSUER: ${{ secrets.WORKOS_ISSUER }}
           WORKOS_CLIENT_ID: ${{ secrets.WORKOS_CLIENT_ID }}
-
         run: go test ./... -v
 
   deploy:
     name: Build & Deploy to Cloud Run
     runs-on: ubuntu-latest
-    needs: [test]          # waits until tests pass
-    if: ${{ success() }}   # deploy only if test job succeeded
+    needs: [test]
+    if: ${{ success() }}
 
     steps:
       - name: Checkout code
