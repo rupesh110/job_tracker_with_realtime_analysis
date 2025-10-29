@@ -51,10 +51,7 @@ jobs:
         working-directory: backend
         shell: bash
         run: |
-          echo "🔧 Submitting build to Cloud Build..."
-          CMD="gcloud builds submit --config cloudbuild.yaml . \
-            --substitutions=_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},_REGION=${{ secrets.GCP_REGION }},_REPO=jobtracker-repo,_SERVICE_NAME=jobtracker-backend,_WORKOS_API_KEY=${{ secrets.WORKOS_API_KEY }},_DATABASE_URL=${{ secrets.DATABASE_URL }},_WORKOS_CLIENT_ID=${{ secrets.WORKOS_CLIENT_ID }},_WORKOS_REDIRECT_URI=${{ secrets.WORKOS_REDIRECT_URI }},_WORKOS_ISSUER=${{ secrets.WORKOS_ISSUER }},_PORT=${{ secrets.PORT }} \
-            --logging=CLOUD_LOGGING_ONLY"
-          echo "$CMD"
-          bash -c "$CMD"
-          echo "Build and deployment process initiated."
+          echo "Submitting build to Cloud Build..."
+          gcloud builds submit --config cloudbuild.yaml . \
+            --substitutions="_PROJECT_ID=${{ secrets.GCP_PROJECT_ID }},_REGION=${{ secrets.GCP_REGION }},_REPO=jobtracker-repo,_SERVICE_NAME=jobtracker-backend,_WORKOS_API_KEY=${{ secrets.WORKOS_API_KEY }},_DATABASE_URL=${{ secrets.DATABASE_URL }},_WORKOS_CLIENT_ID=${{ secrets.WORKOS_CLIENT_ID }},_WORKOS_REDIRECT_URI=${{ secrets.WORKOS_REDIRECT_URI }},_WORKOS_ISSUER=${{ secrets.WORKOS_ISSUER }},_PORT=${{ secrets.PORT }}"
+
