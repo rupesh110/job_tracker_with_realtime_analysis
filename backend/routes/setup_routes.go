@@ -23,7 +23,7 @@ func SetupRouter() *gin.Engine {
 	}))
 
 	r.GET("/", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{"message": "Welcome to Job Tracker Backend! Testing"})
+		c.JSON(http.StatusOK, gin.H{"message": "Welcome to Job Tracker Backend! Test endpoint is /api/test/ping"})
 	})
 
 	r.GET("/health", func(c *gin.Context) {

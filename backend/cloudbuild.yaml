@@ -37,15 +37,15 @@ steps:
     args:
       - '-c'
       - |
-        echo "Deploying ${_SERVICE_NAME}..."
-        DEPLOY_OUTPUT=$(gcloud run deploy ${_SERVICE_NAME} \
+        echo "🚀 Deploying ${_SERVICE_NAME}..."
+        DEPLOY_URL=$(gcloud run deploy ${_SERVICE_NAME} \
           --image ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:latest \
           --region ${_REGION} \
           --allow-unauthenticated \
           --set-env-vars "WORKOS_API_KEY=${_WORKOS_API_KEY},DATABASE_URL=${_DATABASE_URL},WORKOS_CLIENT_ID=${_WORKOS_CLIENT_ID},WORKOS_REDIRECT_URI=${_WORKOS_REDIRECT_URI},WORKOS_ISSUER=${_WORKOS_ISSUER}" \
           --format='value(status.url)')
-        echo "Deployment complete!"
-        echo "Cloud Run URL: $DEPLOY_OUTPUT"
+        echo "✅ Deployment complete!"
+        echo "🌐 Cloud Run URL: $DEPLOY_URL"
 
 images:
   - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:latest'
