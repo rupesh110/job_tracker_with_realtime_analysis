@@ -11,6 +11,7 @@ substitutions:
   _PORT: ""
 
 steps:
+  # Step 1: Build Docker image
   - name: 'gcr.io/cloud-builders/docker'
     id: 'build-image'
     dir: 'backend'
@@ -18,27 +19,33 @@ steps:
       [
         'build',
         '-t',
-        '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${SHORT_SHA}',
+        '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${SHORT_SHA:-latest}',
         '.'
       ]
 
+  # Step 2: Push image to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     id: 'push-image'
     args:
       [
         'push',
-        '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${SHORT_SHA}'
+        '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${SHORT_SHA:-latest}'
       ]
 
+  # Step 3: Deploy to Cloud Run with env vars
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     id: 'deploy'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
-        echo "Deploying ${_SERVICE_NAME}..."
+        echo "Deploying ${_SERVICE_NAME} to Cloud Run..."
         gcloud run deploy ${_SERVICE_NAME} \
-          --image ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${SHORT_SHA} \
+          --image ${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${SHORT_SHA:-latest} \
           --region ${_REGION} \
           --allow-unauthenticated \
           --set-env-vars "WORKOS_API_KEY=${_WORKOS_API_KEY},DATABASE_URL=${_DATABASE_URL},WORKOS_CLIENT_ID=${_WORKOS_CLIENT_ID},WORKOS_REDIRECT_URI=${_WORKOS_REDIRECT_URI},WORKOS_ISSUER=${_WORKOS_ISSUER},PORT=${_PORT}"
+        echo "Deployment completed successfully!"
+
+images:
+  - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO}/${_SERVICE_NAME}:${SHORT_SHA:-latest}'
