@@ -37,6 +37,10 @@ func InitDB() {
 		log.Fatal("Failed to create jobs table:", err)
 	}
 
+	if _, err := DB.Exec(queries.CreateUsersTable); err != nil {
+		log.Fatal("Failed to create users table:", err)
+	}
+
 	log.Println("✅ Database initialized successfully")
 }
 

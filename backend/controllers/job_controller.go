@@ -46,14 +46,17 @@ func CreateJob(c *gin.Context) {
 // @Summary Get jobs by user ID
 // @Description Retrieve all job entries for a specific user
 // @Tags jobs
+// @Security BearerAuth
 // @Produce json
-// @Param user_id path string true "User ID"
 // @Success 200 {object} map[string]interface{}
 // @Failure 500 {object} map[string]string
-// @Router /api/jobs/{user_id} [get]
+// @Router /api/jobs [get]
 func GetJobsByUser(c *gin.Context) {
-	userID := c.Param("user_id")
-	log.Println("Fetching jobs for user ID:", userID)
+	userID := c.GetString("user_id")
+	email := c.GetString("user_email")
+
+	log.Printf("Fetching jobs for authenticated user: %s (%s)\n", email, userID)
+
 	jobs, err := repositories.GetJobsByUser(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

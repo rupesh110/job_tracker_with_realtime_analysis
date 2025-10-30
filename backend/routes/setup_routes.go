@@ -33,8 +33,12 @@ func SetupRouter() *gin.Engine {
 	AuthRoutes(r)
 	TestRoutes(r)
 	JobRoutes(r)
+	UserRoutes(r)
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(
+		swaggerFiles.Handler,
+		ginSwagger.PersistAuthorization(true),
+	))
 
 	return r
 }
