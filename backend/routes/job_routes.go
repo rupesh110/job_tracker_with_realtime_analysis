@@ -12,18 +12,8 @@ func JobRoutes(r *gin.Engine) {
 	jobs.Use(middleware.AuthMiddleware())
 	{
 		jobs.POST("", controllers.CreateJob)
-		jobs.GET("/:user_id", controllers.GetJobsByUser)
+		jobs.GET("", controllers.GetJobsByUser)
 		jobs.PUT("/:id", controllers.UpdateJob)
 		jobs.DELETE("/:id", controllers.DeleteJob)
 	}
 }
-
-// func JobRoutes(r *gin.Engine) {
-// 	jobs := r.Group("/api/jobs")
-
-// 	jobs.POST("", controllers.CreateJob)
-// 	jobs.GET("/:user_id", controllers.GetJobsByUser)
-// 	jobs.PUT("/:id", controllers.UpdateJob)
-// 	jobs.DELETE("/:id", controllers.DeleteJob)
-
-// }

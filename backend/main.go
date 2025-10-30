@@ -14,6 +14,14 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
+// @title Job Tracker API
+// @version 1.0
+// @description API backend for managing job applications and tracking progress
+// @BasePath
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	err := godotenv.Load()
 	if err != nil {

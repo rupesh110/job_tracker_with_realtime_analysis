@@ -33,8 +33,18 @@ definitions:
       title:
         type: string
     type: object
+  models.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+    type: object
 info:
   contact: {}
+  description: API backend for managing job applications and tracking progress
+  title: Job Tracker API
+  version: "1.0"
 paths:
   /api/auth/callback:
     get:
@@ -136,6 +146,27 @@ paths:
       tags:
       - auth
   /api/jobs:
+    get:
+      description: Retrieve all job entries for a specific user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get jobs by user ID
+      tags:
+      - jobs
     post:
       consumes:
       - application/json
@@ -229,32 +260,6 @@ paths:
       summary: Update job details
       tags:
       - jobs
-  /api/jobs/{user_id}:
-    get:
-      description: Retrieve all job entries for a specific user
-      parameters:
-      - description: User ID
-        in: path
-        name: user_id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            additionalProperties: true
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Get jobs by user ID
-      tags:
-      - jobs
   /api/test/items:
     get:
       description: Retrieves all test items from the database
@@ -318,4 +323,38 @@ paths:
       summary: Test endpoint
       tags:
       - test
+  /api/users:
+    post:
+      consumes:
+      - application/json
+      description: Add a new user entry to the database
+      parameters:
+      - description: User object
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/models.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties: true
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new user
+      tags:
+      - users
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
