@@ -84,4 +84,4 @@ jobs:
             --region $REGION \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }},WORKOS_API_KEY=${{ secrets.WORKOS_API_KEY }},WORKOS_CLIENT_ID=${{ secrets.WORKOS_CLIENT_ID }},WORKOS_REDIRECT_URI=${{ secrets.WORKOS_REDIRECT_URI }},WORKOS_ISSUER=${{ secrets.WORKOS_ISSUER }},PORT=${{ secrets.PORT }}"
+            --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }},WORKOS_API_KEY=${{ secrets.WORKOS_API_KEY }},WORKOS_CLIENT_ID=${{ secrets.WORKOS_CLIENT_ID }},WORKOS_REDIRECT_URI=${{ secrets.WORKOS_REDIRECT_URI }},WORKOS_ISSUER=${{ secrets.WORKOS_ISSUER }}"
