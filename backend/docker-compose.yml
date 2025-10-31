@@ -2,9 +2,12 @@ version: "3.9"
 
 services:
   backend:
-    image: jobtracker-backend
+    build:
+      context: .               
+      dockerfile: Dockerfile  
+    image: jobtracker-backend  
     ports:
-      - "8080:8080"
+      - "8080:8080"             
     env_file:
-      - .env
+      - .env                 
     restart: unless-stopped

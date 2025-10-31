@@ -22,10 +22,8 @@ import (
 // @in header
 // @name Authorization
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("No .env file found")
-	}
+	// Load environment variables silently
+	_ = godotenv.Load()
 
 	config.InitDB()
 	defer config.CloseDB()
