@@ -1,6 +1,8 @@
 # --- Stage 1: Build ---
 FROM golang:1.25-alpine AS builder
 
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
 WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
