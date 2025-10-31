@@ -352,6 +352,34 @@ paths:
       summary: Create a new user
       tags:
       - users
+  /api/users/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a user entry from the database by ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get user by ID
+      tags:
+      - users
 securityDefinitions:
   BearerAuth:
     in: header
