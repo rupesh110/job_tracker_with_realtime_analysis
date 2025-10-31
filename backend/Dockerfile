@@ -6,6 +6,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 
+RUN swag init -g main.go -o ./docs
 RUN go test ./... -v && echo "All tests passed!"
 RUN go build -o backend main.go
 

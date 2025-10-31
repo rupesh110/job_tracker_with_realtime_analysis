@@ -18,7 +18,6 @@ import (
 // @version 1.0
 // @description API backend for managing job applications and tracking progress
 // @BasePath
-
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
