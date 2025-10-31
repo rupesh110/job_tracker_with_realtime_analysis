@@ -61,15 +61,18 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
-      # Configure Docker for Artifact Registry
-      - name: Configure Docker auth
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
+      # Explicit Docker authentication (fixes "unauthenticated" error)
+      - name: Authenticate Docker to Artifact Registry
+        run: |
+          echo '${{ secrets.GCP_SA_KEY }}' > key.json
+          gcloud auth activate-service-account --key-file=key.json
+          gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev --quiet
 
-      # Build the Docker image
+      # Build Docker image
       - name: Build Docker image
         run: docker build -t $IMAGE:$GITHUB_SHA backend
 
-      # Push the image to Artifact Registry
+      # Push Docker image to Artifact Registry
       - name: Push Docker image
         run: docker push $IMAGE:$GITHUB_SHA
 
