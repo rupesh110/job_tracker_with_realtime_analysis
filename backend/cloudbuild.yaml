@@ -1,25 +1,47 @@
 steps:
-  # Build
+  # 1️ Build the Docker image (runs go test inside Dockerfile)
   - name: 'gcr.io/cloud-builders/docker'
     args:
-      ['build',
-       '-t', 'gcr.io/$PROJECT_ID/jobtracker-backend:$SHORT_SHA',
-       '.']
+      [
+        'build',
+        '-t', 'gcr.io/$PROJECT_ID/jobtracker-backend:$SHORT_SHA',
+        '.'
+      ]
     dir: 'backend'
 
-  # Push
+  # 2 Run unit tests directly in Cloud Build too (extra safety)
+  - name: 'golang:1.25-alpine'
+    id: 'unit-tests'
+    entrypoint: 'sh'
+    args:
+      [
+        '-c',
+        'cd backend && go test ./... -v'
+      ]
+
+  # 3  Push the image *only if tests passed*
   - name: 'gcr.io/cloud-builders/docker'
     args:
-      ['push',
-       'gcr.io/$PROJECT_ID/jobtracker-backend:$SHORT_SHA']
+      [
+        'push',
+        'gcr.io/$PROJECT_ID/jobtracker-backend:$SHORT_SHA'
+      ]
+    waitFor: ['unit-tests']   # depends on tests success
 
-  # Deploy
+  # 4  Deploy to Cloud Run
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
-      ['run', 'deploy', 'jobtracker-backend',
-       '--image', 'gcr.io/$PROJECT_ID/jobtracker-backend:$SHORT_SHA',
-       '--region', 'australia-southeast1',
-       '--allow-unauthenticated',
-       '--set-env-vars',
-       'DATABASE_URL=$(DATABASE_URL),WORKOS_API_KEY=$(WORKOS_API_KEY),WORKOS_CLIENT_ID=$(WORKOS_CLIENT_ID),GIN_MODE=release']
+      [
+        'run', 'deploy', 'jobtracker-backend',
+        '--image', 'gcr.io/$PROJECT_ID/jobtracker-backend:$SHORT_SHA',
+        '--region', 'australia-southeast1',
+        '--platform', 'managed',
+        '--allow-unauthenticated',
+        '--set-env-vars',
+        'DATABASE_URL=$(_DATABASE_URL),WORKOS_API_KEY=$(_WORKOS_API_KEY),WORKOS_CLIENT_ID=$(_WORKOS_CLIENT_ID),WORKOS_REDIRECT_URI=$(_WORKOS_REDIRECT_URI),WORKOS_ISSUER=$(_WORKOS_ISSUER),PORT=$(_PORT),GIN_MODE=$(_GIN_MODE),TEST=$(_TEST)'
+      ]
+    waitFor: ['unit-tests']
+
+images:
+  - 'gcr.io/$PROJECT_ID/jobtracker-backend:$SHORT_SHA'
