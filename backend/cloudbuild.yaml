@@ -1,3 +1,16 @@
+substitutions:
+  _PROJECT_ID: ""
+  _REGION: ""
+  _SERVICE_NAME: ""
+  _REPO: ""
+  _DATABASE_URL: ""
+  _WORKOS_API_KEY: ""
+  _WORKOS_CLIENT_ID: ""
+  _WORKOS_ISSUER: ""
+  _WORKOS_REDIRECT_URI: ""
+  _PORT: "8080"
+  _GIN_MODE: "release"
+
 steps:
   # 1️ Build the Docker image (runs go test inside Dockerfile)
   - name: 'gcr.io/cloud-builders/docker'
