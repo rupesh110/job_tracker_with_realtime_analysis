@@ -10,5 +10,6 @@ func UserRoutes(r *gin.Engine) {
 	users := r.Group("/api/users")
 	{
 		users.POST("", controllers.CreateUser)
+		users.GET("/:id", controllers.GetUserByID)
 	}
 }
