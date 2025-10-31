@@ -12,7 +12,7 @@ RUN swag init -g main.go -o ./docs
 RUN go test ./... -v && echo "All tests passed!"
 RUN go build -o backend main.go
 
-# --- Stage 2: Run ---
+
 FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 WORKDIR /root/
