@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
@@ -22,6 +23,11 @@ func InitDB() {
 	if err != nil {
 		log.Fatal("Failed to open database:", err)
 	}
+
+	db.SetMaxOpenConns(50)                 // total concurrent connections allowed
+	db.SetMaxIdleConns(25)                 // idle connections kept alive
+	db.SetConnMaxLifetime(5 * time.Minute) // recycle connections every 5 mins
+	db.SetConnMaxIdleTime(2 * time.Minute) // optional: close long-idle conns
 
 	if err = db.Ping(); err != nil {
 		log.Fatal("Failed to ping database:", err)

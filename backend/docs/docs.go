@@ -199,6 +199,11 @@ const docTemplate = `{
                 }
             },
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Add a new job entry to the database",
                 "consumes": [
                     "application/json"
@@ -243,6 +248,11 @@ const docTemplate = `{
         },
         "/api/jobs/{id}": {
             "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Update the status, notes, and updated date of a job",
                 "consumes": [
                     "application/json"
@@ -292,6 +302,11 @@ const docTemplate = `{
                 }
             },
             "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Remove a job entry from the database",
                 "produces": [
                     "application/json"
@@ -306,13 +321,6 @@ const docTemplate = `{
                         "description": "Job ID",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "User ID",
-                        "name": "user_id",
-                        "in": "query",
                         "required": true
                     }
                 ],

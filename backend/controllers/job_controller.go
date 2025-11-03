@@ -14,6 +14,7 @@ import (
 // @Summary Create a new job
 // @Description Add a new job entry to the database
 // @Tags jobs
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param job body models.Job true "Job object"
@@ -22,16 +23,20 @@ import (
 // @Router /api/jobs [post]
 func CreateJob(c *gin.Context) {
 	var job models.Job
+	userID := c.GetString("user_id")
+
+	log.Printf("from create job:")
 	if err := c.ShouldBindJSON(&job); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	if job.UserID == "" {
+	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "UserID is required"})
 		return
 	}
 
+	job.UserID = userID
 	job.UpdatedAt = time.Now()
 
 	if err := repositories.CreateJob(&job); err != nil {
@@ -70,6 +75,7 @@ func GetJobsByUser(c *gin.Context) {
 // @Summary Update job details
 // @Description Update the status, notes, and updated date of a job
 // @Tags jobs
+// @Security BearerAuth
 // @Accept json
 // @Produce json
 // @Param id path string true "Job ID"
@@ -79,6 +85,8 @@ func GetJobsByUser(c *gin.Context) {
 // @Router /api/jobs/{id} [put]
 func UpdateJob(c *gin.Context) {
 	jobID := c.Param("id")
+	userID := c.GetString("user_id")
+	log.Printf("Update jobs:", userID)
 	var job models.Job
 	if err := c.ShouldBindJSON(&job); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -86,6 +94,7 @@ func UpdateJob(c *gin.Context) {
 	}
 
 	job.ID = jobID
+	job.UserID = userID
 	job.UpdatedAt = time.Now()
 
 	if job.UserID == "" {
@@ -105,15 +114,15 @@ func UpdateJob(c *gin.Context) {
 // @Summary Delete a job
 // @Description Remove a job entry from the database
 // @Tags jobs
+// @Security BearerAuth
 // @Produce json
 // @Param id path string true "Job ID"
-// @Param user_id query string true "User ID"
 // @Success 200 {object} map[string]string
 // @Failure 400 {object} map[string]string
 // @Router /api/jobs/{id} [delete]
 func DeleteJob(c *gin.Context) {
 	jobID := c.Param("id")
-	userID := c.Query("user_id") // or from token in future
+	userID := c.GetString("user_id")
 
 	if jobID == "" || userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing job_id or user_id"})
