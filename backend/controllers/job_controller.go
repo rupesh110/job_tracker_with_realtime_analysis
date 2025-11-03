@@ -58,9 +58,6 @@ func CreateJob(c *gin.Context) {
 // @Router /api/jobs [get]
 func GetJobsByUser(c *gin.Context) {
 	userID := c.GetString("user_id")
-	email := c.GetString("user_email")
-
-	log.Printf("Fetching jobs for authenticated user: %s (%s)\n", email, userID)
 
 	jobs, err := repositories.GetJobsByUser(userID)
 	if err != nil {
@@ -86,7 +83,6 @@ func GetJobsByUser(c *gin.Context) {
 func UpdateJob(c *gin.Context) {
 	jobID := c.Param("id")
 	userID := c.GetString("user_id")
-	log.Printf("Update jobs:", userID)
 	var job models.Job
 	if err := c.ShouldBindJSON(&job); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})

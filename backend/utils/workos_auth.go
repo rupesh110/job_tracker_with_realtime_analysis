@@ -17,13 +17,13 @@ import (
 func VerifyWorkOSToken(ctx context.Context, tokenStr string) (*usermanagement.User, error) {
 	clientID := os.Getenv("WORKOS_CLIENT_ID")
 
-	// 1️⃣ Get JWKS URL from WorkOS
+	// 1 Get JWKS URL from WorkOS
 	jwksURL, err := usermanagement.GetJWKSURL(clientID)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get JWKS URL: %w", err)
 	}
 
-	// 2️⃣ Fetch JWKS
+	// 2️ Fetch JWKS
 	resp, err := http.Get(jwksURL.String())
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch JWKS: %w", err)
@@ -44,7 +44,7 @@ func VerifyWorkOSToken(ctx context.Context, tokenStr string) (*usermanagement.Us
 		return nil, fmt.Errorf("token verification failed: %w", err)
 	}
 
-	// 🕒 Log expiration time (useful for debugging)
+	// Log expiration time (useful for debugging)
 	if exp := tok.Expiration(); !exp.IsZero() {
 		log.Printf("Token expires at: %s (%s)\n", exp.UTC().Format(time.RFC3339), exp.Local())
 	}
