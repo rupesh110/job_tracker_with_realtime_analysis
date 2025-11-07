@@ -5,9 +5,11 @@ import (
 	"backend/repositories"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 // CreateJob godoc
@@ -17,16 +19,16 @@ import (
 // @Security BearerAuth
 // @Accept json
 // @Produce json
-// @Param job body models.Job true "Job object"
+// @Param job body models.JobCreateRequest true "Job object"
 // @Success 201 {object} map[string]interface{}
 // @Failure 400 {object} map[string]string
 // @Router /api/jobs [post]
 func CreateJob(c *gin.Context) {
-	var job models.Job
+	var req models.Job
 	userID := c.GetString("user_id")
 
 	log.Printf("from create job:")
-	if err := c.ShouldBindJSON(&job); err != nil {
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -36,10 +38,25 @@ func CreateJob(c *gin.Context) {
 		return
 	}
 
-	job.UserID = userID
-	job.UpdatedAt = time.Now()
+	job := models.Job{
+		ID:        uuid.New().String(),
+		UserID:    userID,
+		Title:     req.Title,
+		Company:   req.Company,
+		Location:  req.Location,
+		Platform:  req.Platform,
+		Status:    req.Status,
+		WorkType:  req.WorkType,
+		URL:       req.URL,
+		Notes:     req.Notes,
+		UpdatedAt: time.Now(),
+	}
 
 	if err := repositories.CreateJob(&job); err != nil {
+		if strings.Contains(err.Error(), "already exists") {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

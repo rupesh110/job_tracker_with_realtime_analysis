@@ -1,7 +1,11 @@
 package controllers
 
 import (
+	"backend/models"
+	"backend/repositories"
 	"backend/services"
+	"database/sql"
+	"errors"
 	"log"
 	"net/http"
 
@@ -87,7 +91,27 @@ func HandleCallback(c *gin.Context) {
 	token := session.Token
 	userID := session.UserID
 
-	log.Printf("Authenticated WorkOS user: %s (%s) %s %s\n", token, email, "____", userID)
+	user, err := repositories.GetUserByID(userID)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			// Create a new user if not found
+			newUser := &models.User{
+				ID:    userID,
+				Email: email,
+			}
+			if err := repositories.CreateUser(newUser); err != nil {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
+				return
+			}
+			log.Printf("Created new user: %s (%s)", email, userID)
+			user = newUser
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch user"})
+			return
+		}
+	}
+
+	log.Printf("Authenticated WorkOS user: %s (%s) %s %s\n", token, email, "____", userID, user)
 
 	c.Data(http.StatusOK, "text/html", []byte(`
 		<html><body style="font-family:sans-serif;text-align:center;margin-top:50px">

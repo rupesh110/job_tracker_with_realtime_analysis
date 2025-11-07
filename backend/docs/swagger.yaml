@@ -24,6 +24,27 @@ definitions:
       work_type:
         type: string
     type: object
+  models.JobCreateRequest:
+    properties:
+      company:
+        type: string
+      location:
+        type: string
+      notes:
+        type: string
+      platform:
+        type: string
+      status:
+        type: string
+      title:
+        type: string
+      url:
+        type: string
+      user_id:
+        type: string
+      work_type:
+        type: string
+    type: object
   models.TestItem:
     properties:
       id:
@@ -177,7 +198,7 @@ paths:
         name: job
         required: true
         schema:
-          $ref: '#/definitions/models.Job'
+          $ref: '#/definitions/models.JobCreateRequest'
       produces:
       - application/json
       responses:

@@ -13,7 +13,8 @@ const (
 			updated_at DATE DEFAULT CURRENT_DATE,
 			work_type TEXT,
 			url TEXT,
-			notes TEXT
+			notes TEXT,
+			CONSTRAINT unique_user_job_url UNIQUE (user_ID, url)
 		);
 	`
 
