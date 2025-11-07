@@ -61,21 +61,22 @@ func HandleWorkOSCallback(sessionID, code string) error {
 		return err
 	}
 
-	email := res.User.Email
-	token := res.AccessToken
-
-	s, ok := sessions[sessionID]
-	if !ok {
-		s = &models.Session{ID: sessionID}
-		sessions[sessionID] = s
+	user := models.User{
+		ID:    res.User.ID,
+		Email: res.User.Email,
 	}
 
-	s.Status = "complete"
-	s.Email = email
-	s.Token = token
+	session := &models.Session{
+		ID:     sessionID,
+		Status: "complete",
+		Email:  user.Email,
+		Token:  res.AccessToken,
+		UserID: user.ID,
+	}
 
 	mu.Lock()
-	defer mu.Unlock()
+	sessions[sessionID] = session
+	mu.Unlock()
 
 	return nil
 }

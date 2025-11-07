@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"backend/services"
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -76,9 +77,21 @@ func HandleCallback(c *gin.Context) {
 		return
 	}
 
+	session, err := services.GetSession(sessionID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to fetch session"})
+		return
+	}
+
+	email := session.Email
+	token := session.Token
+	userID := session.UserID
+
+	log.Printf("Authenticated WorkOS user: %s (%s) %s %s\n", token, email, "____", userID)
+
 	c.Data(http.StatusOK, "text/html", []byte(`
 		<html><body style="font-family:sans-serif;text-align:center;margin-top:50px">
-		<h2>You’re signed in!</h2>
+		<h2>You're signed in!</h2>
 		<p>You can close this tab and return to Job Tracker.</p>
 		</body></html>
 	`))
