@@ -5,10 +5,12 @@ import (
 	"backend/models"
 	"backend/queries"
 	"fmt"
+
+	"github.com/jackc/pgconn"
 )
 
 func CreateJob(job *models.Job) error {
-	return config.DB.QueryRow(
+	err := config.DB.QueryRow(
 		queries.InsertJob,
 		job.UserID,
 		job.Company,
@@ -21,6 +23,15 @@ func CreateJob(job *models.Job) error {
 		job.URL,
 		job.Notes,
 	).Scan(&job.ID)
+
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok && pgErr.Code == "23505" {
+			return fmt.Errorf("job with this URL already exists for this user")
+		}
+		return err
+	}
+
+	return nil
 }
 
 func GetJobsByUser(userID string) ([]models.Job, error) {
