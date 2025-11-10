@@ -45,10 +45,9 @@ export async function extractSeekData() {
     location: locationEl?.innerText.trim() || "Unknown",
     platform: "Seek",
     url: jobUrl,
-    workType: detectWorkType(fullText),
+    work_type: detectWorkType(fullText),
     status: "Applied",
     date: formattedDate,
-    syncStatus: "pending",
     description: rawDescription,
     notes: ""
   };

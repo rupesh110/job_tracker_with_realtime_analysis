@@ -30,10 +30,9 @@ export async function extractLinkedInData() {
     platform: 'LinkedIn',
     url: window.location.href,
     location: locationEl?.innerText?.trim() || 'N/A',
-    workType: detectWorkType(fullText),
+    work_type: detectWorkType(fullText),
     status: "Applied",
     date: formattedDate,
-    syncStatus: "pending",
     description: descriptionText,
     notes: ""
   };

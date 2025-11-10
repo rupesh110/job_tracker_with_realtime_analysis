@@ -63,6 +63,7 @@ export function setUserData(value) {
 
 // Get user data (returns defaults if not found)
 export function getUserData() {
+  console.log("From indexDb getUSerData again")
   return getDB().then(db => {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(USERS_STORE, "readonly");
@@ -70,6 +71,7 @@ export function getUserData() {
       const request = store.get(DEFAULT_USER_ID);
 
       request.onsuccess = () => {
+        console.log("from indexdbgetUserData:", request)
         if (request.result) {
           resolve(request.result.value);
         } else {

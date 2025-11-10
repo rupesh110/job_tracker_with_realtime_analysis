@@ -71,7 +71,8 @@ async function pollForSession(sessionId) {
  */
 export async function getUserData() {
   const userData = await getUserDataDB();
-  if (!userData || !userData.token) {
+  console.log("From getuserdata:", userData)
+  if (!userData & !userData.token) {
     return { error: "Not logged in" };
   }
   return userData;

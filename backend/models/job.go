@@ -12,6 +12,7 @@ type Job struct {
 	Location  string    `json:"location"`
 	Platform  string    `json:"platform"`
 	Status    string    `json:"status"`
+	Date      string    `json:"date"`
 	UpdatedAt time.Time `json:"updated_at"`
 	WorkType  string    `json:"work_type"`
 	URL       string    `json:"url"`

@@ -49,6 +49,7 @@ func CreateJob(c *gin.Context) {
 		WorkType:  req.WorkType,
 		URL:       req.URL,
 		Notes:     req.Notes,
+		Date:      req.Date,
 		UpdatedAt: time.Now(),
 	}
 
@@ -100,27 +101,34 @@ func GetJobsByUser(c *gin.Context) {
 func UpdateJob(c *gin.Context) {
 	jobID := c.Param("id")
 	userID := c.GetString("user_id")
-	var job models.Job
-	if err := c.ShouldBindJSON(&job); err != nil {
+
+	log.Printf("update jobs: jobID=%s userID=%s", jobID, userID)
+
+	var req models.Job
+	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
-	job.ID = jobID
-	job.UserID = userID
-	job.UpdatedAt = time.Now()
+	req.ID = jobID
+	req.UserID = userID
+	req.UpdatedAt = time.Now()
 
-	if job.UserID == "" {
+	if userID == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Missing user_id"})
 		return
 	}
 
-	if err := repositories.UpdateJob(&job); err != nil {
+	if err := repositories.UpdateJob(&req); err != nil {
+		log.Printf("Update failed: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "Job Updated", "data": job})
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Job updated successfully",
+		"data":    req,
+	})
 }
 
 // DeleteJob godoc

@@ -10,6 +10,7 @@ const (
 			location TEXT,
 			platform TEXT,
 			status TEXT,
+			date TEXT,
 			updated_at DATE DEFAULT CURRENT_DATE,
 			work_type TEXT,
 			url TEXT,
@@ -20,13 +21,13 @@ const (
 
 	InsertJob = `
 		INSERT INTO jobs (
-			user_id, company, title, location, platform, status, updated_at, work_type, url, notes)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+			user_id, company, title, location, platform, status, date, updated_at, work_type, url, notes)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
 		RETURNING id;
 	`
 
 	GetJobsByUser = `
-		SELECT id, user_id, company, title, location, platform, status, updated_at, work_type, url, notes
+		SELECT id, user_id, company, title, location, platform, status,date, updated_at, work_type, url, notes
 		FROM jobs
 		WHERE user_id = $1;
 	`

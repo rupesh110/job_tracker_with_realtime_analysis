@@ -535,6 +535,9 @@ const docTemplate = `{
                 "company": {
                     "type": "string"
                 },
+                "date": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },

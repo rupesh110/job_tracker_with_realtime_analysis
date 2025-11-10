@@ -15,6 +15,7 @@ export function getDB() {
 
       request.onupgradeneeded = (event) => {
         const db = event.target.result;
+        console.log("From indexdb main:", db)
 
         // Create jobsData store if it doesn't exist
         if (!db.objectStoreNames.contains(JOBS_STORE)) {
