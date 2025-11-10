@@ -5,69 +5,65 @@ import "./JobsTable.css";
 export default function JobsTable({ jobs, onStatusChange, onClose }) {
   const [jobStatuses, setJobStatuses] = useState({});
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState(""); // New: selected status filter
+  const [statusFilter, setStatusFilter] = useState("");
   const [position, setPosition] = useState({ x: 20, y: 20 });
-  const [editingJobKey, setEditingJobKey] = useState(null);
+  const [editingJobId, setEditingJobId] = useState(null);
   const [editingNotes, setEditingNotes] = useState("");
   const panelRef = useRef(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const dragging = useRef(false);
 
   const statusOptions = [
-    "Applied", "Recruiters call", "1st Round", "Interview",
-    "Offer", "Rejected", "Unknown", "Follow Up"
+    "Applied",
+    "Recruiters call",
+    "1st Round",
+    "Interview",
+    "Offer",
+    "Rejected",
+    "Follow Up",
+    "Unknown",
   ];
 
-  // Normalize jobs
-  const normalizedJobs = jobs.map((job) => ({
-    ...job,
-    value: {
-      company: job.value?.company || "Unknown",
-      title: job.value?.title || "Unknown",
-      location: job.value?.location || "Unknown",
-      status: job.value?.status || "Unknown",
-      platform: job.value?.platform || "Unknown",
-      workType: job.value?.workType || "Unknown",
-      date: job.value?.date || "Unknown",
-      url: job.value?.url || "#",
-      notes: job.value?.notes || "",
-    },
-  }));
-
+  console.log("From jobs table:", {jobs})
+  // ✅ Initialize statuses
   useEffect(() => {
-    const initialStatuses = normalizedJobs.reduce((acc, job) => {
-      acc[job.key] = job.value.status;
+    const initialStatuses = jobs.reduce((acc, job) => {
+      acc[job.id] = job.status || "Unknown";
       return acc;
     }, {});
     setJobStatuses(initialStatuses);
   }, [jobs]);
 
-  const handleStatusChange = async (jobKey, newStatus) => {
+  // ✅ Update job status
+  const handleStatusChange = async (jobId, newStatus) => {
     const dateObj = new Date();
-    const updatedDate = `${String(dateObj.getDate()).padStart(2,"0")}/${String(dateObj.getMonth()+1).padStart(2,"0")}/${dateObj.getFullYear()}`;
+    const updatedDate = `${String(dateObj.getDate()).padStart(2, "0")}/${String(
+      dateObj.getMonth() + 1
+    ).padStart(2, "0")}/${dateObj.getFullYear()}`;
 
-    setJobStatuses((prev) => ({ ...prev, [jobKey]: newStatus }));
+    setJobStatuses((prev) => ({ ...prev, [jobId]: newStatus }));
 
     try {
-      await updateJobStatus({key:jobKey, newStatus, updatedDate});
+      await updateJobStatus({ id: jobId, newStatus, updatedDate });
     } catch (error) {
       console.error("Failed to update status:", error);
     }
 
-    if (onStatusChange) onStatusChange(jobKey, newStatus, updatedDate);
+    if (onStatusChange) onStatusChange(jobId, newStatus, updatedDate);
   };
 
+  // ✅ Save edited notes
   const handleSaveNotes = async () => {
     try {
-      await updateJobNotes({ key: editingJobKey, notes: editingNotes });
-      setEditingJobKey(null);
+      await updateJobNotes({ id: editingJobId, notes: editingNotes });
+      setEditingJobId(null);
       setEditingNotes("");
     } catch (error) {
       console.error("Failed to save notes:", error);
     }
   };
 
-  // Drag handlers
+  // ✅ Drag logic (unchanged)
   const handleMouseDown = (e) => {
     dragging.current = true;
     dragOffset.current = { x: e.clientX - position.x, y: e.clientY - position.y };
@@ -87,27 +83,31 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     document.removeEventListener("mouseup", handleMouseUp);
   };
 
+  // ✅ Row color helper
   const getRowColor = (status) => {
     switch (status) {
-      case "Applied": return "row-applied";
+      case "Applied":
+        return "row-applied";
       case "Recruiters call":
       case "1st Round":
       case "Interview":
-      case "Offer": return "row-green";
-      case "Rejected": return "row-rejected";
-      default: return "row-unknown";
+      case "Offer":
+        return "row-green";
+      case "Rejected":
+        return "row-rejected";
+      default:
+        return "row-unknown";
     }
   };
 
-  const filteredJobs = normalizedJobs.filter((job) => {
+  // ✅ Filter + search
+  const filteredJobs = jobs.filter((job) => {
     const search = searchTerm.toLowerCase();
     const matchesSearch =
-      job.value.company.toLowerCase().includes(search) ||
-      job.value.title.toLowerCase().includes(search) ||
-      job.value.location.toLowerCase().includes(search);
-
-    const matchesStatus = statusFilter ? job.value.status === statusFilter : true;
-
+      job.company?.toLowerCase().includes(search) ||
+      job.title?.toLowerCase().includes(search) ||
+      job.location?.toLowerCase().includes(search);
+    const matchesStatus = statusFilter ? job.status === statusFilter : true;
     return matchesSearch && matchesStatus;
   });
 
@@ -115,13 +115,19 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     return <div className="jobs-table-empty">No jobs available</div>;
 
   return (
-    <div className="jobs-table-panel" ref={panelRef} style={{ left: position.x, top: position.y }}>
+    <div
+      className="jobs-table-panel"
+      ref={panelRef}
+      style={{ left: position.x, top: position.y }}
+    >
       <div className="jobs-table-header" onMouseDown={handleMouseDown}>
         <h3>Jobs Table</h3>
-        <button className="close-button" onClick={onClose}>×</button>
+        <button className="close-button" onClick={onClose}>
+          ×
+        </button>
       </div>
 
-      {/* Search Input */}
+      {/* 🔍 Search */}
       <input
         type="text"
         className="search-input"
@@ -130,7 +136,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
         onChange={(e) => setSearchTerm(e.target.value)}
       />
 
-      {/* Status Filter Buttons */}
+      {/* Status Filter */}
       <div className="status-filters">
         <button
           className={`status-filter-button ${statusFilter === "" ? "active" : ""}`}
@@ -149,8 +155,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
         ))}
       </div>
 
-
-      {/* Jobs Table */}
+      {/* 📋 Table */}
       <div className="table-wrapper">
         <table className="jobs-table">
           <thead>
@@ -161,43 +166,52 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
               <th>Status</th>
               <th>Platform</th>
               <th>Work Type</th>
-              <th>Updated on</th>
+              <th>Date</th>
               <th>URL</th>
               <th>Notes</th>
             </tr>
           </thead>
           <tbody>
             {filteredJobs.map((job) => (
-              <tr key={job.key} className={getRowColor(jobStatuses[job.key])}>
-                <td>{job.value.company}</td>
-                <td>{job.value.title}</td>
-                <td>{job.value.location}</td>
+              <tr key={job.id} className={getRowColor(jobStatuses[job.id])}>
+                <td>{job.company}</td>
+                <td>{job.title}</td>
+                <td>{job.location}</td>
                 <td>
                   <select
-                    value={jobStatuses[job.key]}
-                    onChange={(e) => handleStatusChange(job.key, e.target.value)}
+                    value={jobStatuses[job.id] || "Unknown"}
+                    onChange={(e) => handleStatusChange(job.id, e.target.value)}
                     className="status-select"
                   >
                     {statusOptions.map((status) => (
-                      <option key={status} value={status}>{status}</option>
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
                     ))}
                   </select>
                 </td>
-                <td>{job.value.platform}</td>
-                <td>{job.value.workType}</td>
-                <td>{job.value.date}</td>
+                <td>{job.platform}</td>
+                <td>{job.work_type}</td>
+                <td>{job.date || "—"}</td>
                 <td>
-                  <a href={job.value.url} target="_blank" rel="noopener noreferrer" className="link">View</a>
+                  <a
+                    href={job.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="link"
+                  >
+                    View
+                  </a>
                 </td>
                 <td>
                   <div
                     className="notes-cell"
                     onClick={() => {
-                      setEditingJobKey(job.key);
-                      setEditingNotes(job.value.notes);
+                      setEditingJobId(job.id);
+                      setEditingNotes(job.notes || "");
                     }}
                   >
-                    {job.value.notes || <span className="placeholder">Add notes...</span>}
+                    {job.notes || <span className="placeholder">Add notes...</span>}
                   </div>
                 </td>
               </tr>
@@ -206,8 +220,8 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
         </table>
       </div>
 
-      {/* Notes Popup */}
-      {editingJobKey && (
+      {/* ✏️ Notes Popup */}
+      {editingJobId && (
         <div className="notes-popup">
           <h4>Edit Notes</h4>
           <textarea
@@ -217,7 +231,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
           />
           <div className="notes-popup-buttons">
             <button onClick={handleSaveNotes}>Save</button>
-            <button onClick={() => setEditingJobKey(null)}>Cancel</button>
+            <button onClick={() => setEditingJobId(null)}>Cancel</button>
           </div>
         </div>
       )}

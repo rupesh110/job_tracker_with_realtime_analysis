@@ -79,6 +79,7 @@ export function safeSendMessage({ action, data }) {
         try {
           activePort.postMessage({ requestId, action, data });
           // Timeout fallback
+          console.log("from main feeder frotnend:", action, data)
           setTimeout(() => {
             if (pendingRequests.has(requestId)) {
               pendingRequests.delete(requestId);

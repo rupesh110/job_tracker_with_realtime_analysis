@@ -9,7 +9,7 @@ export async function handleGeminiMessage({ action, data, requestId }, port) {
     switch (action) {
       case "Gemini_CallAnalysis":
         result = await detailedAnalysis(data);
-        
+        console.log("From gemini_callNaalusis:", result)
         break;
 
       case "Gemini_CoverLetter":

@@ -42,9 +42,6 @@ export async function handleUserMessage({ action, data, requestId }, port) {
       }
 
 
-      /* ------------------------------------------------------
-         ✅ Return user data
-      ------------------------------------------------------ */
       case "User_GetUserData": {
         const user = await getUserData();
         console.log("from background User_GetUserData:", user);

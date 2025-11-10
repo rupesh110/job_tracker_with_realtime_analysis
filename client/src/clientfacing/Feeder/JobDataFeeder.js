@@ -13,7 +13,7 @@ export async function addJob(data) {
 export async function fetchAllJobs() {
   try {
     const response = await safeSendMessage({ action: "Job_FetchAllJobs" });
-    
+    console.log("From fetch all jobs:", response)
     return response || [];
   } catch (err) {
     //console.warn("fetchAllJobs failed:", err.message);
@@ -21,19 +21,23 @@ export async function fetchAllJobs() {
   }
 }
 
-export async function updateJobStatus({ key, newStatus, updatedDate }) {
-  
+export async function updateJobStatus({ id, newStatus, updatedDate }) {
   try {
+    console.log("Sending update to background:", { id, newStatus, updatedDate });
+
     const response = await safeSendMessage({
       action: "Job_UpdateStatus",
-      data: { key, newStatus, updatedDate }  
+      data: { id, newStatus, updatedDate },  // ✅ Use id instead of key
     });
+
+    console.log("From JobDataFeeder response:", response);
     return response || {};
   } catch (err) {
-   // console.warn("updateJobStatus failed:", err.message);
-    return {}; // fallback
+    console.error(" updateJobStatus failed:", err.message);
+    return {};
   }
 }
+
 
 export async function getAllJobStatus() {
   try {
@@ -45,12 +49,12 @@ export async function getAllJobStatus() {
   }
 }
 
-export async function updateJobNotes({ key, notes }) {
+export async function updateJobNotes({ id, notes }) {
   
   try {
     const response = await safeSendMessage({
       action: "Job_UpdateNotes",
-      data: { key, notes }
+      data: { id, notes }
     });
     return response || {};
   } catch (err) {

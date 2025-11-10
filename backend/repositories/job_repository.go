@@ -5,6 +5,8 @@ import (
 	"backend/models"
 	"backend/queries"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/jackc/pgconn"
 )
@@ -18,6 +20,7 @@ func CreateJob(job *models.Job) error {
 		job.Location,
 		job.Platform,
 		job.Status,
+		job.Date,
 		job.UpdatedAt,
 		job.WorkType,
 		job.URL,
@@ -52,6 +55,7 @@ func GetJobsByUser(userID string) ([]models.Job, error) {
 			&j.Location,
 			&j.Platform,
 			&j.Status,
+			&j.Date,
 			&j.UpdatedAt,
 			&j.WorkType,
 			&j.URL,
@@ -66,21 +70,50 @@ func GetJobsByUser(userID string) ([]models.Job, error) {
 }
 
 func UpdateJob(job *models.Job) error {
-	result, err := config.DB.Exec(
-		queries.UpdateJob,
-		job.Status,
-		job.UpdatedAt,
-		job.Notes,
-		job.ID,
-		job.UserID,
-	)
-	if err != nil {
-		return err
+	fields := []string{}
+	values := []interface{}{}
+	i := 1
+
+	// Add only non-empty fields
+	if job.Status != "" {
+		fields = append(fields, fmt.Sprintf("status=$%d", i))
+		values = append(values, job.Status)
+		i++
 	}
 
-	rows, _ := result.RowsAffected()
-	if rows == 0 {
-		return fmt.Errorf("no job found with id=%s for user_id=%s", job.ID, job.UserID)
+	if job.Notes != "" {
+		fields = append(fields, fmt.Sprintf("notes=$%d", i))
+		values = append(values, job.Notes)
+		i++
+	}
+
+	if job.Date != "" {
+		fields = append(fields, fmt.Sprintf("date=$%d", i))
+		values = append(values, job.Date)
+		i++
+	}
+
+	// Always update timestamp
+	fields = append(fields, "updated_at=$"+fmt.Sprint(i))
+	values = append(values, time.Now())
+	i++
+
+	// If no fields provided, skip update
+	if len(fields) == 1 { // only updated_at
+		return fmt.Errorf("no valid fields to update")
+	}
+
+	query := fmt.Sprintf(`
+		UPDATE jobs
+		SET %s
+		WHERE id=$%d AND user_id=$%d;
+	`, strings.Join(fields, ", "), i, i+1)
+
+	values = append(values, job.ID, job.UserID)
+
+	_, err := config.DB.Exec(query, values...)
+	if err != nil {
+		return fmt.Errorf("failed to update job: %v", err)
 	}
 	return nil
 }
