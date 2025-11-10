@@ -111,7 +111,7 @@ func HandleCallback(c *gin.Context) {
 		}
 	}
 
-	log.Printf("Authenticated WorkOS user: %s (%s) %s %s\n", token, email, "____", userID, user)
+	log.Printf("Authenticated WorkOS user: %s (%s) %s %s\n", token, email, userID, user)
 
 	c.Data(http.StatusOK, "text/html", []byte(`
 		<html><body style="font-family:sans-serif;text-align:center;margin-top:50px">
