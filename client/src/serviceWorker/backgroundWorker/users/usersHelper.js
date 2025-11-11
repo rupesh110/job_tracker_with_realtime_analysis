@@ -2,12 +2,13 @@
 
 import { getUserDataDB, setUserDataDB, clearUserDataDB } from "./userDb.js";
 
-const API_BASE =
-  location.hostname === "localhost"
-    ? "http://localhost:8080/api"
-    : "https://jobtracker-backend-299028719782.australia-southeast1.run.app/api";
+// const API_BASE =
+//   location.hostname === "localhost"
+//     ? "http://localhost:8080/api"
+//     : "https://jobtracker-backend-299028719782.australia-southeast1.run.app/api";
 
 
+const API_BASE =  "https://jobtracker-backend-299028719782.australia-southeast1.run.app/api"
 /**
  * Starts login by asking backend to create a session and open WorkOS login tab.
  */

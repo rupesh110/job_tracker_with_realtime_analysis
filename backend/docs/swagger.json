@@ -6,6 +6,7 @@
         "contact": {},
         "version": "1.0"
     },
+    "basePath": "/",
     "paths": {
         "/api/auth/callback": {
             "get": {
@@ -228,6 +229,41 @@
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/jobs/status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all job entries for a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jobs"
+                ],
+                "summary": "Get jobs by user ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
@@ -622,6 +658,7 @@
     },
     "securityDefinitions": {
         "BearerAuth": {
+            "description": "Use your JWT token prefixed with \"Bearer \", e.g. \"Bearer eyJhbGciOiI1NiIsInR5cCI6IkpXVCJ9...\"",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"

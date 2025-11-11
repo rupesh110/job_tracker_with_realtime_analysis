@@ -246,6 +246,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/jobs/status": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve all job entries for a specific user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "jobs"
+                ],
+                "summary": "Get jobs by user ID",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/jobs/{id}": {
             "put": {
                 "security": [
@@ -630,6 +665,7 @@ const docTemplate = `{
     },
     "securityDefinitions": {
         "BearerAuth": {
+            "description": "Use your JWT token prefixed with \"Bearer \", e.g. \"Bearer eyJhbGciOiI1NiIsInR5cCI6IkpXVCJ9...\"",
             "type": "apiKey",
             "name": "Authorization",
             "in": "header"
@@ -641,7 +677,7 @@ const docTemplate = `{
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "",
-	BasePath:         "",
+	BasePath:         "/",
 	Schemes:          []string{},
 	Title:            "Job Tracker API",
 	Description:      "API backend for managing job applications and tracking progress",

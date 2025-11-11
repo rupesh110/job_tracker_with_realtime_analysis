@@ -13,7 +13,8 @@ export default function MainContent() {
     async function fetchStatuses() {
       try {
         const response = await getAllJobStatus(); 
-        setJobCount(response.items || {});
+        setJobCount(response.data || {});
+        console.log("from get all jobs status:", response.data)
       } catch (err) {
         console.error("Failed to fetch job statuses:", err);
       }

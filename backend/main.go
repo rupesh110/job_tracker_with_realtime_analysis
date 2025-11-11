@@ -17,10 +17,11 @@ import (
 // @title Job Tracker API
 // @version 1.0
 // @description API backend for managing job applications and tracking progress
-// @BasePath
+// @BasePath /
 // @securityDefinitions.apikey BearerAuth
 // @in header
 // @name Authorization
+// @description Use your JWT token prefixed with "Bearer ", e.g. "Bearer eyJhbGciOiI1NiIsInR5cCI6IkpXVCJ9..."
 func main() {
 	// Load environment variables silently
 	_ = godotenv.Load()

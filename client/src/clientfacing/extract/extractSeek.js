@@ -16,7 +16,7 @@ export async function extractSeekData() {
 
   // Format today's date
   const dateObj = new Date();
-  const formattedDate = `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`;
+  const formattedDate = dateObj.toISOString().split("T")[0]; 
 
   // Extract full text from body for work type detection
   const fullText = document.body.innerText.toLowerCase();

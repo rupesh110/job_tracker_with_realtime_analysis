@@ -6,7 +6,8 @@ import { getUserData } from "../users/usersHelper.js";
 //     : "https://jobtracker-backend-299028719782.australia-southeast1.run.app/api";
 
 
-const API_BASE = "http://localhost:8080/api";
+const API_BASE =  "https://jobtracker-backend-299028719782.australia-southeast1.run.app/api" //"http://localhost:8080/api";
+//const API_BASE =  "http://localhost:8080/api";
 
 export async function addJob(jobsData) {
   try {
@@ -150,4 +151,39 @@ export async function updateJobNotes({ id, notes, updatedDate }) {
       ...(updatedDate ? { date: updatedDate } : {}),
     },
   });
+}
+
+
+export async function getAllJobsStatus(){
+  try {
+    const userData = await getUserData();
+
+    if (!userData?.token) {
+      console.warn("No auth token found — user might not be logged in");
+      return { error: "Not authenticated" };
+    }
+
+    console.log("🔍 Fetching all jobs for Status:");
+
+    const response = await fetch(`${API_BASE}/jobs/status`, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${userData.token}`, 
+      },
+    });
+
+    const data = await response.json();
+    console.log("From status all --------",data)
+
+    if (!response.ok) {
+      console.error("Backend responded with error:", data);
+      return { error: data.error || "Failed to fetch jobs" };
+    }
+
+    console.log("Successfully fetched jobs staus:", data);
+    return data; // backend should return an array or { jobs: [...] }
+  } catch (err) {
+    console.error("Error fetching jobs:", err);
+    return { error: err.message };
+  }
 }
