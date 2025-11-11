@@ -130,3 +130,22 @@ func DeleteJob(jobID, userID string) error {
 	}
 	return nil
 }
+
+func GetStatusByID(userId string) (map[string]int, error) {
+	rows, err := config.DB.Query(queries.GetStatusByID, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	statusCounts := make(map[string]int)
+	for rows.Next() {
+		var status string
+		var count int
+		if err := rows.Scan(&status, &count); err != nil {
+			return nil, err
+		}
+		statusCounts[status] = count
+	}
+	return statusCounts, nil
+}

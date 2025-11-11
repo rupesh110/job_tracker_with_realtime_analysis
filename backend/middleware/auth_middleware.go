@@ -27,7 +27,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenStr := parts[1]
 
-		// ✅ Verify and fetch WorkOS user details
+		//Verify and fetch WorkOS user details
 		user, err := utils.VerifyWorkOSToken(context.Background(), tokenStr)
 		if err != nil {
 			log.Println("Token verification failed:", err)

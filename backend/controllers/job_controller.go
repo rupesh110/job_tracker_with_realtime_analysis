@@ -157,3 +157,28 @@ func DeleteJob(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"message": "Job deleted successfully"})
 }
+
+// GetJobsStatusCounts godoc
+// @Summary Get jobs by user ID
+// @Description Retrieve all job entries for a specific user
+// @Tags jobs
+// @Security BearerAuth
+// @Produce json
+// @Success 200 {object} map[string]interface{}
+// @Failure 500 {object} map[string]string
+// @Router /api/jobs/status [get]
+func GetJobsStatusCounts(c *gin.Context) {
+	userID := c.GetString("user_id")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "UserID missing"})
+		return
+	}
+
+	counts, err := repositories.GetStatusByID(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": counts})
+}

@@ -18,7 +18,7 @@ export async function extractLinkedInData() {
   const fullText = document.body.innerText.toLowerCase();
 
   const dateObj = new Date();
-  const formattedDate = `${String(dateObj.getDate()).padStart(2,'0')}/${String(dateObj.getMonth()+1).padStart(2,'0')}/${dateObj.getFullYear()}`;
+  const formattedDate = dateObj.toISOString().split("T")[0]; 
 
   const jobData = {
     title: titleEl?.innerText?.trim() || 'N/A',

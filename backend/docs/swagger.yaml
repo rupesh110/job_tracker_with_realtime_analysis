@@ -1,3 +1,4 @@
+basePath: /
 definitions:
   models.Job:
     properties:
@@ -284,6 +285,28 @@ paths:
       summary: Update job details
       tags:
       - jobs
+  /api/jobs/status:
+    get:
+      description: Retrieve all job entries for a specific user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Get jobs by user ID
+      tags:
+      - jobs
   /api/test/items:
     get:
       description: Retrieves all test items from the database
@@ -406,6 +429,7 @@ paths:
       - users
 securityDefinitions:
   BearerAuth:
+    description: Use your JWT token prefixed with "Bearer ", e.g. "Bearer eyJhbGciOiI1NiIsInR5cCI6IkpXVCJ9..."
     in: header
     name: Authorization
     type: apiKey

@@ -42,4 +42,13 @@ const (
 		DELETE FROM jobs
 		WHERE id = $1 AND user_id = $2;
 	`
+
+	GetStatusByID = `
+		SELECT status, COUNT(*) AS count
+			FROM jobs
+			WHERE user_id = $1
+			GROUP BY status
+			ORDER BY count DESC;
+
+	`
 )

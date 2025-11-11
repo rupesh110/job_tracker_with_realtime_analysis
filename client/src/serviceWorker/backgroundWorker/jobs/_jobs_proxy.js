@@ -1,4 +1,4 @@
-import { addJob, fetchAllJobs, updateStatus, updateJobNotes } from "./jobsHelper";
+import { addJob, fetchAllJobs, updateJobStatus, updateJobNotes, getAllJobsStatus } from "./jobsHelper";
 
 export async function handleJobsMessage({ action, data, requestId }, port) {
   try {
@@ -20,12 +20,14 @@ export async function handleJobsMessage({ action, data, requestId }, port) {
       }
 
       case "Job_GetAllJobStatus": {
-        console.log("Job_GetAllJobStatus");
+        const response = await getAllJobsStatus()
+        console.log("Job_GetAllJobStatus:", response);
+        result = response
         break; // use break, not return
       }
 
       case "Job_UpdateStatus":{
-        const response = await updateStatus(data)
+        const response = await updateJobStatus(data)
         console.log("from update status:", response)
         result = response
         break;
@@ -37,8 +39,6 @@ export async function handleJobsMessage({ action, data, requestId }, port) {
         break;
       }
 
-
-      
 
       default: {
         console.warn("[Jobs Proxy] Unknown action:", action);

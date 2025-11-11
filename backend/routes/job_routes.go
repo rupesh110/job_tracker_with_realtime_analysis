@@ -15,5 +15,6 @@ func JobRoutes(r *gin.Engine) {
 		jobs.GET("", controllers.GetJobsByUser)
 		jobs.PUT("/:id", controllers.UpdateJob)
 		jobs.DELETE("/:id", controllers.DeleteJob)
+		jobs.GET("/status", controllers.GetJobsStatusCounts)
 	}
 }
