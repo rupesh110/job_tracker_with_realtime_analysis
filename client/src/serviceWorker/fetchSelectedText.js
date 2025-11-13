@@ -35,11 +35,11 @@ export function setupGeminiContextMenu() {
     });
   });
 
-  // 🚫 Prevent duplicate click listeners on reload
+  // Prevent duplicate click listeners on reload
   chrome.contextMenus.onClicked.removeListener(handleMenuClick);
   chrome.contextMenus.onClicked.addListener(handleMenuClick);
 
-  // 🚫 Prevent duplicate onConnect listeners
+  // Prevent duplicate onConnect listeners
   chrome.runtime.onConnect.removeListener(handlePortConnection);
   chrome.runtime.onConnect.addListener(handlePortConnection);
 }
@@ -74,7 +74,7 @@ async function handleMenuClick(info, tab) {
       sendToAllPorts({ action: "Client_UpdateText", data: latestData });
     }
 
-    // 🧩 Optional content script injection (with guards)
+    // Optional content script injection (with guards)
     if (
       tab &&
       tab.id &&

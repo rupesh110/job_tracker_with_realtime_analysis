@@ -47,12 +47,17 @@ func InitDB() {
 		log.Fatal("Failed to create users table:", err)
 	}
 
-	log.Println("✅ Database initialized successfully")
+	if _, err := DB.Exec(queries.CreateRateLimitsTable); err != nil {
+		log.Fatal("Failed to create rate_limits table:", err)
+
+	}
+
+	log.Println("Database initialized successfully")
 }
 
 func CloseDB() {
 	if DB != nil {
 		DB.Close()
-		fmt.Println("🧹 Database connection closed")
+		fmt.Println("Database connection closed")
 	}
 }

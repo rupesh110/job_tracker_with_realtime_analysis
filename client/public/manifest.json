@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Job Tracker with realtime analysis",
-  "version": "7.0",
+  "version": "7.01",
   "description": "Helps users analyse resumes and save records",
   "background": {
     "service_worker": "assets/background.js",
@@ -13,12 +13,10 @@
     "contextMenus",
     "scripting",
     "activeTab",
-    "tabs",
-    "storage"
+    "tabs"
   ],
   "host_permissions": [
-    "https://script.google.com/*",
-    "https://script.googleusercontent.com/*",
+    "https://jobtracker-backend-299028719782.australia-southeast1.run.app/*",
     "http://localhost:8080/*"
   ],
   "content_scripts": [

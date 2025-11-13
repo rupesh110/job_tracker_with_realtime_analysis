@@ -34,8 +34,8 @@ function getPort() {
       });
 
       port.onDisconnect.addListener(() => {
-        console.warn("[MainFeeder] Port disconnected — cleaning pending requests");
-        cleanupPendingRequests("Service worker disconnected");
+        //console.warn("[MainFeeder] Port disconnected — cleaning pending requests");
+        cleanupPendingRequests();
 
         // Prevent immediate reconnect storm
         reconnectCooldown = true;
@@ -45,7 +45,7 @@ function getPort() {
         }, 500);
       });
     } catch (err) {
-      console.error("[MainFeeder] Failed to establish port:", err);
+      //console.error("[MainFeeder] Failed to establish port:", err);
       port = null;
     }
   }
@@ -62,10 +62,10 @@ export function safeSendMessage({ action, data }) {
       const port = getPort();
 
       if (!port) {
-        console.warn("[MainFeeder] Port unavailable, retrying...");
+        //console.warn("[MainFeeder] Port unavailable, retrying...");
         setTimeout(() => {
           const retryPort = getPort();
-          if (!retryPort) return reject(new Error("Background port unavailable"));
+          if (!retryPort) return //reject(new Error("Background port unavailable"));
           sendWithPort(retryPort);
         }, 200);
       } else {
@@ -79,11 +79,10 @@ export function safeSendMessage({ action, data }) {
         try {
           activePort.postMessage({ requestId, action, data });
           // Timeout fallback
-          console.log("from main feeder frotnend:", action, data)
           setTimeout(() => {
             if (pendingRequests.has(requestId)) {
               pendingRequests.delete(requestId);
-              reject(new Error(`Port request timed out: ${action}`));
+              //reject(new Error(`Port request timed out: ${action}`));
             }
           }, 10000); // 10s timeout
         } catch (err) {

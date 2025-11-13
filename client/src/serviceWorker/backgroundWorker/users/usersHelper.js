@@ -2,18 +2,11 @@
 
 import { getUserDataDB, setUserDataDB, clearUserDataDB } from "./userDb.js";
 
-// const API_BASE =
-//   location.hostname === "localhost"
-//     ? "http://localhost:8080/api"
-//     : "https://jobtracker-backend-299028719782.australia-southeast1.run.app/api";
-
-
 const API_BASE =  "https://jobtracker-backend-299028719782.australia-southeast1.run.app/api"
 /**
  * Starts login by asking backend to create a session and open WorkOS login tab.
  */
 export async function userLogin() {
-  console.log("🔐 Initiating user login...");
   try {
     const res = await fetch(`${API_BASE}/auth/session/start`);
     const { session_id, login_url } = await res.json();
@@ -22,18 +15,13 @@ export async function userLogin() {
       throw new Error("Backend did not return a session_id or login_url");
     }
 
-    console.log("🌀 Starting WorkOS login session:", session_id);
     chrome.tabs.create({ url: login_url });
 
     const userData = await pollForSession(session_id);
-
-    // ✅ Store in IndexedDB
     await setUserDataDB(userData);
 
-    console.log("✅ Logged in and saved user:", userData.email);
     return true;
   } catch (err) {
-    console.error("❌ Failed to start sign-in:", err);
     return false;
   }
 }
@@ -72,7 +60,6 @@ async function pollForSession(sessionId) {
  */
 export async function getUserData() {
   const userData = await getUserDataDB();
-  console.log("From getuserdata:", userData)
   if (!userData & !userData.token) {
     return { error: "Not logged in" };
   }
@@ -83,7 +70,6 @@ export async function getUserData() {
  * Updates user data (e.g., preferences).
  */
 export async function setUserData(data) {
-  console.log("Updating user data in IndexedDB:", data);
   await setUserDataDB(data);
   return data;
 }
@@ -93,7 +79,6 @@ export async function setUserData(data) {
  */
 export async function isUserDataAvailable() {
   const userData = await getUserDataDB();
-  console.log("User data availability check:", userData);
   return !!(userData && userData.token);
 }
 
@@ -102,5 +87,4 @@ export async function isUserDataAvailable() {
  */
 export async function clearUserData() {
   await clearUserDataDB();
-  console.log("🧹 Cleared user data from IndexedDB");
 }

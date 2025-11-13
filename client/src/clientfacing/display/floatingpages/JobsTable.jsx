@@ -24,8 +24,8 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     "Unknown",
   ];
 
-  console.log("From jobs table:", {jobs})
-  // ✅ Initialize statuses
+ 
+  // Initialize statuses
   useEffect(() => {
     const initialStatuses = jobs.reduce((acc, job) => {
       acc[job.id] = job.status || "Unknown";
@@ -34,12 +34,10 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     setJobStatuses(initialStatuses);
   }, [jobs]);
 
-  // ✅ Update job status
+  // Update job status
   const handleStatusChange = async (jobId, newStatus) => {
     const dateObj = new Date();
-    const updatedDate = `${String(dateObj.getDate()).padStart(2, "0")}/${String(
-      dateObj.getMonth() + 1
-    ).padStart(2, "0")}/${dateObj.getFullYear()}`;
+    const updatedDate = dateObj.toISOString().split("T")[0];
 
     setJobStatuses((prev) => ({ ...prev, [jobId]: newStatus }));
 
@@ -52,7 +50,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     if (onStatusChange) onStatusChange(jobId, newStatus, updatedDate);
   };
 
-  // ✅ Save edited notes
+  // Save edited notes
   const handleSaveNotes = async () => {
     try {
       await updateJobNotes({ id: editingJobId, notes: editingNotes });
@@ -63,7 +61,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     }
   };
 
-  // ✅ Drag logic (unchanged)
+  // Drag logic (unchanged)
   const handleMouseDown = (e) => {
     dragging.current = true;
     dragOffset.current = { x: e.clientX - position.x, y: e.clientY - position.y };
@@ -83,7 +81,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     document.removeEventListener("mouseup", handleMouseUp);
   };
 
-  // ✅ Row color helper
+  // Row color helper
   const getRowColor = (status) => {
     switch (status) {
       case "Applied":
@@ -100,7 +98,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     }
   };
 
-  // ✅ Filter + search
+  // Filter + search
   const filteredJobs = jobs.filter((job) => {
     const search = searchTerm.toLowerCase();
     const matchesSearch =

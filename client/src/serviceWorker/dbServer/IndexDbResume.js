@@ -13,7 +13,6 @@ export async function getPDFBlob() {
 }
 // Save PDF Blob in resumeData
 export async function saveResumeBlob(file) {
-  //console.log("From resume storage:", file);
   const db = await getDB();
   return new Promise((resolve, reject) => {
     const tx = db.transaction(RESUME_STORE, "readwrite");
@@ -22,12 +21,10 @@ export async function saveResumeBlob(file) {
     const request = store.put(file, "resumePDF");
 
     request.onsuccess = () => {
-      //console.log("✅ Resume saved in IndexedDB");
       resolve();
     };
 
     request.onerror = () => {
-      //console.error("❌ Failed to save resume:", request.error);
       reject(request.error);
     };
   });

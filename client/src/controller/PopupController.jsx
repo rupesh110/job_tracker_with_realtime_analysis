@@ -17,14 +17,13 @@ export default function PopupController() {
   const prevUrlRef = useRef(window.location.href);
 
 
-  // 🔍 Load user + page data (centralized)
+  // Load user + page data (centralized)
   const loadData = async () => {
     if (ongoingUserCheck.current) return;
     ongoingUserCheck.current = true;
 
     try {
       const userExists = await isUserDataAvailable();
-      console.log("User data exists:", userExists);
       setUserDataExists(userExists);
 
       if (userExists) {
@@ -45,7 +44,7 @@ export default function PopupController() {
     loadData();
   }, []);
 
-  // 🔁 Detect URL change only once per navigation
+  // Detect URL change only once per navigation
   useEffect(() => {
     const observer = new MutationObserver(() => {
       const currentUrl = window.location.href;
@@ -89,7 +88,7 @@ export default function PopupController() {
     return () => port.disconnect();
   }, []);
 
-  // 💾 Save job to backend
+  // Save job to backend
   const handleSave = async () => {
     if (!pageData) return;
     try {
@@ -103,7 +102,7 @@ export default function PopupController() {
     }
   };
 
-  // 🧠 Generate cover letter
+  // Generate cover letter
   const handleCoverLetter = async () => {
     if (!pageData) return;
     try {
@@ -128,7 +127,7 @@ export default function PopupController() {
 
   const handleClose = () => setVisible(false);
 
-  // ✅ After user saves new info
+  // After user saves new info
   const handleUserDataSaved = async () => {
     setShowUserData(false);
     await loadData(); // refresh state after saving

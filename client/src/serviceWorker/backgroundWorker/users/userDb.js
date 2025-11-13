@@ -67,7 +67,6 @@ export async function getUserDataDB() {
 
     req.onsuccess = () => {
       const stored = req.result || {};
-      console.log("Retrieved stored user data from IndexedDB:", stored);
       const user = {
         ...structuredClone(UserModel),
         ...stored,

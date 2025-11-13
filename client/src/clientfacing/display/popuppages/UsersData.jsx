@@ -11,7 +11,7 @@ export default function UsersData({ onClose, onDataSaved }) {
   const [isApiKeyRequired, setIsApiKeyRequired] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  // 📄 Handle resume upload
+  // Handle resume upload
   const handleResumeChange = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -21,13 +21,13 @@ export default function UsersData({ onClose, onDataSaved }) {
     }
   };
 
-  // 🔑 Handle API key input
+  // Handle API key input
   const handleApiKeyChange = (e) => {
     setApiKey(e.target.value);
     setIsApiKeyRequired(!e.target.value.trim());
   };
 
-  // 💾 Save user data
+  // Save user data
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
@@ -46,7 +46,7 @@ export default function UsersData({ onClose, onDataSaved }) {
     try {
       let extractedText = null;
 
-      // 🔍 Extract text from PDF (if uploaded)
+      // Extract text from PDF (if uploaded)
       if (resumeFile && resumeFile.type === "application/pdf") {
         try {
           extractedText = await extractTextFromPDF(resumeFile);
@@ -57,7 +57,7 @@ export default function UsersData({ onClose, onDataSaved }) {
         }
       }
 
-      // 🧠 Prepare payload for storage
+      // Prepare payload for storage
       const newData = {
         resume:{
           name: existingResumeName || resumeFile?.name || "",
@@ -68,7 +68,7 @@ export default function UsersData({ onClose, onDataSaved }) {
 
       await setUserData(newData);
       alert("User data saved successfully!");
-      onDataSaved?.(); // 🔄 Tell PopupController to reload
+      onDataSaved?.(); // Tell PopupController to reload
       onClose();
     } catch (error) {
       console.error("Error saving user data:", error);

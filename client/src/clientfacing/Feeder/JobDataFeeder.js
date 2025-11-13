@@ -22,8 +22,6 @@ export async function fetchAllJobs() {
 
 export async function updateJobStatus({ id, newStatus, updatedDate }) {
   try {
-    console.log("Sending update to background:", { id, newStatus, updatedDate });
-
     const response = await safeSendMessage({
       action: "Job_UpdateStatus",
       data: { id, newStatus, updatedDate },  // ✅ Use id instead of key
@@ -39,7 +37,6 @@ export async function updateJobStatus({ id, newStatus, updatedDate }) {
 export async function getAllJobStatus() {
   try {
     const response = await safeSendMessage({ action: "Job_GetAllJobStatus" });
-    console.log("from feeder get all job status:", response)
     return response || [];
   } catch (err) {
     //console.warn("getAllJobStatus failed:", err.message);

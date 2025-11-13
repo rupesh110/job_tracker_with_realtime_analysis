@@ -10,13 +10,9 @@ import { getUserData} from "../users/usersHelper.js";
 export async function detailedAnalysis({ jobTitle, jobDescription }) {
   
   const usersData = await getUserData();
-  console.log("User Data in detailedAnalysis testing:", usersData);
   const GEMINI_API_KEY = usersData?.geminiApiKey;
-  console.log("Gemini API Key in detailedAnalysis:", GEMINI_API_KEY);
   const resume = usersData?.resume?.text;
-  console.log("Resume in detailedAnalysis:", resume);
-  console.log("This is job titlte:", jobTitle)
-
+  
 
   if (!GEMINI_API_KEY) {
     throw new Error("Gemini API key not found. Please add it in the settings.");
@@ -118,8 +114,6 @@ export async function detailedAnalysis({ jobTitle, jobDescription }) {
   const data = await response.json();
   let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
   
-  console.log("From gemini response:", JSON.stringify(rawText))
-
   if (!rawText) throw new Error("No response from Gemini.");
 
   const maxRetries = 5;

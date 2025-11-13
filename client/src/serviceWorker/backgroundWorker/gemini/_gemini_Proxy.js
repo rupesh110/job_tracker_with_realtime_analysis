@@ -8,17 +8,11 @@ export async function handleGeminiMessage({ action, data, requestId }, port) {
 
     switch (action) {
       case "Gemini_CallAnalysis":
-        console.log("Handling Gemini_CallAnalysis action with data:", data);
         result = await detailedAnalysis(data);
-        
         break;
 
       case "Gemini_CoverLetter":
-        
         result = await geminiCoverLetter(data);
-        
-
-        // ✅ Generate PDF and download directly from Service Worker
         await generateCoverLetter(result, "CoverLetter.pdf");
         break;
 
