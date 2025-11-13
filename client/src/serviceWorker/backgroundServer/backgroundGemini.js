@@ -1,6 +1,6 @@
 import { detailedAnalysis } from "../gemini/geminiDetailedAnalysis";
 import { geminiCoverLetter } from "../gemini/geminiCoverLetter";
-import { generateCoverLetter } from "../gemini/textConvert"; // <-- our SW PDF function
+import { generateCoverLetter } from "../gemini/textConvert"; 
 
 export async function handleGeminiMessage({ action, data, requestId }, port) {
   try {
@@ -9,15 +9,11 @@ export async function handleGeminiMessage({ action, data, requestId }, port) {
     switch (action) {
       case "Gemini_CallAnalysis":
         result = await detailedAnalysis(data);
-        console.log("From gemini_callNaalusis:", result)
         break;
 
       case "Gemini_CoverLetter":
         
         result = await geminiCoverLetter(data);
-        
-
-        // ✅ Generate PDF and download directly from Service Worker
         await generateCoverLetter(result, "CoverLetter.pdf");
         break;
 
@@ -27,7 +23,6 @@ export async function handleGeminiMessage({ action, data, requestId }, port) {
         return true; // handled, response sent
     }
 
-    // Send back the result (text only, PDF already downloaded)
     port.postMessage({ requestId, result });
     return true;
   } catch (err) {

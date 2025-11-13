@@ -5,13 +5,14 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"backend/middleware"
 	"backend/routes"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestHealthRoute(t *testing.T) {
-	router := routes.SetupRouter()
+	router := routes.SetupRouter(middleware.NoopMiddleware())
 
 	req, _ := http.NewRequest("GET", "/health", nil)
 	w := httptest.NewRecorder()
@@ -22,7 +23,7 @@ func TestHealthRoute(t *testing.T) {
 }
 
 func TestNotFoundRoute(t *testing.T) {
-	router := routes.SetupRouter()
+	router := routes.SetupRouter(middleware.NoopMiddleware())
 	req, _ := http.NewRequest("GET", "/nonexistent", nil)
 	w := httptest.NewRecorder()
 	router.ServeHTTP(w, req)

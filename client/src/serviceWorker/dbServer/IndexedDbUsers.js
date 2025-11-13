@@ -31,10 +31,9 @@ export function isUserDataAvailable(tries = 3, delay = 200) {
           (result.value.GeminiAPIKey?.trim() || result.value.resume?.trim())
         );
 
-        return resolve(isAvailable); // ✅ exit cleanly once success
+        return resolve(isAvailable); 
       } catch (err) {
         if (err.message.includes("Extension context invalidated") && attempt < tries) {
-          //console.warn(`Attempt ${attempt} failed: ${err.message}. Retrying in ${delay}ms...`);
           await new Promise(res => setTimeout(res, delay));
         } else {
           return reject(err);
@@ -63,7 +62,6 @@ export function setUserData(value) {
 
 // Get user data (returns defaults if not found)
 export function getUserData() {
-  console.log("From indexDb getUSerData again")
   return getDB().then(db => {
     return new Promise((resolve, reject) => {
       const tx = db.transaction(USERS_STORE, "readonly");
@@ -71,7 +69,6 @@ export function getUserData() {
       const request = store.get(DEFAULT_USER_ID);
 
       request.onsuccess = () => {
-        console.log("from indexdbgetUserData:", request)
         if (request.result) {
           resolve(request.result.value);
         } else {

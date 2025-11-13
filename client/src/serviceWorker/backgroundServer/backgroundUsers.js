@@ -8,14 +8,12 @@ export async function handleUserMessage({ action, data, requestId }, port) {
     switch (action) {
       case "User_isUserDataAvailable": {
         const available = await isUserDataAvailable();
-        console.log("from background User_isUserDataAvailable:", {available})
         result = { available }; // ✅ always inside result
         break;
       }
 
       case "User_GetUserData": {
         const user = await getUserData();
-        console.log("from background User_GetUserData:", {user})
         result = { user }; // ✅ always inside result
         break;
       }

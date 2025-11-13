@@ -10,7 +10,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func SetupRouter() *gin.Engine {
+func SetupRouter(rateLimiter gin.HandlerFunc) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
@@ -22,6 +22,7 @@ func SetupRouter() *gin.Engine {
 		MaxAge:           12 * 60 * 60,
 	}))
 
+	r.Use(rateLimiter)
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "Welcome to Job Tracker Backend!"})
 	})

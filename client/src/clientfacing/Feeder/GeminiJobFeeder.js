@@ -3,7 +3,6 @@ import { safeSendMessage } from "./MainFeeder";
 export async function getGeminiAnalysis({ data }) {
   try {
     const response = await safeSendMessage({ action: "Gemini_CallAnalysis", data });
-    console.log("from frontend feeder call gemini analysis:", data)
     return response;
   } catch (err) {
     //console.warn("getGeminiAnalysis failed:", err.message);
@@ -14,6 +13,7 @@ export async function getGeminiAnalysis({ data }) {
 export async function getCoverLetter(data) {
   try {
     const response = await safeSendMessage({ action: "Gemini_CoverLetter", data });
+    console.log("From main feeder: cover letter:", data)
     return response;
   } catch (err) {
     //console.warn("getCoverLetter failed:", err.message);

@@ -1,5 +1,4 @@
-import { getUserData } from "../../dbServer/IndexedDbUsers.js";
-
+import { getUserData} from "../users/usersHelper.js";
 /**
  * Generate a fully formatted plain text cover letter using Gemini.
  * Extract user info directly from resume, include subject, date, bullets, and spacing.
@@ -8,8 +7,8 @@ import { getUserData } from "../../dbServer/IndexedDbUsers.js";
  */
 export async function geminiCoverLetter(jobData) {
   const usersData = await getUserData();
-  const GEMINI_API_KEY = usersData.GeminiAPIKey;
-  const resume = usersData.resume;
+  const GEMINI_API_KEY = usersData?.geminiApiKey;
+  const resume = usersData?.resume?.text;
 
   if (!GEMINI_API_KEY) throw new Error("Gemini API key not found.");
 
@@ -100,7 +99,6 @@ Ensure the letter is **ready to send**, factual, aligned with the job descriptio
   const data = await response.json();
   let rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
   
-
   if (!rawText) throw new Error("No response from Gemini.");
 
   // Cleanup

@@ -59,7 +59,7 @@ export default function ExtractedDataDisplay({ data }) {
       {loadingGemini && (
         <div className="loading-container">
           <div className="spinner"></div>
-          <p>Analyzing with Gemini...</p>
+          <p>Analysing with Gemini...</p>
         </div>
       )}
 

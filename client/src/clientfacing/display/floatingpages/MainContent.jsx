@@ -14,9 +14,8 @@ export default function MainContent() {
       try {
         const response = await getAllJobStatus(); 
         setJobCount(response.data || {});
-        console.log("from get all jobs status:", response.data)
       } catch (err) {
-        console.error("Failed to fetch job statuses:", err);
+        //console.error("Failed to fetch job statuses:", err);
       }
     }
     fetchStatuses();
@@ -27,8 +26,6 @@ const handleSeeAll = async () => {
   try {
     setLoading(true);
     const data = await fetchAllJobs();
-    console.log("From main content fetch all:", data);
-
     //unwraps if response is { data: [...] } or { jobs: [...] }
     const jobsArray =
       Array.isArray(data)
@@ -39,7 +36,6 @@ const handleSeeAll = async () => {
         ? data.jobs
         : [];
 
-    console.log("Normalized jobs array:", jobsArray);
     setJobsData(jobsArray);
     setShowTable(true);
   } catch (error) {

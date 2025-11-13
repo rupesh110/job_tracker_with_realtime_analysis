@@ -2,9 +2,13 @@ package main
 
 import (
 	"backend/config"
+	"backend/middleware"
+	"backend/repositories"
 	"backend/routes"
+	"backend/services"
 	"log"
 	"os"
+	"time"
 
 	"github.com/joho/godotenv"
 	"github.com/workos/workos-go/v5/pkg/usermanagement"
@@ -32,7 +36,10 @@ func main() {
 	apiKey := os.Getenv("WORKOS_API_KEY")
 	usermanagement.SetAPIKey(apiKey)
 
-	r := routes.SetupRouter()
+	rateLimitRepo := repositories.NewRateLimitRepository()
+	rateLimitService := services.NewRateLimitService(rateLimitRepo, 100, time.Minute)
+
+	r := routes.SetupRouter(middleware.RateLimitMiddleware(rateLimitService, "Authorization"))
 
 	port := os.Getenv("PORT")
 	if port == "" {
