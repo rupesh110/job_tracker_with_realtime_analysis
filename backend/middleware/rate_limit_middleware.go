@@ -9,18 +9,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RateLimitMiddleware(rl *services.RateLimitService, header string) gin.HandlerFunc {
+func RateLimitMiddleware(rl *services.RateLimitService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		token := c.GetHeader(header)
-		if token == "" {
-			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
-				"error": fmt.Sprintf("Missing required header: %s", header),
+		userID := c.GetString("user_id")
+		if userID == "" {
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
+				"error": "Missing user_id. AuthMiddleware must run first.",
 			})
 			return
 		}
 
-		allowed, remaining, reset, err := rl.Check(token)
+		tokenKey := "user:" + userID
+
+		allowed, remaining, reset, err := rl.Check(tokenKey)
 		if err != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
 				"error": fmt.Sprintf("Rate limit check failed: %v", err),
