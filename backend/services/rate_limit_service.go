@@ -3,7 +3,6 @@ package services
 import (
 	"time"
 
-	"backend/models"
 	"backend/repositories"
 )
 
@@ -25,13 +24,14 @@ func (s *RateLimitService) Limit() int {
 	return s.limit
 }
 
-func (s *RateLimitService) Allow(token string) (*models.RateLimit, bool, error) {
-	rl, err := s.repo.UpsertRateLimit(token, s.window)
+func (s *RateLimitService) Check(key string) (allowed bool, remaining int, reset int, err error) {
+	count, ttl, err := s.repo.Increment(key, s.window)
 	if err != nil {
-		return nil, false, err
+		return false, 0, 0, err
 	}
-	if rl.Count > s.limit {
-		return rl, false, nil
-	}
-	return rl, true, nil
+
+	remaining = s.limit - count
+	allowed = count <= s.limit
+
+	return allowed, remaining, ttl, nil
 }

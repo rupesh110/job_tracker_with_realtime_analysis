@@ -1,64 +1,42 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
-	"strings"
 
 	"backend/services"
 
 	"github.com/gin-gonic/gin"
 )
 
-func RateLimitMiddleware(rlService *services.RateLimitService, header string) gin.HandlerFunc {
+func RateLimitMiddleware(rl *services.RateLimitService, header string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		path := c.Request.URL.Path
-
-		// Skip swagger docs
-		if strings.HasPrefix(path, "/swagger") ||
-			path == "/favicon.ico" ||
-			path == "/swagger/index.html" {
-			c.Next()
-			return
-		}
-
-		rawToken := c.GetHeader(header)
-		if rawToken == "" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Missing Authorization header",
+		token := c.GetHeader(header)
+		if token == "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Sprintf("Missing required header: %s", header),
 			})
-			c.Abort()
 			return
 		}
 
-		// Expect: Authorization: Bearer xxx
-		parts := strings.Split(rawToken, " ")
-		if len(parts) != 2 || parts[0] != "Bearer" {
-			c.JSON(http.StatusUnauthorized, gin.H{
-				"error": "Invalid Authorization header format",
-			})
-			c.Abort()
-			return
-		}
-
-		token := parts[1]
-
-		rl, allowed, err := rlService.Allow(token)
+		allowed, remaining, reset, err := rl.Check(token)
 		if err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{
-				"error": "Internal server error",
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"error": fmt.Sprintf("Rate limit check failed: %v", err),
 			})
-			c.Abort()
 			return
 		}
+
+		c.Header("X-RateLimit-Limit", fmt.Sprint(rl.Limit()))
+		c.Header("X-RateLimit-Remaining", fmt.Sprint(remaining))
+		c.Header("X-RateLimit-Reset", fmt.Sprint(reset))
 
 		if !allowed {
-			c.JSON(http.StatusTooManyRequests, gin.H{
-				"error": "Rate limit exceeded",
-				"limit": rlService.Limit(),
-				"count": rl.Count,
+			c.AbortWithStatusJSON(http.StatusTooManyRequests, gin.H{
+				"error":       "Rate limit exceeded",
+				"retry_after": reset,
 			})
-			c.Abort()
 			return
 		}
 

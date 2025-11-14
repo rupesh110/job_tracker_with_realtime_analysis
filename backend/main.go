@@ -33,10 +33,15 @@ func main() {
 	config.InitDB()
 	defer config.CloseDB()
 
+	config.InitRedis()
+
 	apiKey := os.Getenv("WORKOS_API_KEY")
 	usermanagement.SetAPIKey(apiKey)
 
-	rateLimitRepo := repositories.NewRateLimitRepository()
+	upstashURL := os.Getenv("UPSTASH_REDIS_REST_URL")
+	upstashToken := os.Getenv("UPSTASH_REDIS_REST_TOKEN")
+
+	rateLimitRepo := repositories.NewUpstashRateLimitRepository(upstashURL, upstashToken)
 	rateLimitService := services.NewRateLimitService(rateLimitRepo, 100, time.Minute)
 
 	r := routes.SetupRouter(middleware.RateLimitMiddleware(rateLimitService, "Authorization"))
