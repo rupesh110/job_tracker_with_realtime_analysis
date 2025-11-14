@@ -41,6 +41,8 @@ jobs:
           WORKOS_REDIRECT_URI: ${{ secrets.WORKOS_REDIRECT_URI }}
           WORKOS_ISSUER: ${{ secrets.WORKOS_ISSUER }}
           PORT: ${{ secrets.PORT }}
+          UPSTASH_REDIS_REST_URL: ${{ secrets.UPSTASH_REDIS_REST_URL }}
+          UPSTASH_REDIS_REST_TOKEN: ${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
         run: go test ./... -v
 
   deploy:
@@ -61,7 +63,7 @@ jobs:
           service_account_key: ${{ secrets.GCP_SA_KEY }}
           export_default_credentials: true
 
-      # Explicit Docker authentication (fixes "unauthenticated" error)
+      # Explicit Docker authentication
       - name: Authenticate Docker to Artifact Registry
         run: |
           echo '${{ secrets.GCP_SA_KEY }}' > key.json
@@ -84,4 +86,13 @@ jobs:
             --region $REGION \
             --platform managed \
             --allow-unauthenticated \
-            --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }},WORKOS_API_KEY=${{ secrets.WORKOS_API_KEY }},WORKOS_CLIENT_ID=${{ secrets.WORKOS_CLIENT_ID }},WORKOS_REDIRECT_URI=${{ secrets.WORKOS_REDIRECT_URI }},WORKOS_ISSUER=${{ secrets.WORKOS_ISSUER }}"
+            --set-env-vars "
+              DATABASE_URL=${{ secrets.DATABASE_URL }},
+              WORKOS_API_KEY=${{ secrets.WORKOS_API_KEY }},
+              WORKOS_CLIENT_ID=${{ secrets.WORKOS_CLIENT_ID }},
+              WORKOS_REDIRECT_URI=${{ secrets.WORKOS_REDIRECT_URI }},
+              WORKOS_ISSUER=${{ secrets.WORKOS_ISSUER }},
+              UPSTASH_REDIS_REST_URL=${{ secrets.UPSTASH_REDIS_REST_URL }},
+              UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }},
+              PORT=8080
+            "
