@@ -3,7 +3,9 @@ package upstash
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -13,8 +15,17 @@ type UpstashClient struct {
 }
 
 func New(url, token string) *UpstashClient {
+	// sanitize token
+	token = strings.TrimSpace(token)
+	token = strings.Trim(token, "\"")
+	token = strings.ReplaceAll(token, "\n", "")
+	token = strings.ReplaceAll(token, "\r", "")
+	token = strings.ReplaceAll(token, "\t", "")
+
+	fmt.Printf("TOKEN DEBUG BYTES IN CLOUD RUN: %q\n", token)
+
 	return &UpstashClient{
-		URL:   url,
+		URL:   strings.TrimSpace(url),
 		Token: token,
 	}
 }
