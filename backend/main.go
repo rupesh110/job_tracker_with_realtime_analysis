@@ -8,6 +8,7 @@ import (
 	"backend/services"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/joho/godotenv"
@@ -38,8 +39,8 @@ func main() {
 	apiKey := os.Getenv("WORKOS_API_KEY")
 	usermanagement.SetAPIKey(apiKey)
 
-	upstashURL := os.Getenv("UPSTASH_REDIS_REST_URL")
-	upstashToken := os.Getenv("UPSTASH_REDIS_REST_TOKEN")
+	upstashURL := strings.TrimSpace(os.Getenv("UPSTASH_REDIS_REST_URL"))
+	upstashToken := strings.TrimSpace(os.Getenv("UPSTASH_REDIS_REST_TOKEN"))
 
 	rateLimitRepo := repositories.NewUpstashRateLimitRepository(upstashURL, upstashToken)
 	rateLimitService := services.NewRateLimitService(rateLimitRepo, 100, time.Minute)
