@@ -93,6 +93,6 @@ jobs:
               WORKOS_REDIRECT_URI=${{ secrets.WORKOS_REDIRECT_URI }},
               WORKOS_ISSUER=${{ secrets.WORKOS_ISSUER }},
               UPSTASH_REDIS_REST_URL=${{ secrets.UPSTASH_REDIS_REST_URL }},
-              UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }},
-              PORT=8080
+              UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }}
             "
+
