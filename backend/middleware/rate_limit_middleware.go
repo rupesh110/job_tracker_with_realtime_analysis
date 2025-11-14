@@ -9,23 +9,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func RateLimitMiddleware(rl *services.RateLimitService) gin.HandlerFunc {
+func RateLimitMiddleware(rl *services.RateLimitService, header string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
-		userID := c.GetString("user_id")
-		if userID == "" {
-			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-				"error": "Missing user_id. AuthMiddleware must run first.",
+		token := c.GetHeader(header)
+		if token == "" {
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": fmt.Sprintf("Missing required header: %s", header),
 			})
 			return
 		}
 
-		tokenKey := "user:" + userID
-
-		allowed, remaining, reset, err := rl.Check(tokenKey)
+		allowed, remaining, reset, err := rl.Check(token)
 		if err != nil {
+			// Print real error so we can debug Redis
+			fmt.Printf("RateLimit ERROR: %v\n", err)
+
 			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-				"error": fmt.Sprintf("Rate limit check failed: %v", err),
+				"error": err.Error(),
 			})
 			return
 		}
