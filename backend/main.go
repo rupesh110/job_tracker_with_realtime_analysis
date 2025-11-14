@@ -44,7 +44,10 @@ func main() {
 	rateLimitRepo := repositories.NewUpstashRateLimitRepository(upstashURL, upstashToken)
 	rateLimitService := services.NewRateLimitService(rateLimitRepo, 100, time.Minute)
 
-	r := routes.SetupRouter(middleware.RateLimitMiddleware(rateLimitService, "Authorization"))
+	r := routes.SetupRouter(
+		middleware.AuthMiddleware(),
+		middleware.RateLimitMiddleware(rateLimitService),
+	)
 
 	port := os.Getenv("PORT")
 	if port == "" {
