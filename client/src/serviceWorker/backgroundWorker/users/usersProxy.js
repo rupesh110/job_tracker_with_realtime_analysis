@@ -8,15 +8,22 @@ import {
 export async function handleUserMessage({ action, data, requestId }, port) {
   try {
     let result;
-
+  console.log('action: ', action);
     switch (action) {
+    
       /* ------------------------------------------------------
          Check user and auto-login if needed
       ------------------------------------------------------ */
+
       case "User_isUserDataAvailable": {
+        console.log('User_isUserDataAvailable: ');
+
         let available = await isUserDataAvailable();
+        console.log('available1: ', available);
         
         if (!available) {
+          console.log('available: ', available);
+
           const loginSuccess = await userLogin();
           available = !!loginSuccess;
         }

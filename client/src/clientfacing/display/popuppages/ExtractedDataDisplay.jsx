@@ -29,11 +29,9 @@ export default function ExtractedDataDisplay({ data }) {
           data: { jobTitle, jobDescription },
         });
 
-        
-
         // Update state only if this is still the latest request
         if (latestDataRef.current === currentDataId) {
-          setGemini(geminiResponse || {}); // don't just use .available
+          setGemini(geminiResponse || {}); 
         }
       } catch (err) {
         console.error("Gemini fetch failed:", err);

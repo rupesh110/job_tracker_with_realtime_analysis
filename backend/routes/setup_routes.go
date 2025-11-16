@@ -10,7 +10,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func SetupRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
+func SetupRouter(rateLimiter gin.HandlerFunc) *gin.Engine {
 	r := gin.Default()
 
 	// CORS
@@ -23,22 +23,20 @@ func SetupRouter(middlewares ...gin.HandlerFunc) *gin.Engine {
 		MaxAge:           12 * 60 * 60,
 	}))
 
-	// Add middlewares in order
-	for _, m := range middlewares {
-		r.Use(m)
-	}
-
+	// ------------ Public routes ------------
 	r.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"message": "Welcome to Job Tracker Backend!"})
 	})
-
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"status": "ok"})
 	})
 
 	AuthRoutes(r)
 	TestRoutes(r)
-	JobRoutes(r)
+
+	// ------------ Apply rate limit ONLY to job routes ------------
+	JobRoutes(r, rateLimiter)
+
 	UserRoutes(r)
 
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(

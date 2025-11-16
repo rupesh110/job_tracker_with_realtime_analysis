@@ -24,6 +24,7 @@ function handlePortConnection(port) {
 
     try {
       if (action.startsWith("User")) {
+        console.log('User: ', action);
         await Users.handleUserMessage({ action, data, requestId }, port);
       } 
       else if (action.startsWith("Gemini")) {

@@ -31,22 +31,30 @@ func main() {
 	// Load environment variables silently
 	_ = godotenv.Load()
 
+	// Init DB and Redis
 	config.InitDB()
 	defer config.CloseDB()
 
 	config.InitRedis()
 
+	// WorkOS
 	apiKey := os.Getenv("WORKOS_API_KEY")
 	usermanagement.SetAPIKey(apiKey)
 
+	// Upstash Rate Limit
 	upstashURL := strings.TrimSpace(os.Getenv("UPSTASH_REDIS_REST_URL"))
 	upstashToken := strings.TrimSpace(os.Getenv("UPSTASH_REDIS_REST_TOKEN"))
 
 	rateLimitRepo := repositories.NewUpstashRateLimitRepository(upstashURL, upstashToken)
 	rateLimitService := services.NewRateLimitService(rateLimitRepo, 100, time.Minute)
 
-	r := routes.SetupRouter(middleware.RateLimitMiddleware(rateLimitService, "Authorization"))
+	// Create the rate limiter middleware (only passed to job routes)
+	rateLimiter := middleware.RateLimitMiddleware(rateLimitService, "Authorization")
 
+	// Setup routes
+	r := routes.SetupRouter(rateLimiter)
+
+	// Start server
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
