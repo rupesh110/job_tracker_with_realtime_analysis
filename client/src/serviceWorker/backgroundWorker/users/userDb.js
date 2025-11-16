@@ -67,6 +67,8 @@ export async function getUserDataDB() {
 
     req.onsuccess = () => {
       const stored = req.result || {};
+      console.log('stored: ', stored);
+
       const user = {
         ...structuredClone(UserModel),
         ...stored,
@@ -75,6 +77,9 @@ export async function getUserDataDB() {
           ...(stored?.resume || {}),
         },
       };
+      
+      console.log('user from indexDB: ', user);
+
       resolve(user);
     };
 

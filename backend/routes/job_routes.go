@@ -7,8 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func JobRoutes(r *gin.Engine) {
+func JobRoutes(r *gin.Engine, rateLimiter gin.HandlerFunc) {
 	jobs := r.Group("/api/jobs")
+	jobs.Use(rateLimiter)
 	jobs.Use(middleware.AuthMiddleware())
 	{
 		jobs.POST("", controllers.CreateJob)

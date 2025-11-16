@@ -7,6 +7,7 @@ export async function isUserDataAvailable() {
       action: "User_isUserDataAvailable" 
     });
     return !!response
+    console.log("User_isueserdata")
   } catch (err) {
     return false;
   }

@@ -3,6 +3,8 @@
 import { getUserDataDB, setUserDataDB, clearUserDataDB } from "./userDb.js";
 
 const API_BASE =  "https://jobtracker-backend-299028719782.australia-southeast1.run.app/api"
+//const API_BASE =  "http://localhost:8080/api"
+
 /**
  * Starts login by asking backend to create a session and open WorkOS login tab.
  */
@@ -60,7 +62,8 @@ async function pollForSession(sessionId) {
  */
 export async function getUserData() {
   const userData = await getUserDataDB();
-  if (!userData & !userData.token) {
+  console.log("from getUSer data:", userData)
+  if (!userData || !userData.token) {
     return { error: "Not logged in" };
   }
   return userData;
@@ -78,7 +81,9 @@ export async function setUserData(data) {
  * Checks if user data is available.
  */
 export async function isUserDataAvailable() {
+   console.log("from users data from usershelper:")
   const userData = await getUserDataDB();
+ 
   return !!(userData && userData.token);
 }
 

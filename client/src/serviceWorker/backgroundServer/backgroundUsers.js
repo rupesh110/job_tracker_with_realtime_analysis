@@ -8,19 +8,19 @@ export async function handleUserMessage({ action, data, requestId }, port) {
     switch (action) {
       case "User_isUserDataAvailable": {
         const available = await isUserDataAvailable();
-        result = { available }; // ✅ always inside result
+        result = { available }; 
         break;
       }
 
       case "User_GetUserData": {
         const user = await getUserData();
-        result = { user }; // ✅ always inside result
+        result = { user }; 
         break;
       }
 
       case "User_SetUserData": {
         const user = await setUserData(data);
-        result = { user }; // ✅ always inside result
+        result = { user }; 
         break;
       }
 
