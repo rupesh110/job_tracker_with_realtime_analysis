@@ -34,7 +34,6 @@ func SetupRouter(rateLimiter gin.HandlerFunc) *gin.Engine {
 	AuthRoutes(r)
 	TestRoutes(r)
 
-	// ------------ Apply rate limit ONLY to job routes ------------
 	JobRoutes(r, rateLimiter)
 
 	UserRoutes(r)

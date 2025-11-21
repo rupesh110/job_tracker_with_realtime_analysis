@@ -47,11 +47,6 @@ func InitDB() {
 		log.Fatal("Failed to create users table:", err)
 	}
 
-	if _, err := DB.Exec(queries.CreateRateLimitsTable); err != nil {
-		log.Fatal("Failed to create rate_limits table:", err)
-
-	}
-
 	log.Println("Database initialized successfully")
 }
 
