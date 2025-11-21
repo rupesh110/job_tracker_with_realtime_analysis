@@ -2,10 +2,14 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"log"
 	"net/http"
 	"strings"
+	"time"
 
+	"backend/config"
+	"backend/models"
 	"backend/utils"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +31,29 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		tokenStr := parts[1]
 
-		//Verify and fetch WorkOS user details
+		//  Hash token BEFORE using it as a Redis key
+		hashed := utils.HashToken(tokenStr)
+		cacheKey := "auth:" + hashed
+
+		// Try reading from Redis
+		log.Printf("From caching-----------")
+		cachedJSON, _ := config.Redis.Get(cacheKey)
+		if cachedJSON != "" {
+			log.Printf("From caching1-----------")
+			var user models.User
+			if json.Unmarshal([]byte(cachedJSON), &user) == nil {
+				log.Printf("Authenticated user from cache: %s (%s)\n", user.Email, user.ID)
+
+				c.Set("user_id", user.ID)
+				c.Set("user_email", user.Email)
+				c.Set("user_object", user)
+
+				c.Next()
+				return
+			}
+		}
+
+		// Cache miss → verify with WorkOS
 		user, err := utils.VerifyWorkOSToken(context.Background(), tokenStr)
 		if err != nil {
 			log.Println("Token verification failed:", err)
@@ -37,7 +63,11 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		log.Printf("Authenticated user: %s (%s)\n", user.Email, user.ID)
 
-		// Store user info in Gin context for downstream handlers
+		// Cache user data using hashed token key
+		userJSON, _ := json.Marshal(user)
+		_ = config.Redis.Set(cacheKey, string(userJSON), 15*time.Minute)
+
+		// Add user to context
 		c.Set("user_id", user.ID)
 		c.Set("user_email", user.Email)
 		c.Set("user_object", user)

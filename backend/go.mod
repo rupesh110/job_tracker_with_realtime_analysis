@@ -10,6 +10,7 @@ require (
 	github.com/jackc/pgx/v5 v5.7.6
 	github.com/joho/godotenv v1.5.1
 	github.com/lestrrat-go/jwx/v2 v2.1.6
+	github.com/rogpeppe/go-internal v1.11.0
 	github.com/stretchr/testify v1.11.1
 	github.com/workos/workos-go/v5 v5.2.0
 )
