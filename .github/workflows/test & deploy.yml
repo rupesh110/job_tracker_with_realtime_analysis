@@ -127,8 +127,15 @@ jobs:
           curl -X POST \
             -H 'Content-type: application/json' \
             --data "{
-              \"text\":\"${STATUS_EMOJI} *${STATUS_TEXT}*\",
+              \"text\":\" ${STATUS_TEXT} - Service: ${{ env.SERVICE }} | Commit: ${GITHUB_SHA:0:7} | Author: ${{ github.actor }}\",
               \"blocks\":[
+                {
+                  \"type\":\"section\",
+                  \"text\":{
+                    \"type\":\"mrkdwn\",
+                    \"text\":\" *${STATUS_TEXT}*\"
+                  }
+                },
                 {
                   \"type\":\"section\",
                   \"fields\":[
