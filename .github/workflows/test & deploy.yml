@@ -51,6 +51,9 @@ jobs:
     needs: [test]
     if: ${{ success() }}
 
+    outputs:
+      service-url: ${{ steps.deploy-service.outputs.url }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -81,6 +84,7 @@ jobs:
 
       # Deploy to Cloud Run
       - name: Deploy to Cloud Run
+        id: deploy-service
         run: |
           gcloud run deploy $SERVICE \
             --image $IMAGE:$GITHUB_SHA \
@@ -88,12 +92,52 @@ jobs:
             --platform managed \
             --allow-unauthenticated \
             --set-env-vars "DATABASE_URL=${{ secrets.DATABASE_URL }},WORKOS_API_KEY=${{ secrets.WORKOS_API_KEY }},WORKOS_CLIENT_ID=${{ secrets.WORKOS_CLIENT_ID }},WORKOS_REDIRECT_URI=${{ secrets.WORKOS_REDIRECT_URI }},WORKOS_ISSUER=${{ secrets.WORKOS_ISSUER }},UPSTASH_REDIS_REST_URL=${{ secrets.UPSTASH_REDIS_REST_URL }},UPSTASH_REDIS_REST_TOKEN=${{ secrets.UPSTASH_REDIS_REST_TOKEN }}"
+          
+          # Get the service URL
+          SERVICE_URL=$(gcloud run services describe $SERVICE --region $REGION --format 'value(status.url)')
+          echo "url=$SERVICE_URL" >> $GITHUB_OUTPUT
+
+      # Quick health check
+      - name: Health Check
+        run: |
+          SERVICE_URL="${{ steps.deploy-service.outputs.url }}"
+          echo "Checking service health..."
+          
+          for i in {1..5}; do
+            if curl -sf --max-time 10 "${SERVICE_URL}/healthz" > /dev/null; then
+              echo "Health check passed!"
+              exit 0
+            fi
+            echo "Retry $i/5..."
+            sleep 5
+          done
+          
+          echo "Health check failed, but deployment completed"
 
       # Notify deployment success
-      - name: Notify Slack (Deployment Successful)
+      - name: Notify Slack
+        if: always()
         run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            STATUS_TEXT="Deployment Successful"
+          else
+            STATUS_TEXT="Deployment Failed"
+          fi
+          
           curl -X POST \
             -H 'Content-type: application/json' \
-            --data '{"text":"*Cloud Run Deployment Successful!* \nService: `${{ env.SERVICE }}` \nRegion: `${{ env.REGION }}` \nCommit: `${{ github.sha }}`"}' \
+            --data "{
+              \"text\":\"${STATUS_EMOJI} *${STATUS_TEXT}*\",
+              \"blocks\":[
+                {
+                  \"type\":\"section\",
+                  \"fields\":[
+                    {\"type\":\"mrkdwn\",\"text\":\"*Service:*\n\`${{ env.SERVICE }}\`\"},
+                    {\"type\":\"mrkdwn\",\"text\":\"*Commit:*\n\`${GITHUB_SHA:0:7}\`\"},
+                    {\"type\":\"mrkdwn\",\"text\":\"*Author:*\n${{ github.actor }}\"},
+                    {\"type\":\"mrkdwn\",\"text\":\"*URL:*\n${{ steps.deploy-service.outputs.url }}\"}
+                  ]
+                }
+              ]
+            }" \
             ${{ secrets.SLACK_WEBHOOK_URL }}
-
