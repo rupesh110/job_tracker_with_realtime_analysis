@@ -91,7 +91,7 @@ func HandleCallback(c *gin.Context) {
 	token := session.Token
 	userID := session.UserID
 
-	user, err := repositories.GetUserByID(userID)
+	user, err := repositories.UserRepo.GetUserByID(userID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			// Create a new user if not found
@@ -99,7 +99,7 @@ func HandleCallback(c *gin.Context) {
 				ID:    userID,
 				Email: email,
 			}
-			if err := repositories.CreateUser(newUser); err != nil {
+			if err := repositories.UserRepo.CreateUser(newUser); err != nil {
 				c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to create user"})
 				return
 			}

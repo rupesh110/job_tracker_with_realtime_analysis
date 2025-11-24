@@ -28,14 +28,14 @@ func CreateUser(c *gin.Context) {
 	}
 
 	// Check if user already exists in DB
-	createdUser, err := repositories.GetUserByID(user.ID)
+	createdUser, err := repositories.UserRepo.GetUserByID(user.ID)
 	if err == nil && createdUser != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "User already exists"})
 		return
 	}
 
 	// Insert new user into DB
-	if err := repositories.CreateUser(&user); err != nil {
+	if err := repositories.UserRepo.CreateUser(&user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -57,7 +57,7 @@ func CreateUser(c *gin.Context) {
 // @Router /api/users/{id} [get]
 func GetUserByID(c *gin.Context) {
 	id := c.Param("id")
-	user, err := repositories.GetUserByID(id)
+	user, err := repositories.UserRepo.GetUserByID(id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

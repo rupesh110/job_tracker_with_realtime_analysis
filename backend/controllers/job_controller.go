@@ -53,7 +53,7 @@ func CreateJob(c *gin.Context) {
 		UpdatedAt: time.Now(),
 	}
 
-	if err := repositories.CreateJob(&job); err != nil {
+	if err := repositories.JobRepo.CreateJob(&job); err != nil {
 		if strings.Contains(err.Error(), "already exists") {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			return
@@ -77,7 +77,7 @@ func CreateJob(c *gin.Context) {
 func GetJobsByUser(c *gin.Context) {
 	userID := c.GetString("user_id")
 
-	jobs, err := repositories.GetJobsByUser(userID)
+	jobs, err := repositories.JobRepo.GetJobsByUser(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -119,7 +119,7 @@ func UpdateJob(c *gin.Context) {
 		return
 	}
 
-	if err := repositories.UpdateJob(&req); err != nil {
+	if err := repositories.JobRepo.UpdateJob(&req); err != nil {
 		log.Printf("Update failed: %v", err)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -150,7 +150,7 @@ func DeleteJob(c *gin.Context) {
 		return
 	}
 
-	if err := repositories.DeleteJob(jobID, userID); err != nil {
+	if err := repositories.JobRepo.DeleteJob(jobID, userID); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -174,7 +174,7 @@ func GetJobsStatusCounts(c *gin.Context) {
 		return
 	}
 
-	counts, err := repositories.GetStatusByID(userID)
+	counts, err := repositories.JobRepo.GetStatusByID(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
