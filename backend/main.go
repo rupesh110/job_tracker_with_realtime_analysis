@@ -32,6 +32,10 @@ func main() {
 	defer config.CloseDB()
 	config.InitRedis()
 
+	// Initialize repositories
+	repositories.JobRepo = repositories.NewPgRepository()
+	repositories.UserRepo = repositories.NewPgUserRepository()
+
 	usermanagement.SetAPIKey(config.Env.WorkOSKey)
 
 	rateLimitRepo := repositories.NewUpstashRateLimitRepository(
