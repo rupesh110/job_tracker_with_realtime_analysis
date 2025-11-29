@@ -151,9 +151,9 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
         </button>
       </div>
 
-      {/* (status summary bar removed per user request) */}
 
-      {/* 🔍 Search */}
+
+      {/* Search */}
       <input
         type="text"
         className="search-input"
