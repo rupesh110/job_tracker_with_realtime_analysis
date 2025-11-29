@@ -48,6 +48,89 @@
   z-index: 1;
 }
 
+/* Add subtle shadow when content is scrolled */
+.table-wrapper.scrolled .jobs-table thead {
+  box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+}
+
+/* Sorting styles */
+.jobs-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+  position: relative;
+  padding-right: 20px; /* room for indicator */
+}
+.jobs-table th.sortable:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: 2px;
+}
+.jobs-table th.sortable.asc::after,
+.jobs-table th.sortable.desc::after {
+  content: "";
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  transform: translateY(-50%);
+}
+.jobs-table th.sortable.asc::after {
+  border-bottom: 7px solid #555;
+}
+.jobs-table th.sortable.desc::after {
+  border-top: 7px solid #555;
+}
+
+/* Zebra striping (applied only when no status color overrides) */
+.jobs-table tbody tr:nth-child(even):not(.row-applied):not(.row-rejected):not(.row-green):not(.row-unknown) {
+  background-color: #fcfcfc;
+}
+
+/* Highlight the currently sorted column subtly */
+.jobs-table td.sorted-col {
+  background-color: #f8fbff;
+}
+
+/* Focus highlight for selectable rows */
+.jobs-table tbody tr:focus-within,
+.jobs-table tbody tr:focus {
+  outline: 2px solid #0d6efd;
+  outline-offset: -2px;
+}
+
+/* Improve hover contrast when row has background */
+.jobs-table tbody tr.row-applied:hover { background-color: #fff7cc; }
+.jobs-table tbody tr.row-rejected:hover { background-color: #ffd1d1; }
+.jobs-table tbody tr.row-green:hover { background-color: #d9ffe3; }
+.jobs-table tbody tr.row-unknown:hover { background-color: #e5e5e5; }
+
+/* Notes cell truncation (prevent giant blocks) */
+.notes-cell {
+  max-width: 180px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.notes-cell:hover {
+  white-space: normal; /* expand on hover */
+  word-break: break-word;
+}
+
+/* Accessible hidden text utility */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .jobs-table tr:hover {
   background-color: #f9f9f9;
 }
@@ -66,21 +149,61 @@
   background: white url("data:image/svg+xml;utf8,<svg fill='black' height='16' viewBox='0 0 24 24' width='16' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 10px center;
   background-size: 12px;
 
-  padding: 5px 30px 5px 10px; /* extra right padding for arrow */
+  padding: 6px 34px 6px 12px; /* slightly larger padding */
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
   cursor: pointer;
+  min-width: 150px; /* ensure visible width */
+  max-width: 190px; /* prevent overflow */
+  width: 100%;
 }
+
+/* Status select visual indicators */
+.status-select {
+  position: relative;
+  border-left: 4px solid #bbb; /* default */
+  transition: background-color 0.25s, border-color 0.25s;
+}
+.status-select:focus { outline: 2px solid #0d6efd; outline-offset: 2px; }
+
+.status-select.status-applied { border-left-color: #f0c200; background-color: #fffdf2; }
+.status-select.status-recruiters-call { border-left-color: #6fa3ff; background-color: #f3f9ff; }
+.status-select.status-1st-round { border-left-color: #4dabf7; background-color: #f3f9ff; }
+.status-select.status-interview { border-left-color: #2b8a3e; background-color: #f2fff5; }
+.status-select.status-offer { border-left-color: #1e7e34; background-color: #edffef; font-weight: 600; }
+.status-select.status-rejected { border-left-color: #d93025; background-color: #ffe2e2; }
+.status-select.status-follow-up { border-left-color: #ff9800; background-color: #fff6e6; }
+.status-select.status-unknown { border-left-color: #999; background-color: #f4f4f4; color: #666; font-style: italic; }
+
+.status-select:hover { background-color: #f6faff; }
 
 
 .search-input {
-  width: auto;
-  padding: 8px 12px;
-  margin-bottom: 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  font-size: 14px;
+  width: 100%;
+  height: 40px !important; /* enforce taller input */
+  padding: 14px 18px !important; /* enforce padding */
+  font-size: 18px !important; /* enforce larger text */
+  line-height: 28px;
+  border-radius: 10px;
+  border: 1px solid #d0d0d0;
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: all 0.25s ease;
+}
+
+/* Increase specificity in case of global overrides */
+.jobs-table-panel .search-input {
+  height: 56px;
+  padding: 14px 18px; /* simple padding */
+  font-size: 18px;
+}
+
+
+.search-input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 0 3px rgba(74,144,226,0.25);
+  outline: none;
 }
 
 .close-button {

@@ -10,6 +10,7 @@ export default function UsersData({ onClose, onDataSaved }) {
   const [isResumeRequired, setIsResumeRequired] = useState(true);
   const [isApiKeyRequired, setIsApiKeyRequired] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [showInstructions, setShowInstructions] = useState(false);
 
   // Handle resume upload
   const handleResumeChange = (e) => {
@@ -104,15 +105,74 @@ export default function UsersData({ onClose, onDataSaved }) {
 
         {/* API Key Input */}
         <div className="form-group">
-          <label htmlFor="apikey">Google API Key:</label>
+          <label htmlFor="apikey">Google Gemini API Key:</label>
+          
+          {showInstructions && (
+            <div style={{
+              background: "#f0f8ff",
+              padding: "15px",
+              borderRadius: "8px",
+              marginBottom: "10px",
+              fontSize: "14px",
+              border: "1px solid #4a90e2"
+            }}>
+              <p style={{margin: "0 0 12px 0", fontWeight: "bold", fontSize: "15px"}}>📝 Step-by-Step Guide:</p>
+              <ol style={{margin: 0, paddingLeft: "20px", lineHeight: "1.8"}}>
+                <li>Click <strong>"🔑 Get API Key"</strong> button below</li>
+                <li>Sign in with your Google account</li>
+                <li>
+                  <strong>If you see "No projects":</strong>
+                  <ul style={{marginTop: "4px", paddingLeft: "20px"}}>
+                    <li>Click <strong>"Create a Google Cloud project"</strong></li>
+                    <li>Accept the terms and click <strong>"Continue"</strong></li>
+                  </ul>
+                </li>
+                <li>Click <strong>"Create API Key"</strong> (blue button)</li>
+                <li>Copy the key that appears</li>
+                <li>Paste it in the field below</li>
+              </ol>
+              <div style={{
+                marginTop: "12px",
+                padding: "10px",
+                background: "#e8f5e9",
+                borderRadius: "6px",
+                fontSize: "13px"
+              }}>
+                <p style={{margin: 0, fontWeight: "bold", color: "#2e7d32"}}>✨ 100% Free!</p>
+                <p style={{margin: "4px 0 0 0", color: "#555"}}>
+                  • No credit card required<br/>
+                  • 1,500 requests per day<br/>
+                  • Takes less than 2 minutes
+                </p>
+              </div>
+            </div>
+          )}
+
           <input
             type="text"
             id="apikey"
             value={apiKey}
             onChange={handleApiKeyChange}
-            placeholder="Enter your Google API key"
+            placeholder="Paste your API key here"
             disabled={loading}
+            style={{fontFamily: "monospace"}}
           />
+          
+          <button
+            type="button"
+            onClick={() => setShowInstructions(!showInstructions)}
+            style={{
+              marginTop: "8px",
+              padding: "6px 12px",
+              fontSize: "12px",
+              background: "#f5f5f5",
+              border: "1px solid #ddd",
+              borderRadius: "4px",
+              cursor: "pointer"
+            }}
+          >
+            {showInstructions ? "Hide" : "Show"} Instructions
+          </button>
         </div>
 
         {/* Buttons */}
@@ -123,11 +183,16 @@ export default function UsersData({ onClose, onDataSaved }) {
               window.open("https://aistudio.google.com/app/apikey", "_blank")
             }
             disabled={loading}
+            style={{
+              background: "#4285f4",
+              color: "white",
+              fontWeight: "bold"
+            }}
           >
-            Get New KEY
+            🔑 Get API Key
           </button>
           <button type="submit" className="submit-btn" disabled={loading}>
-            {loading ? "Saving..." : "Save"}
+            {loading ? "Saving..." : "💾 Save"}
           </button>
         </div>
       </form>

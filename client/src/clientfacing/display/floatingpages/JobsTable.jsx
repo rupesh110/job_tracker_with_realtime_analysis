@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { updateJobStatus, updateJobNotes } from "../../Feeder/JobDataFeeder.js";
 import "./JobsTable.css";
 
@@ -7,11 +7,14 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [position, setPosition] = useState({ x: 20, y: 20 });
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
+  const [scrolled, setScrolled] = useState(false);
   const [editingJobId, setEditingJobId] = useState(null);
   const [editingNotes, setEditingNotes] = useState("");
   const panelRef = useRef(null);
   const dragOffset = useRef({ x: 0, y: 0 });
   const dragging = useRef(false);
+  // (wrapperRef removed - no longer needed after summary bar removal)
 
   const statusOptions = [
     "Applied",
@@ -33,6 +36,7 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     }, {});
     setJobStatuses(initialStatuses);
   }, [jobs]);
+
 
   // Update job status
   const handleStatusChange = async (jobId, newStatus) => {
@@ -109,6 +113,28 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
     return matchesSearch && matchesStatus;
   });
 
+  const sortedJobs = useMemo(() => {
+    if (!sortConfig.key) return filteredJobs;
+    const sorted = [...filteredJobs].sort((a,b) => {
+      const aVal = (a[sortConfig.key] || '').toString().toLowerCase();
+      const bVal = (b[sortConfig.key] || '').toString().toLowerCase();
+      if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+      if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return sorted;
+  }, [filteredJobs, sortConfig]);
+
+  const toggleSort = (key) => {
+    setSortConfig((prev) => {
+      if (prev.key === key) {
+        // toggle direction
+        return { key, direction: prev.direction === 'asc' ? 'desc' : 'asc' };
+      }
+      return { key, direction: 'asc' };
+    });
+  };
+
   if (!jobs || jobs.length === 0)
     return <div className="jobs-table-empty">No jobs available</div>;
 
@@ -124,6 +150,8 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
           ×
         </button>
       </div>
+
+      {/* (status summary bar removed per user request) */}
 
       {/* 🔍 Search */}
       <input
@@ -154,32 +182,80 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
       </div>
 
       {/* 📋 Table */}
-      <div className="table-wrapper">
+      <div className={`table-wrapper ${scrolled ? 'scrolled' : ''}`} onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}>
         <table className="jobs-table">
           <thead>
             <tr>
-              <th>Company</th>
-              <th>Title</th>
-              <th>Location</th>
+              <th
+                tabIndex={0}
+                onClick={() => toggleSort('company')}
+                onKeyDown={(e) => e.key === 'Enter' && toggleSort('company')}
+                className={`sortable ${sortConfig.key === 'company' ? sortConfig.direction : ''}`}
+                aria-sort={sortConfig.key === 'company' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+              >
+                Company
+                <span className="sr-only">Sort by company</span>
+              </th>
+              <th
+                tabIndex={0}
+                onClick={() => toggleSort('title')}
+                onKeyDown={(e) => e.key === 'Enter' && toggleSort('title')}
+                className={`sortable ${sortConfig.key === 'title' ? sortConfig.direction : ''}`}
+                aria-sort={sortConfig.key === 'title' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+              >
+                Title
+                <span className="sr-only">Sort by title</span>
+              </th>
+              <th
+                tabIndex={0}
+                onClick={() => toggleSort('location')}
+                onKeyDown={(e) => e.key === 'Enter' && toggleSort('location')}
+                className={`sortable ${sortConfig.key === 'location' ? sortConfig.direction : ''}`}
+                aria-sort={sortConfig.key === 'location' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+              >
+                Location
+                <span className="sr-only">Sort by location</span>
+              </th>
               <th>Status</th>
               <th>Platform</th>
-              <th>Work Type</th>
-              <th>Date</th>
+              <th
+                tabIndex={0}
+                onClick={() => toggleSort('work_type')}
+                onKeyDown={(e) => e.key === 'Enter' && toggleSort('work_type')}
+                className={`sortable ${sortConfig.key === 'work_type' ? sortConfig.direction : ''}`}
+                aria-sort={sortConfig.key === 'work_type' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+              >
+                Work Type
+                <span className="sr-only">Sort by work type</span>
+              </th>
+              <th
+                tabIndex={0}
+                onClick={() => toggleSort('date')}
+                onKeyDown={(e) => e.key === 'Enter' && toggleSort('date')}
+                className={`sortable ${sortConfig.key === 'date' ? sortConfig.direction : ''}`}
+                aria-sort={sortConfig.key === 'date' ? (sortConfig.direction === 'asc' ? 'ascending' : 'descending') : 'none'}
+              >
+                Date
+                <span className="sr-only">Sort by date</span>
+              </th>
               <th>URL</th>
               <th>Notes</th>
             </tr>
           </thead>
           <tbody>
-            {filteredJobs.map((job) => (
+            {sortedJobs.map((job) => (
               <tr key={job.id} className={getRowColor(jobStatuses[job.id])}>
-                <td>{job.company}</td>
-                <td>{job.title}</td>
-                <td>{job.location}</td>
+                <td className={`${sortConfig.key === 'company' ? 'sorted-col' : ''}`}>{job.company}</td>
+                <td className={`${sortConfig.key === 'title' ? 'sorted-col' : ''}`}>{job.title}</td>
+                <td className={`${sortConfig.key === 'location' ? 'sorted-col' : ''}`}>{job.location}</td>
                 <td>
                   <select
                     value={jobStatuses[job.id] || "Unknown"}
                     onChange={(e) => handleStatusChange(job.id, e.target.value)}
-                    className="status-select"
+                    className={`status-select status-${(jobStatuses[job.id] || 'Unknown')
+                      .replace(/\s+/g,'-')
+                      .toLowerCase()}`}
+                    aria-label={`Change status for ${job.company || 'job'}: ${(jobStatuses[job.id] || 'Unknown')}`}
                   >
                     {statusOptions.map((status) => (
                       <option key={status} value={status}>
@@ -189,8 +265,8 @@ export default function JobsTable({ jobs, onStatusChange, onClose }) {
                   </select>
                 </td>
                 <td>{job.platform}</td>
-                <td>{job.work_type}</td>
-                <td>{job.date || "—"}</td>
+                <td className={`${sortConfig.key === 'work_type' ? 'sorted-col' : ''}`}>{job.work_type}</td>
+                <td className={`${sortConfig.key === 'date' ? 'sorted-col' : ''}`}>{job.date || "—"}</td>
                 <td>
                   <a
                     href={job.url}

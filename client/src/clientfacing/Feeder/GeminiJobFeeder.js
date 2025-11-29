@@ -13,7 +13,6 @@ export async function getGeminiAnalysis({ data }) {
 export async function getCoverLetter(data) {
   try {
     const response = await safeSendMessage({ action: "Gemini_CoverLetter", data });
-    console.log("From main feeder: cover letter:", data)
     return response;
   } catch (err) {
     //console.warn("getCoverLetter failed:", err.message);
