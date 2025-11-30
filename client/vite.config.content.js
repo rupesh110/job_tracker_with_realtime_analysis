@@ -21,4 +21,13 @@ export default defineConfig({
     emptyOutDir: false, // don't delete dist so background build files stay
     target: "esnext",
   },
+  resolve: {
+    alias: {
+      "@config": resolve(__dirname, "src/config/index.js"),
+      "@services": resolve(__dirname, "src/services"),
+      "@gemini": resolve(__dirname, "src/serviceWorker/backgroundWorker/gemini"),
+      "@userDB": resolve(__dirname, "src/serviceWorker/backgroundWorker/users/userDb.js"),
+      "@userHelper": resolve(__dirname, "src/serviceWorker/backgroundWorker/users/usersHelper.js")
+    }
+  },
 });
