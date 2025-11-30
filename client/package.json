@@ -12,6 +12,13 @@
     "watch:background": "vite build --watch --config vite.config.background.js",
     "watch": "concurrently \"npm run watch:content\" \"npm run watch:background\""
   },
+  "imports": {
+    "@config": "src/config/index.js",
+    "@services": "src/services",
+    "@gemini": "src/serviceWorker/backgroundWorker/gemini",
+    "@userDB": "src/serviceWorker/backgroundWorker/users/userDb.js",
+    "@userHelper": "src/serviceWorker/backgroundWorker/users/usersHelper.js"
+  },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.7.0",
     "concurrently": "^8.2.2",
