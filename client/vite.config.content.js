@@ -18,7 +18,7 @@ export default defineConfig({
         format: "iife",
       },
     },
-    emptyOutDir: false, // don't delete dist so background build files stay
+    emptyOutDir: false, 
     target: "esnext",
   },
 });
