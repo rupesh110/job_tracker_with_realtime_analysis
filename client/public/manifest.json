@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Job Tracker with realtime analysis",
-  "version": "7.02",
+  "version": "7.03",
   "description": "Helps users analyse resumes and save records",
   "background": {
     "service_worker": "assets/background.js",
