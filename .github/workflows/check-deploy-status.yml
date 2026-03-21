@@ -1,0 +1,196 @@
+name: PR Deployment Status Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deployment-status:
+    name: Check deployment status
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch main and tags
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main --prune
+          git fetch origin --tags --force
+
+      - name: Build deployment status summary
+        id: summary
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BASE_REF="origin/main"
+
+          PR_COMMIT=$(git log "$BASE_REF" --grep="#[0-9]" -1 --pretty=format:%H || true)
+          PR_INFO=$(git log "$BASE_REF" --grep="#[0-9]" -1 --oneline || true)
+
+          TEST_TAG=$(git tag --list '*-test' --sort=version:refname | tail -n 1 || true)
+          PREPROD_TAG=$(git tag --list '*-preprod' --sort=version:refname | tail -n 1 || true)
+          PROD_TAG=$(git tag --list '*-prod' --sort=version:refname | tail -n 1 || true)
+
+          TEST_BASE="${TEST_TAG%-test}"
+          PREPROD_BASE="${PREPROD_TAG%-preprod}"
+          PROD_BASE="${PROD_TAG%-prod}"
+
+          if [ -n "$TEST_TAG" ] && [ -n "$PREPROD_TAG" ] && [ -n "$PROD_TAG" ] \
+             && [ "$TEST_BASE" = "$PREPROD_BASE" ] && [ "$TEST_BASE" = "$PROD_BASE" ]; then
+            ALL_ENVS_ALIGNED="YES"
+            SAFE_TO_MERGE="YES"
+          else
+            ALL_ENVS_ALIGNED="NO"
+            SAFE_TO_MERGE="MAYBE"
+          fi
+
+          DEPLOYED_TEST="tag not found"
+          DEPLOYED_PREPROD="tag not found"
+          DEPLOYED_PROD="tag not found"
+
+          if [ -n "$PR_COMMIT" ] && [ -n "$TEST_TAG" ]; then
+            if git merge-base --is-ancestor "$PR_COMMIT" "$TEST_TAG"; then
+              DEPLOYED_TEST="YES"
+            else
+              DEPLOYED_TEST="NO"
+            fi
+          fi
+
+          if [ -n "$PR_COMMIT" ] && [ -n "$PREPROD_TAG" ]; then
+            if git merge-base --is-ancestor "$PR_COMMIT" "$PREPROD_TAG"; then
+              DEPLOYED_PREPROD="YES"
+            else
+              DEPLOYED_PREPROD="NO"
+            fi
+          fi
+
+          if [ -n "$PR_COMMIT" ] && [ -n "$PROD_TAG" ]; then
+            if git merge-base --is-ancestor "$PR_COMMIT" "$PROD_TAG"; then
+              DEPLOYED_PROD="YES"
+            else
+              DEPLOYED_PROD="NO"
+            fi
+          fi
+
+          TEST_SHA=""
+          PREPROD_SHA=""
+          PROD_SHA=""
+
+          if [ -n "$TEST_TAG" ]; then
+            TEST_SHA=$(git rev-parse "$TEST_TAG")
+          fi
+
+          if [ -n "$PREPROD_TAG" ]; then
+            PREPROD_SHA=$(git rev-parse "$PREPROD_TAG")
+          fi
+
+          if [ -n "$PROD_TAG" ]; then
+            PROD_SHA=$(git rev-parse "$PROD_TAG")
+          fi
+
+          LAST_FIVE=$(git log "$BASE_REF" --grep="#[0-9]" -5 --date=short --pretty=format:'%h - %an - %ad : %s' || true)
+
+          NEXT_PROD=""
+          if [ -n "$PROD_TAG" ]; then
+            NEXT_PROD=$(git log "${PROD_TAG}..$BASE_REF" --grep="#[0-9]" --date=short --pretty=format:'%h - %an - %ad : %s' || true)
+          fi
+
+          {
+            echo "body<<EOF"
+            echo "<!-- deployment-status-comment -->"
+            echo "## Deployment status"
+            echo
+
+            if [ -n "$PR_COMMIT" ]; then
+              echo "- **Latest PR-like commit on \`main\`:** \`$PR_INFO\`"
+              echo "- **Full commit SHA:** \`$PR_COMMIT\`"
+            else
+              echo "- **Latest PR-like commit on \`main\`:** _Not found_"
+            fi
+
+            echo
+            echo "### Environment tags"
+            echo "- **Test:** \`${TEST_TAG:-not found}\`"
+            echo "- **Preprod:** \`${PREPROD_TAG:-not found}\`"
+            echo "- **Prod:** \`${PROD_TAG:-not found}\`"
+            echo
+            echo "### Environment alignment"
+            echo "- **All envs aligned:** **$ALL_ENVS_ALIGNED**"
+            echo "- **Safe to merge to main:** **$SAFE_TO_MERGE**"
+            echo
+            echo "### Latest PR-like commit deployed status"
+            echo "- **Deployed to test:** **$DEPLOYED_TEST**"
+            echo "- **Deployed to preprod:** **$DEPLOYED_PREPROD**"
+            echo "- **Deployed to prod:** **$DEPLOYED_PROD**"
+            echo
+            echo "### Tag commit SHAs"
+            echo "- **Test:** \`${TEST_SHA:-not found}\`"
+            echo "- **Preprod:** \`${PREPROD_SHA:-not found}\`"
+            echo "- **Prod:** \`${PROD_SHA:-not found}\`"
+            echo
+            echo "### Last 5 PR-like commits on \`main\`"
+            if [ -n "$LAST_FIVE" ]; then
+              echo '```'
+              echo "$LAST_FIVE"
+              echo '```'
+            else
+              echo "_None found_"
+            fi
+            echo
+            echo "### PR-like commits that would go out in next prod deploy"
+            if [ -n "$PROD_TAG" ]; then
+              if [ -n "$NEXT_PROD" ]; then
+                echo '```'
+                echo "$NEXT_PROD"
+                echo '```'
+              else
+                echo "_None_"
+              fi
+            else
+              echo "_Prod tag not found_"
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create or update sticky PR comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BODY: ${{ steps.summary.outputs.body }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          EXISTING_COMMENT_ID=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/$REPO/issues/$PR_NUMBER/comments" \
+            --paginate \
+            | jq -r '.[] | select(.body | contains("<!-- deployment-status-comment -->")) | .id' \
+            | head -n 1)
+
+          if [ -n "${EXISTING_COMMENT_ID:-}" ]; then
+            gh api \
+              --method PATCH \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/$REPO/issues/comments/$EXISTING_COMMENT_ID" \
+              -f body="$BODY" > /dev/null
+          else
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/$REPO/issues/$PR_NUMBER/comments" \
+              -f body="$BODY" > /dev/null
+          fi
