@@ -4,12 +4,11 @@ on:
   pull_request:
     types: [opened, synchronize, reopened, ready_for_review]
     branches:
-      - main
+      - master
 
 permissions:
   contents: read
   pull-requests: write
-  deployments: read
 
 jobs:
   deployment-status:
@@ -22,135 +21,145 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch base branch and tags
-        run: |
-          git fetch origin ${{ github.event.pull_request.base.ref }} --prune
-          git fetch --tags --force
-
-      - name: Find latest successful production deployment
-        id: deployment
-        env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
+      - name: Fetch master and tags
         shell: bash
         run: |
           set -euo pipefail
+          git fetch origin master --prune
+          git fetch origin --tags --force
 
-          DEPLOYMENTS=$(gh api \
-            -H "Accept: application/vnd.github+json" \
-            "/repos/$REPO/deployments?environment=production&per_page=30")
-
-          DEPLOYED_SHA=""
-          DEPLOYMENT_ID=""
-
-          for id in $(echo "$DEPLOYMENTS" | jq -r '.[].id'); do
-            SHA=$(echo "$DEPLOYMENTS" | jq -r ".[] | select(.id == $id) | .sha")
-
-            STATUSES=$(gh api \
-              -H "Accept: application/vnd.github+json" \
-              "/repos/$REPO/deployments/$id/statuses?per_page=20")
-
-            SUCCESS_STATE=$(echo "$STATUSES" | jq -r 'map(select(.state == "success")) | first | .state // empty')
-
-            if [ "$SUCCESS_STATE" = "success" ]; then
-              DEPLOYED_SHA="$SHA"
-              DEPLOYMENT_ID="$id"
-              break
-            fi
-          done
-
-          if [ -z "$DEPLOYED_SHA" ]; then
-            echo "has_deployment=false" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-
-          echo "has_deployment=true" >> "$GITHUB_OUTPUT"
-          echo "deployed_sha=$DEPLOYED_SHA" >> "$GITHUB_OUTPUT"
-          echo "deployment_id=$DEPLOYMENT_ID" >> "$GITHUB_OUTPUT"
-
-      - name: Build PR comment
+      - name: Build deployment status summary
         id: summary
         shell: bash
         run: |
           set -euo pipefail
 
-          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
-          PR_HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+          BASE_REF="origin/master"
 
-          if [ "${{ steps.deployment.outputs.has_deployment }}" != "true" ]; then
-            {
-              echo "body<<EOF"
-              echo "<!-- deployment-status-comment -->"
-              echo "## Deployment status"
-              echo
-              echo "Could not find a successful GitHub deployment for environment \`production\`."
-              echo
-              echo "This check works only when production deployments are recorded in GitHub Deployments / Environments."
-              echo "EOF"
-            } >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
+          PR_COMMIT=$(git log "$BASE_REF" --grep="#[0-9]" -1 --pretty=format:%H || true)
+          PR_INFO=$(git log "$BASE_REF" --grep="#[0-9]" -1 --oneline || true)
 
-          DEPLOYED_SHA="${{ steps.deployment.outputs.deployed_sha }}"
+          TEST_TAG=$(git tag --list '*-test' --sort=version:refname | tail -n 1 || true)
+          PREPROD_TAG=$(git tag --list '*-preprod' --sort=version:refname | tail -n 1 || true)
+          PROD_TAG=$(git tag --list '*-prod' --sort=version:refname | tail -n 1 || true)
 
-          LAST_MERGE_SHA=$(git log "$BASE_REF" --merges -1 --pretty=format:%H || true)
-          LAST_MERGE_INFO=$(git log "$BASE_REF" --merges -1 --oneline || true)
+          TEST_BASE="${TEST_TAG%-test}"
+          PREPROD_BASE="${PREPROD_TAG%-preprod}"
+          PROD_BASE="${PROD_TAG%-prod}"
 
-          if [ -n "$LAST_MERGE_SHA" ] && git merge-base --is-ancestor "$LAST_MERGE_SHA" "$DEPLOYED_SHA"; then
-            LAST_MERGE_DEPLOYED="Yes"
+          if [ -n "$TEST_TAG" ] && [ -n "$PREPROD_TAG" ] && [ -n "$PROD_TAG" ] \
+             && [ "$TEST_BASE" = "$PREPROD_BASE" ] && [ "$TEST_BASE" = "$PROD_BASE" ]; then
+            ALL_ENVS_ALIGNED="YES"
+            SAFE_TO_MERGE="YES"
           else
-            LAST_MERGE_DEPLOYED="No"
+            ALL_ENVS_ALIGNED="NO"
+            SAFE_TO_MERGE="MAYBE"
           fi
 
-          if git merge-base --is-ancestor "$PR_HEAD_SHA" "$DEPLOYED_SHA"; then
-            PR_ALREADY_DEPLOYED="Yes"
-          else
-            PR_ALREADY_DEPLOYED="No"
+          DEPLOYED_TEST="tag not found"
+          DEPLOYED_PREPROD="tag not found"
+          DEPLOYED_PROD="tag not found"
+
+          if [ -n "$PR_COMMIT" ] && [ -n "$TEST_TAG" ]; then
+            if git merge-base --is-ancestor "$PR_COMMIT" "$TEST_TAG"; then
+              DEPLOYED_TEST="YES"
+            else
+              DEPLOYED_TEST="NO"
+            fi
           fi
 
-          UNDEPLOYED_MAIN=$(git log --oneline --no-merges "$DEPLOYED_SHA..$BASE_REF" || true)
-          PR_ONLY_COMMITS=$(git log --oneline --no-merges "$BASE_REF..$PR_HEAD_SHA" || true)
+          if [ -n "$PR_COMMIT" ] && [ -n "$PREPROD_TAG" ]; then
+            if git merge-base --is-ancestor "$PR_COMMIT" "$PREPROD_TAG"; then
+              DEPLOYED_PREPROD="YES"
+            else
+              DEPLOYED_PREPROD="NO"
+            fi
+          fi
+
+          if [ -n "$PR_COMMIT" ] && [ -n "$PROD_TAG" ]; then
+            if git merge-base --is-ancestor "$PR_COMMIT" "$PROD_TAG"; then
+              DEPLOYED_PROD="YES"
+            else
+              DEPLOYED_PROD="NO"
+            fi
+          fi
+
+          TEST_SHA=""
+          PREPROD_SHA=""
+          PROD_SHA=""
+
+          if [ -n "$TEST_TAG" ]; then
+            TEST_SHA=$(git rev-parse "$TEST_TAG")
+          fi
+
+          if [ -n "$PREPROD_TAG" ]; then
+            PREPROD_SHA=$(git rev-parse "$PREPROD_TAG")
+          fi
+
+          if [ -n "$PROD_TAG" ]; then
+            PROD_SHA=$(git rev-parse "$PROD_TAG")
+          fi
+
+          LAST_FIVE=$(git log "$BASE_REF" --grep="#[0-9]" -5 --date=short --pretty=format:'%h - %an - %ad : %s' || true)
+
+          NEXT_PROD=""
+          if [ -n "$PROD_TAG" ]; then
+            NEXT_PROD=$(git log "${PROD_TAG}..$BASE_REF" --grep="#[0-9]" --date=short --pretty=format:'%h - %an - %ad : %s' || true)
+          fi
 
           {
             echo "body<<EOF"
             echo "<!-- deployment-status-comment -->"
             echo "## Deployment status"
             echo
-            echo "- **Latest successful production deployment SHA:** \`$DEPLOYED_SHA\`"
-            if [ -n "$LAST_MERGE_INFO" ]; then
-              echo "- **Latest merge on \`${{ github.event.pull_request.base.ref }}\`:** \`$LAST_MERGE_INFO\`"
-            else
-              echo "- **Latest merge on \`${{ github.event.pull_request.base.ref }}\`:** _None found_"
-            fi
-            echo "- **Latest merge already deployed:** **$LAST_MERGE_DEPLOYED**"
-            echo "- **This PR head already deployed:** **$PR_ALREADY_DEPLOYED**"
-            echo
 
-            echo "### Commits on \`${{ github.event.pull_request.base.ref }}\` not yet in production"
-            if [ -n "$UNDEPLOYED_MAIN" ]; then
+            if [ -n "$PR_COMMIT" ]; then
+              echo "- **Latest PR-like commit on \`master\`:** \`$PR_INFO\`"
+              echo "- **Full commit SHA:** \`$PR_COMMIT\`"
+            else
+              echo "- **Latest PR-like commit on \`master\`:** _Not found_"
+            fi
+
+            echo
+            echo "### Environment tags"
+            echo "- **Test:** \`${TEST_TAG:-not found}\`"
+            echo "- **Preprod:** \`${PREPROD_TAG:-not found}\`"
+            echo "- **Prod:** \`${PROD_TAG:-not found}\`"
+            echo
+            echo "### Environment alignment"
+            echo "- **All envs aligned:** **$ALL_ENVS_ALIGNED**"
+            echo "- **Safe to merge to master:** **$SAFE_TO_MERGE**"
+            echo
+            echo "### Latest PR-like commit deployed status"
+            echo "- **Deployed to test:** **$DEPLOYED_TEST**"
+            echo "- **Deployed to preprod:** **$DEPLOYED_PREPROD**"
+            echo "- **Deployed to prod:** **$DEPLOYED_PROD**"
+            echo
+            echo "### Tag commit SHAs"
+            echo "- **Test:** \`${TEST_SHA:-not found}\`"
+            echo "- **Preprod:** \`${PREPROD_SHA:-not found}\`"
+            echo "- **Prod:** \`${PROD_SHA:-not found}\`"
+            echo
+            echo "### Last 5 PR-like commits on \`master\`"
+            if [ -n "$LAST_FIVE" ]; then
               echo '```'
-              echo "$UNDEPLOYED_MAIN"
+              echo "$LAST_FIVE"
               echo '```'
             else
-              echo "_None_"
+              echo "_None found_"
             fi
             echo
-
-            echo "### Additional commits from this PR"
-            if [ -n "$PR_ONLY_COMMITS" ]; then
-              echo '```'
-              echo "$PR_ONLY_COMMITS"
-              echo '```'
+            echo "### PR-like commits that would go out in next prod deploy"
+            if [ -n "$PROD_TAG" ]; then
+              if [ -n "$NEXT_PROD" ]; then
+                echo '```'
+                echo "$NEXT_PROD"
+                echo '```'
+              else
+                echo "_None_"
+              fi
             else
-              echo "_None_"
-            fi
-            echo
-
-            echo "### What would go live if this PR is merged"
-            if [ -n "$UNDEPLOYED_MAIN" ] || [ -n "$PR_ONLY_COMMITS" ]; then
-              echo "Merging this pull request will combine it with these commits that have not been tagged as deployed."
-            else
-              echo "No new commits were detected beyond what is already deployed."
+              echo "_Prod tag not found_"
             fi
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
