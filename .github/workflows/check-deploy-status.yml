@@ -21,11 +21,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Fetch master and tags
+      - name: Fetch main and tags
         shell: bash
         run: |
           set -euo pipefail
-          git fetch origin master --prune
+          git fetch origin main --prune
           git fetch origin --tags --force
 
       - name: Build deployment status summary
@@ -34,7 +34,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          BASE_REF="origin/master"
+          BASE_REF="origin/main"
 
           PR_COMMIT=$(git log "$BASE_REF" --grep="#[0-9]" -1 --pretty=format:%H || true)
           PR_INFO=$(git log "$BASE_REF" --grep="#[0-9]" -1 --oneline || true)
@@ -114,10 +114,10 @@ jobs:
             echo
 
             if [ -n "$PR_COMMIT" ]; then
-              echo "- **Latest PR-like commit on \`master\`:** \`$PR_INFO\`"
+              echo "- **Latest PR-like commit on \`main\`:** \`$PR_INFO\`"
               echo "- **Full commit SHA:** \`$PR_COMMIT\`"
             else
-              echo "- **Latest PR-like commit on \`master\`:** _Not found_"
+              echo "- **Latest PR-like commit on \`main\`:** _Not found_"
             fi
 
             echo
@@ -128,7 +128,7 @@ jobs:
             echo
             echo "### Environment alignment"
             echo "- **All envs aligned:** **$ALL_ENVS_ALIGNED**"
-            echo "- **Safe to merge to master:** **$SAFE_TO_MERGE**"
+            echo "- **Safe to merge to main:** **$SAFE_TO_MERGE**"
             echo
             echo "### Latest PR-like commit deployed status"
             echo "- **Deployed to test:** **$DEPLOYED_TEST**"
@@ -140,7 +140,7 @@ jobs:
             echo "- **Preprod:** \`${PREPROD_SHA:-not found}\`"
             echo "- **Prod:** \`${PROD_SHA:-not found}\`"
             echo
-            echo "### Last 5 PR-like commits on \`master\`"
+            echo "### Last 5 PR-like commits on \`main\`"
             if [ -n "$LAST_FIVE" ]; then
               echo '```'
               echo "$LAST_FIVE"
