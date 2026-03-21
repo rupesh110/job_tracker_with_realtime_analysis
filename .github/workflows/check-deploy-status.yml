@@ -1,0 +1,187 @@
+name: PR Deployment Status Check
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: write
+  deployments: read
+
+jobs:
+  deployment-status:
+    name: Check deployment status
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch base branch and tags
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }} --prune
+          git fetch --tags --force
+
+      - name: Find latest successful production deployment
+        id: deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          DEPLOYMENTS=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/$REPO/deployments?environment=production&per_page=30")
+
+          DEPLOYED_SHA=""
+          DEPLOYMENT_ID=""
+
+          for id in $(echo "$DEPLOYMENTS" | jq -r '.[].id'); do
+            SHA=$(echo "$DEPLOYMENTS" | jq -r ".[] | select(.id == $id) | .sha")
+
+            STATUSES=$(gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/$REPO/deployments/$id/statuses?per_page=20")
+
+            SUCCESS_STATE=$(echo "$STATUSES" | jq -r 'map(select(.state == "success")) | first | .state // empty')
+
+            if [ "$SUCCESS_STATE" = "success" ]; then
+              DEPLOYED_SHA="$SHA"
+              DEPLOYMENT_ID="$id"
+              break
+            fi
+          done
+
+          if [ -z "$DEPLOYED_SHA" ]; then
+            echo "has_deployment=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "has_deployment=true" >> "$GITHUB_OUTPUT"
+          echo "deployed_sha=$DEPLOYED_SHA" >> "$GITHUB_OUTPUT"
+          echo "deployment_id=$DEPLOYMENT_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Build PR comment
+        id: summary
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          BASE_REF="origin/${{ github.event.pull_request.base.ref }}"
+          PR_HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          if [ "${{ steps.deployment.outputs.has_deployment }}" != "true" ]; then
+            {
+              echo "body<<EOF"
+              echo "<!-- deployment-status-comment -->"
+              echo "## Deployment status"
+              echo
+              echo "Could not find a successful GitHub deployment for environment \`production\`."
+              echo
+              echo "This check works only when production deployments are recorded in GitHub Deployments / Environments."
+              echo "EOF"
+            } >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          DEPLOYED_SHA="${{ steps.deployment.outputs.deployed_sha }}"
+
+          LAST_MERGE_SHA=$(git log "$BASE_REF" --merges -1 --pretty=format:%H || true)
+          LAST_MERGE_INFO=$(git log "$BASE_REF" --merges -1 --oneline || true)
+
+          if [ -n "$LAST_MERGE_SHA" ] && git merge-base --is-ancestor "$LAST_MERGE_SHA" "$DEPLOYED_SHA"; then
+            LAST_MERGE_DEPLOYED="Yes"
+          else
+            LAST_MERGE_DEPLOYED="No"
+          fi
+
+          if git merge-base --is-ancestor "$PR_HEAD_SHA" "$DEPLOYED_SHA"; then
+            PR_ALREADY_DEPLOYED="Yes"
+          else
+            PR_ALREADY_DEPLOYED="No"
+          fi
+
+          UNDEPLOYED_MAIN=$(git log --oneline --no-merges "$DEPLOYED_SHA..$BASE_REF" || true)
+          PR_ONLY_COMMITS=$(git log --oneline --no-merges "$BASE_REF..$PR_HEAD_SHA" || true)
+
+          {
+            echo "body<<EOF"
+            echo "<!-- deployment-status-comment -->"
+            echo "## Deployment status"
+            echo
+            echo "- **Latest successful production deployment SHA:** \`$DEPLOYED_SHA\`"
+            if [ -n "$LAST_MERGE_INFO" ]; then
+              echo "- **Latest merge on \`${{ github.event.pull_request.base.ref }}\`:** \`$LAST_MERGE_INFO\`"
+            else
+              echo "- **Latest merge on \`${{ github.event.pull_request.base.ref }}\`:** _None found_"
+            fi
+            echo "- **Latest merge already deployed:** **$LAST_MERGE_DEPLOYED**"
+            echo "- **This PR head already deployed:** **$PR_ALREADY_DEPLOYED**"
+            echo
+
+            echo "### Commits on \`${{ github.event.pull_request.base.ref }}\` not yet in production"
+            if [ -n "$UNDEPLOYED_MAIN" ]; then
+              echo '```'
+              echo "$UNDEPLOYED_MAIN"
+              echo '```'
+            else
+              echo "_None_"
+            fi
+            echo
+
+            echo "### Additional commits from this PR"
+            if [ -n "$PR_ONLY_COMMITS" ]; then
+              echo '```'
+              echo "$PR_ONLY_COMMITS"
+              echo '```'
+            else
+              echo "_None_"
+            fi
+            echo
+
+            echo "### What would go live if this PR is merged"
+            if [ -n "$UNDEPLOYED_MAIN" ] || [ -n "$PR_ONLY_COMMITS" ]; then
+              echo "Merging this pull request will combine it with these commits that have not been tagged as deployed."
+            else
+              echo "No new commits were detected beyond what is already deployed."
+            fi
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create or update sticky PR comment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          BODY: ${{ steps.summary.outputs.body }}
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          EXISTING_COMMENT_ID=$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/$REPO/issues/$PR_NUMBER/comments" \
+            --paginate \
+            | jq -r '.[] | select(.body | contains("<!-- deployment-status-comment -->")) | .id' \
+            | head -n 1)
+
+          if [ -n "${EXISTING_COMMENT_ID:-}" ]; then
+            gh api \
+              --method PATCH \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/$REPO/issues/comments/$EXISTING_COMMENT_ID" \
+              -f body="$BODY" > /dev/null
+          else
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              "/repos/$REPO/issues/$PR_NUMBER/comments" \
+              -f body="$BODY" > /dev/null
+          fi
