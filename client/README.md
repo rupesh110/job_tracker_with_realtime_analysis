@@ -6,7 +6,7 @@ The extension uses **Gemini AI** to analyze job descriptions, extract required s
 
 ---
 
-## 🚀 Features
+## Features
 
 - 🔍 **Real-Time Job Analysis**
   - Automatically reads job descriptions on supported platforms (Seek, LinkedIn, etc.)
